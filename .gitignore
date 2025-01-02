@@ -1,0 +1,15 @@
+bin/
+build/
+
+.vs/
+.vscode/
+.idea/
+.gradle/
+.run/
+
+.datalogtool/
+imgui.ini
+simgui*
+networktables.json
+ctre_sim/
+logs/
