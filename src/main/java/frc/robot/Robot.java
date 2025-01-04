@@ -1,13 +1,20 @@
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.Swerve;
 
 public class Robot extends TimedRobot {
 
+    private Swerve swerve;
+    private XboxController xbox;
+
     @Override
     public void robotInit() {
-
+        swerve = new Swerve();
+        xbox = new XboxController(0);
     }
 
     @Override
@@ -42,7 +49,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-
+        swerve.drive(
+                ()-> MathUtil.applyDeadband(-xbox.getLeftY(), 0.05),
+                ()-> MathUtil.applyDeadband(-xbox.getLeftX(), 0.05),
+                ()-> MathUtil.applyDeadband(-xbox.getRightX(), 0.05)
+        ).schedule();
     }
 
     @Override
@@ -72,7 +83,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testInit() {
-
+        //swerve.drive(()-> 0.0, ()-> 0.0, ()-> -0.6).schedule();
+        swerve.centerModules().schedule();
     }
 
     @Override
