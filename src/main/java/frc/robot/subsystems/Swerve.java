@@ -178,7 +178,10 @@ public class Swerve extends SubsystemBase {
         SwerveModulePosition[] modulePositions = swerveDrive.getModulePositions();
         for (int i = 0; i < modulePositions.length; i++) {
             moduleMechanisms[i].setAngle(modulePositions[i].angle.getDegrees() + 90);
+            SmartDashboard.putNumber("Dergree Module" + i + ": ",modulePositions[i].angle.getDegrees()  );
         }
+
+
     }
 
     private void stop() {

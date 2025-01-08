@@ -15,6 +15,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         swerve = new Swerve();
         xbox = new XboxController(0);
+        swerve.centerModules().schedule();
     }
 
     @Override
@@ -83,7 +84,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testInit() {
-        //swerve.drive(()-> 0.0, ()-> 0.0, ()-> -0.6).schedule();
+//        swerve.drive(()-> 0.0, ()-> 0.0, ()-> -0.6).schedule();
         swerve.centerModules().schedule();
     }
 
