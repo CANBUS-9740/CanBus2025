@@ -51,9 +51,9 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         swerve.drive(
-                ()-> MathUtil.applyDeadband(-xbox.getLeftY(), 0.05),
-                ()-> MathUtil.applyDeadband(-xbox.getLeftX(), 0.05),
-                ()-> MathUtil.applyDeadband(-xbox.getRightX(), 0.05)
+                ()-> MathUtil.applyDeadband(-xbox.getRightY(), 0.05),
+                ()-> MathUtil.applyDeadband(-xbox.getRightX(), 0.05),
+                ()-> MathUtil.applyDeadband(-xbox.getLeftX(), 0.05)
         ).schedule();
     }
 

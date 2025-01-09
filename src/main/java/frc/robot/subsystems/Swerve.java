@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 import swervelib.SwerveDrive;
+import swervelib.SwerveModule;
 import swervelib.encoders.CANCoderSwerve;
 import swervelib.imu.Pigeon2Swerve;
 import swervelib.math.SwerveMath;
@@ -45,6 +46,9 @@ public class Swerve extends SubsystemBase {
         conversionFactorsJson.drive.diameter = RobotMap.SWERVE_DRIVE_WHEEL_RADIUS * 2;
         conversionFactorsJson.angle.gearRatio = RobotMap.SWERVE_STEER_GEAR_RATIO;
         conversionFactorsJson.angle.factor = 0;
+        conversionFactorsJson.drive.calculate();
+        conversionFactorsJson.angle.calculate();
+
         SwerveModulePhysicalCharacteristics characteristics = new SwerveModulePhysicalCharacteristics(
                 conversionFactorsJson,
                 RobotMap.SWERVE_WHEEL_FRICTION_COEFFICIENT,
@@ -71,8 +75,8 @@ public class Swerve extends SubsystemBase {
                 RobotMap.SWERVE_DRIVE_PIDF,
                 characteristics,
                 false,
-                true,
                 false,
+                true,
                 "FrontLeft",
                 false
         );
@@ -88,8 +92,8 @@ public class Swerve extends SubsystemBase {
                 RobotMap.SWERVE_DRIVE_PIDF,
                 characteristics,
                 false,
-                true,
                 false,
+                true,
                 "FrontRight",
                 false
         );
@@ -105,8 +109,8 @@ public class Swerve extends SubsystemBase {
                 RobotMap.SWERVE_DRIVE_PIDF,
                 characteristics,
                 false,
-                true,
                 false,
+                true,
                 "BackLeft",
                 false
         );
@@ -122,8 +126,8 @@ public class Swerve extends SubsystemBase {
                 RobotMap.SWERVE_DRIVE_PIDF,
                 characteristics,
                 false,
-                true,
                 false,
+                true,
                 "BackRight",
                 false
         );
@@ -149,6 +153,11 @@ public class Swerve extends SubsystemBase {
         swerveDrive.setAngularVelocityCompensation(false, false, 0);
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
         swerveDrive.pushOffsetsToEncoders();
+
+        for (SwerveModule module : swerveDrive.getModules()) {
+            module.invalidateCache();
+            module.getAngleMotor().setPosition(module.getAbsolutePosition());
+        }
 
         mechanism = new Mechanism2d(50, 50);
         moduleMechanisms = createMechanismDisplay(mechanism);
