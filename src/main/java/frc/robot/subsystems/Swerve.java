@@ -1,11 +1,17 @@
 package frc.robot.subsystems;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -15,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 import swervelib.SwerveDrive;
+import swervelib.SwerveModule;
 import swervelib.encoders.CANCoderSwerve;
 import swervelib.imu.Pigeon2Swerve;
 import swervelib.math.SwerveMath;
@@ -29,6 +36,7 @@ import swervelib.parser.json.modules.ConversionFactorsJson;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 public class Swerve extends SubsystemBase {
@@ -61,7 +69,7 @@ public class Swerve extends SubsystemBase {
 
         SwerveModuleConfiguration frontLeft = new SwerveModuleConfiguration(
                 new TalonFXSwerve(RobotMap.SWERVE_DRIVE_FRONT_LEFT_MOTOR_ID, true, DCMotor.getKrakenX60(1)),
-                new SparkMaxSwerve(RobotMap.SWERVE_STEER_FRONT_LEFT_MOTOR_ID, false, DCMotor.getNEO(1)),
+                new SparkMaxSwerveFixed(RobotMap.SWERVE_STEER_FRONT_LEFT_MOTOR_ID, false, DCMotor.getNEO(1)),
                 conversionFactorsJson,
                 new CANCoderSwerve(RobotMap.SWERVE_ENCODER_FRONT_LEFT_ID),
                 RobotMap.SWERVE_FRONT_LEFT_ZERO_ANGLE,
@@ -78,7 +86,7 @@ public class Swerve extends SubsystemBase {
         );
         SwerveModuleConfiguration frontRight = new SwerveModuleConfiguration(
                 new TalonFXSwerve(RobotMap.SWERVE_DRIVE_FRONT_RIGHT_MOTOR_ID, true, DCMotor.getKrakenX60(1)),
-                new SparkMaxSwerve(RobotMap.SWERVE_STEER_FRONT_RIGHT_MOTOR_ID, false, DCMotor.getNEO(1)),
+                new SparkMaxSwerveFixed(RobotMap.SWERVE_STEER_FRONT_RIGHT_MOTOR_ID, false, DCMotor.getNEO(1)),
                 conversionFactorsJson,
                 new CANCoderSwerve(RobotMap.SWERVE_ENCODER_FRONT_RIGHT_ID),
                 RobotMap.SWERVE_FRONT_RIGHT_ZERO_ANGLE,
@@ -95,7 +103,7 @@ public class Swerve extends SubsystemBase {
         );
         SwerveModuleConfiguration backLeft = new SwerveModuleConfiguration(
                 new TalonFXSwerve(RobotMap.SWERVE_DRIVE_BACK_LEFT_MOTOR_ID, true, DCMotor.getKrakenX60(1)),
-                new SparkMaxSwerve(RobotMap.SWERVE_STEER_BACK_LEFT_MOTOR_ID, false, DCMotor.getNEO(1)),
+                new SparkMaxSwerveFixed(RobotMap.SWERVE_STEER_BACK_LEFT_MOTOR_ID, false, DCMotor.getNEO(1)),
                 conversionFactorsJson,
                 new CANCoderSwerve(RobotMap.SWERVE_ENCODER_BACK_LEFT_ID),
                 RobotMap.SWERVE_BACK_LEFT_ZERO_ANGLE,
@@ -112,7 +120,7 @@ public class Swerve extends SubsystemBase {
         );
         SwerveModuleConfiguration backRight = new SwerveModuleConfiguration(
                 new TalonFXSwerve(RobotMap.SWERVE_DRIVE_BACK_RIGHT_MOTOR_ID, true, DCMotor.getKrakenX60(1)),
-                new SparkMaxSwerve(RobotMap.SWERVE_STEER_BACK_RIGHT_MOTOR_ID, false, DCMotor.getNEO(1)),
+                new SparkMaxSwerveFixed(RobotMap.SWERVE_STEER_BACK_RIGHT_MOTOR_ID, false, DCMotor.getNEO(1)),
                 conversionFactorsJson,
                 new CANCoderSwerve(RobotMap.SWERVE_ENCODER_BACK_RIGHT_ID),
                 RobotMap.SWERVE_BACK_RIGHT_ZERO_ANGLE,
@@ -153,6 +161,69 @@ public class Swerve extends SubsystemBase {
         mechanism = new Mechanism2d(50, 50);
         moduleMechanisms = createMechanismDisplay(mechanism);
         SmartDashboard.putData("SwerveMechanism", mechanism);
+
+        pathPlannerSetUp();
+    }
+
+    private ChassisSpeeds getRobotRelativeSpeeds() {
+        return swerveDrive.getRobotVelocity();
+    }
+
+    public Pose2d getPose(){
+        return swerveDrive.getPose();
+    }
+
+    public void resetPose(Pose2d pose2d){
+        swerveDrive.resetOdometry(pose2d);
+    }
+
+    private void pathPlannerSetUp() {
+        RobotConfig config = new RobotConfig(
+                RobotMap.ROBOT_MASS_KG,
+                RobotMap.MOI,
+                new ModuleConfig(
+                        RobotMap.DRIVE_WHEEL_RADIUS_METERS,
+                        RobotMap.MAX_DRIVE_VELOCITY_MPS,
+                        RobotMap.DRIVE_WHEEL_COF,
+                        DCMotor.getKrakenX60(1),
+                        RobotMap.DRIVE_CURRENT_LIMIT,
+                        1),
+                RobotMap.DRIVE_TRACK_WIDTH_METERS
+        );
+
+        AutoBuilder.configure(
+                this::getPose, // Robot pose supplier
+                this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+                this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                (speedsRobotRelative, moduleFeedForwards) -> {
+                    swerveDrive.setChassisSpeeds(speedsRobotRelative);
+                }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+                new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                ),
+                config, // The robot configuration
+                () -> {
+                    shouldFlipPath(); // Boolean supplier that controls when the path will be mirrored for the red alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this // Reference to this subsystem to set requirements
+        );
+    }
+
+    private boolean shouldFlipPath() {
+        Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+        if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+        }
+        return false;
     }
 
     public Command drive(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX) {
@@ -181,8 +252,26 @@ public class Swerve extends SubsystemBase {
         }
     }
 
-    private void stop() {
-        swerveDrive.drive(new ChassisSpeeds(0, 0, 0));
+    public void setDrive(double speed) {
+        for (SwerveModule module : swerveDrive.getModules()) {
+            module.getDriveMotor().set(speed);
+            module.getAngleMotor().set(0);
+        }
+    }
+
+    public void setSteer(double speed) {
+        for (SwerveModule module : swerveDrive.getModules()) {
+            module.getDriveMotor().set(0);
+            module.getAngleMotor().set(speed);
+        }
+    }
+
+    public void stop() {
+        //swerveDrive.drive(new ChassisSpeeds(0, 0, 0));
+        for (SwerveModule module : swerveDrive.getModules()) {
+            module.getDriveMotor().set(0);
+            module.getAngleMotor().set(0);
+        }
     }
 
     private MechanismLigament2d[] createMechanismDisplay(Mechanism2d mechanism) {

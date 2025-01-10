@@ -68,7 +68,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-
+        swerve.setDrive(0.2);
     }
 
     @Override
@@ -84,7 +84,8 @@ public class Robot extends TimedRobot {
     @Override
     public void testInit() {
         //swerve.drive(()-> 0.0, ()-> 0.0, ()-> -0.6).schedule();
-        swerve.centerModules().schedule();
+        //swerve.centerModules().schedule();
+        swerve.stop();
     }
 
     @Override
