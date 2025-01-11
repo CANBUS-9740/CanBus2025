@@ -1,50 +1,109 @@
-# Frc-Robot-Template
+# REEFSCAPE
 
-This template is for FRC robot code.
+## Robot
 
-## Run Configuration
+### Claw 
 
-The project has several pre-made run configurations for your convenience. These configurations will be loaded automatically 
-when you open the project.
+The claw is at the end of the arm. It is used to collect corals and algae. It can hold only one of either. It is made up of two sets of two wheels along a triangle operated by a single motor.
 
-To use a run configuration, select it from the configurations drop down box and click on _run_
+To collect an item the wheel (both sides) must touch the items and then be spun as to pull in the item. Then the wheels must continue to spin to keep the item in the claw. To drop the item, the wheels must rotate in the other direction and push it out.
 
-![image](https://github.com/user-attachments/assets/c49b8c62-2be3-4996-97cf-8ce6d9209020)
+#### Sensors
 
-### Deploying to Robot
+We must have a way to recognize what item we have collected and whether we collect it or not.
+There are several different ways to approach it. Using an optical or mechanical limit switch is probably the easiest. But a distance sensor is also an option.
 
-Select the `Robot Deploy` run configuration and click on _run_. This will build and deploy the code to the robot.
+#### Control
 
-![image](https://github.com/user-attachments/assets/abdb9590-35b1-4022-863e-26398b77984d)
+Basic constant speed PercentVBus is likely good enough.
 
-#### Deploying with Debugger
+#### Commands 
 
-Select the `Robot Deploy Debug` run configuration to deploy the code with debugger enabled.
+- `CollectItem`: use a constant speed inward to collect. Activate as part of the collecting flow.
+- `KeepItem`: use a slow consant speed inward to keep the item from falling. Activate once an item is collected up until it is released.
+- `ReleaseItem`: use a constant speed outward to push it out. Activate as part of a drop or placing flow.
 
-![image](https://github.com/user-attachments/assets/95d5c8b4-e470-421e-90af-2a7d646d7e97)
+### Claw Joint
 
-To attach a debugger, after a successful deployment (i.e. wait for the deployment to finish successfully), select and run the `RoboRIO Debugger` (run with debug, the bug button, not the run button).
+The claw as an axis of rotation, allowing to orient the claw. This can be controlled as part of arm orientation.
+It is a simple shaft adding a joint.
 
-![image](https://github.com/user-attachments/assets/f69ad561-6c7c-4bff-b864-725a2f602f2f)
+#### Sensors
 
-### Running Simulation
+We must be able to detect the orientation of the shaft.
 
-Select the `Simulate` run configuration and click on _run_. This will build and run the code in the simulator.
+- absolute encoder (likely through-bore) placed after the gear box
+    - can be connected directly to a motor controller (SparkMax preferrable)
+- limit switches (mechanical/optical) to provide a hard limit to the claw motion
+    - can be connected directly to a motor controller (SparkMax preferrable) 
 
-![image](https://github.com/user-attachments/assets/c6d534f5-fd32-4ad9-a6ab-7feff2d39753)
+#### Control
 
-#### Running with Debugger
+Use PID loop on the encoder (preferrably from the motor controller) to move the shaft to specific orientations measured in angles.
 
-Select the `Simulate Debug` run configuration and click on _run_. This will run the simulation with debugger enabled. 
+#### Commands 
 
-![image](https://github.com/user-attachments/assets/3d8f9f75-cbcb-463d-a2a8-5e77e3177bee)
+- `RotateClawToPosition`: rotate the claw joint to a specific orientation with a PID loop
 
-Once the console prints `Listening for transport dt_socket at address` select and run the `Simulation Debugger` run configuration (run with debug, the bug button, not the run button).
+### Arm
 
-![image](https://github.com/user-attachments/assets/77df3f2e-a93e-42cf-8e35-3323f5b869d3)
+The arm is telescopic with 3 phases of opening. It is an axis, as it can be open to any length, as requested. It is likely operated by a single motor which can push or pull the arm open or close.
 
-![image](https://github.com/user-attachments/assets/603da2af-1b5f-4b73-b597-85b058550378)
+#### Sensors
 
-Note that doing all these will run two configuration simultaneously. This is fine, but when you wish to stop the simulation you will need to stop both the simulation and the debugger.
+We must be able to measure how much the arm is open, and provide it with a limit of motion.
 
-![image](https://github.com/user-attachments/assets/6f37f594-2031-401f-89a3-0c1cebd04825)
+- Measure Length
+    - Relative Encoder from the operating motor to measure how open
+    - Distance Sensor on the outside of the arm, measuring distance to a small metal at the edge of the arm
+- Limit Switches at the edges of motion
+    - Mechanical limit switch to be activated on the arm in closed 
+
+#### Control
+
+Use a position loop PID on the lengtth of the arm. Preferrable from a motor controller.
+
+#### Commands 
+
+- `ExtendArmToLength`: extend or retract arm to a specific length
+- `CloseArm`: retract arm until indicated as closed by limit switch
+
+### Arm Joint
+
+The arm is placed on a joint which can move it around ~180 degrees around the robot. Operated by a motor.
+
+#### Sensors
+
+We must be able to detect the orientation of the shaft.
+
+- absolute encoder (likely through-bore) placed after the gear box
+    - can be connected directly to a motor controller (SparkMax preferrable)
+- limit switches (mechanical/optical) to provide a hard limit to the claw motion
+    - can be connected directly to a motor controller (SparkMax preferrable) 
+
+#### Control
+
+Use PID loop on the encoder (preferrably from the motor controller) to move the shaft to specific orientations measured in angles.
+
+#### Commands
+
+- `RotateArmToPosition`: rotate the arm joint to a specific orientation with a PID loop
+
+### Hanging
+
+Hanging uses 2 small claws/hangers that can be opened and closed to catch and hold onto the hanging point. The rest of the work is done by the arm. Each will likely be operated by a motor, either a servo or a DC motor.
+
+#### Sensors
+
+We must be able to tell when and if the claws are open or closed.
+
+- Either limit switches (possibly magnetic) or an encoder from the motor.
+
+#### Control
+
+Basic constant speed PercentVBus is likely good enough.
+
+#### Commands
+
+- `OpenHangers`: open the hanging claws
+- `CloseHangers`: close the hanging claws
