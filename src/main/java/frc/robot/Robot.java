@@ -3,8 +3,10 @@ package frc.robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Swerve;
+import swervelib.SwerveModule;
 
 public class Robot extends TimedRobot {
 
@@ -21,6 +23,8 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
+
+
     }
 
     @Override
@@ -69,7 +73,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-
+        swerve.drive(
+                ()-> MathUtil.applyDeadband(0.05, 0.0),
+                ()-> MathUtil.applyDeadband(0, 0.0),
+                ()-> MathUtil.applyDeadband(0, 0.0)
+        ).schedule();
     }
 
     @Override
@@ -86,6 +94,7 @@ public class Robot extends TimedRobot {
     public void testInit() {
 //        swerve.drive(()-> 0.0, ()-> 0.0, ()-> -0.6).schedule();
         swerve.centerModules().schedule();
+        //swerve.drive(()-> 0.2, ()-> 0.0, ()-> 0.0).schedule();
     }
 
     @Override

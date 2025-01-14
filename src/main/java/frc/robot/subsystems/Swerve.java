@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -29,6 +30,7 @@ import swervelib.parser.SwerveModulePhysicalCharacteristics;
 import swervelib.parser.json.modules.ConversionFactorsJson;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.function.DoubleSupplier;
 
@@ -40,16 +42,21 @@ public class Swerve extends SubsystemBase {
     private final MechanismLigament2d[] moduleMechanisms;
 
     public Swerve() {
+        SmartDashboard.putNumber("HeyJude", RobotMap.SWERVE_MAX_SPEED);
         ConversionFactorsJson conversionFactorsJson = new ConversionFactorsJson();
         conversionFactorsJson.drive.gearRatio = RobotMap.SWERVE_DRIVE_GEAR_RATIO;
         conversionFactorsJson.drive.factor = 0;
-        conversionFactorsJson.drive.diameter = RobotMap.SWERVE_DRIVE_WHEEL_RADIUS * 2;
+        conversionFactorsJson.drive.diameter = Units.metersToInches(RobotMap.SWERVE_DRIVE_WHEEL_RADIUS * 2);
         conversionFactorsJson.angle.gearRatio = RobotMap.SWERVE_STEER_GEAR_RATIO;
         conversionFactorsJson.angle.factor = 0;
         conversionFactorsJson.drive.calculate();
         conversionFactorsJson.angle.calculate();
+        conversionFactorsJson.drive.diameter = Units.inchesToMeters(conversionFactorsJson.drive.diameter);
 
         SwerveModulePhysicalCharacteristics characteristics = new SwerveModulePhysicalCharacteristics(
+                conversionFactorsJson, RobotMap.SWERVE_DRIVE_RAMP_RATE, RobotMap.SWERVE_STEER_RAMP_RATE);
+
+        /*SwerveModulePhysicalCharacteristics characteristics = new SwerveModulePhysicalCharacteristics(
                 conversionFactorsJson,
                 RobotMap.SWERVE_WHEEL_FRICTION_COEFFICIENT,
                 RobotMap.SWERVE_OPTIMAL_VOLTAGE,
@@ -61,7 +68,7 @@ public class Swerve extends SubsystemBase {
                 RobotMap.SWERVE_STEER_FRICTION_VOLTAGE,
                 RobotMap.SWERVE_STEER_ROTATIONAL_INERTIA,
                 RobotMap.ROBOT_MASS_KG
-        );
+        );*/
 
         SwerveModuleConfiguration frontLeft = new SwerveModuleConfiguration(
                 new TalonFXSwerve(RobotMap.SWERVE_DRIVE_FRONT_LEFT_MOTOR_ID, true, DCMotor.getKrakenX60(1)),
@@ -75,7 +82,7 @@ public class Swerve extends SubsystemBase {
                 RobotMap.SWERVE_DRIVE_PIDF,
                 characteristics,
                 false,
-                false,
+                true,
                 true,
                 "FrontLeft",
                 false
@@ -109,7 +116,7 @@ public class Swerve extends SubsystemBase {
                 RobotMap.SWERVE_DRIVE_PIDF,
                 characteristics,
                 false,
-                false,
+                true,
                 true,
                 "BackLeft",
                 false
@@ -136,7 +143,7 @@ public class Swerve extends SubsystemBase {
                         frontLeft, frontRight, backLeft, backRight
                 },
                 new Pigeon2Swerve(RobotMap.SWERVE_PIGEON_ID),
-                true,
+                false,
                 characteristics
         );
         SwerveControllerConfiguration controllerConfiguration = new SwerveControllerConfiguration(
@@ -148,7 +155,7 @@ public class Swerve extends SubsystemBase {
         SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
 
         swerveDrive = new SwerveDrive(configuration, controllerConfiguration, RobotMap.SWERVE_MAX_SPEED, new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
-        swerveDrive.setHeadingCorrection(false);
+        swerveDrive.setHeadingCorrection(true);
         swerveDrive.setCosineCompensator(false);
         swerveDrive.setAngularVelocityCompensation(false, false, 0);
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
@@ -156,8 +163,32 @@ public class Swerve extends SubsystemBase {
 
         for (SwerveModule module : swerveDrive.getModules()) {
             module.invalidateCache();
+            module.getDriveMotor().setPosition(0);
             module.getAngleMotor().setPosition(module.getAbsolutePosition());
+            module.setFeedforward(SwerveMath.createDriveFeedforward(
+                    RobotMap.SWERVE_OPTIMAL_VOLTAGE, 7, RobotMap.SWERVE_WHEEL_FRICTION_COEFFICIENT
+            ));
+
+            try {
+                Field field = module.getClass().getDeclaredField("maxDriveVelocity");
+                field.setAccessible(true);
+                field.set(module, edu.wpi.first.units.Units.MetersPerSecond.of(RobotMap.SWERVE_MAX_SPEED));
+            } catch (IllegalAccessException | NoSuchFieldException e) {
+                throw new Error(e);
+            }
+
+            module.absolutePositionCache.updateSupplier(()-> {
+                double angle = module.getRelativePosition();
+                angle %= 360;
+                if (angle < 0) {
+                    angle += 360;
+                }
+
+                return angle;
+            });
         }
+
+        swerveDrive.resetOdometry(Pose2d.kZero);
 
         mechanism = new Mechanism2d(50, 50);
         moduleMechanisms = createMechanismDisplay(mechanism);
@@ -166,13 +197,11 @@ public class Swerve extends SubsystemBase {
 
     public Command drive(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX) {
         return runEnd(() -> {
-                    // Make the robot move
-                    swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
-                                    translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
-                                    translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8),
-                            Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity(),
-                            false,
-                            false);
+                    Translation2d translation2d = SwerveMath.scaleTranslation(new Translation2d(
+                            translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
+                            translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8);
+                    double rotation = Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity();
+                    drive(new ChassisSpeeds(translation2d.getX(), translation2d.getY(), rotation));
                 },
                 this::stop);
     }
@@ -187,14 +216,23 @@ public class Swerve extends SubsystemBase {
         SwerveModulePosition[] modulePositions = swerveDrive.getModulePositions();
         for (int i = 0; i < modulePositions.length; i++) {
             moduleMechanisms[i].setAngle(modulePositions[i].angle.getDegrees() + 90);
-            SmartDashboard.putNumber("Dergree Module" + i + ": ",modulePositions[i].angle.getDegrees()  );
+            SmartDashboard.putNumber("ModuleHeading " + i, modulePositions[i].angle.getDegrees());
         }
+    }
 
-
+    private void drive(ChassisSpeeds speeds) {
+        if (speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0 && speeds.omegaRadiansPerSecond == 0) {
+            stop();
+        } else {
+            swerveDrive.drive(speeds, Translation2d.kZero);
+        }
     }
 
     private void stop() {
-        swerveDrive.drive(new ChassisSpeeds(0, 0, 0));
+        for (SwerveModule module : swerveDrive.getModules()) {
+            module.getDriveMotor().set(0);
+            module.getAngleMotor().set(0);
+        }
     }
 
     private MechanismLigament2d[] createMechanismDisplay(Mechanism2d mechanism) {
