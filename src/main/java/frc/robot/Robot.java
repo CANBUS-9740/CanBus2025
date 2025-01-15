@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Swerve;
+import org.opencv.core.Mat;
 import swervelib.SwerveModule;
 
 public class Robot extends TimedRobot {
@@ -55,8 +56,8 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         swerve.drive(
-                ()-> MathUtil.applyDeadband(-xbox.getRightY(), 0.05),
-                ()-> MathUtil.applyDeadband(-xbox.getRightX(), 0.05),
+                ()-> MathUtil.applyDeadband(Math.pow(-xbox.getRightY(),3), 0.05),
+                ()-> MathUtil.applyDeadband(Math.pow( -xbox.getRightX(),3), 0.05),
                 ()-> MathUtil.applyDeadband(-xbox.getLeftX(), 0.05)
         ).schedule();
     }
@@ -73,15 +74,12 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        swerve.drive(
-                ()-> MathUtil.applyDeadband(0.05, 0.0),
-                ()-> MathUtil.applyDeadband(0, 0.0),
-                ()-> MathUtil.applyDeadband(0, 0.0)
-        ).schedule();
+        swerve.centerModules().schedule();
     }
 
     @Override
     public void autonomousPeriodic() {
+        swerve.centerModules().schedule();
 
     }
 
@@ -92,8 +90,12 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testInit() {
+        swerve.drivefieldOriented(
+                ()-> MathUtil.applyDeadband(Math.pow(-xbox.getRightY(),3), 0.05),
+                ()-> MathUtil.applyDeadband(Math.pow( -xbox.getRightX(),3), 0.05),
+                ()-> MathUtil.applyDeadband(-xbox.getLeftX(), 0.05)
+        ).schedule();
 //        swerve.drive(()-> 0.0, ()-> 0.0, ()-> -0.6).schedule();
-        swerve.centerModules().schedule();
         //swerve.drive(()-> 0.2, ()-> 0.0, ()-> 0.0).schedule();
     }
 

@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
+import org.opencv.core.Mat;
 import swervelib.SwerveDrive;
 import swervelib.SwerveModule;
 import swervelib.encoders.CANCoderSwerve;
@@ -206,6 +207,17 @@ public class Swerve extends SubsystemBase {
                 this::stop);
     }
 
+    public Command drivefieldOriented(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX) {
+        return runEnd(() -> {
+                    Translation2d translation2d = SwerveMath.scaleTranslation(new Translation2d(
+                            translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
+                            translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8);
+                    double rotation = Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity();
+                    fieldDrive(new ChassisSpeeds(translation2d.getX(), translation2d.getY(), rotation));
+                },
+                this::stop);
+    }
+
     public Command centerModules() {
         return run(() -> Arrays.asList(swerveDrive.getModules())
                 .forEach(it -> it.setAngle(0.0)));
@@ -225,6 +237,15 @@ public class Swerve extends SubsystemBase {
             stop();
         } else {
             swerveDrive.drive(speeds, Translation2d.kZero);
+        }
+    }
+
+    private void fieldDrive(ChassisSpeeds speeds) {
+        if (speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0 && speeds.omegaRadiansPerSecond == 0) {
+            stop();
+        } else {
+            //swerveDrive.drive(speeds, Translation2d.kZero);
+            swerveDrive.driveFieldOriented(speeds, Translation2d.kZero);
         }
     }
 
