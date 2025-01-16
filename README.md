@@ -300,6 +300,37 @@ Implement Basic Operational Commands for the subsystem:
 - `HoldArm`: use `hold` to keep the arm in place while the command is running. command has no stop reason
 - `MoveArmToPosition`: receive target position and orient the arm joint to reach the requested position. once in position, keep the arm in place. command has no stop reason
 
- #### ClimbSystem
+ #### HangingSystem
 
- TODO
+The `HangingSystem` is used to hook the robot's arm to the cages of the Barge. There are two clips on the lower part of the arm, next to each other. To hang, these hooks must be opened, then driven into the cage and closed to hang on to the cage. A mechanical look is present which will allow the hooks to keep a hold on the cage. Two Servos drive the hooks (1 each). These are not powerful, but can easily move the hooks open and close.
+
+The _Servo_s are basic low power motor with integrated feedback control allowing them to move accurately. They are controlled via PWM. _Servo_'s are not use for continous rotational motion, but rather limited positional change. Read further [here](https://www.sparkfun.com/servos).
+
+To control a _Servo_, use the `Servo` class.
+```java
+public class Robot extends TimedRobot {
+
+    private Servo servo;
+
+    @Override
+    public void robotInit() {
+        servo = new Servo(RobotMap.SERVO_PORT);
+    }
+
+    @Override
+    public void teleopInit() {
+        servo.setAngle(45); // rotate the servo to 45 degrees.
+    }
+}
+```
+
+- Create the subsystem
+- Create the 2 servos
+- Implement `public void open()` method
+    - rotate both servos to position `0`
+- Implement `public void close()` method
+    - rotate both servos to position `180`
+ 
+> [!NOTE]
+> There is much that is still unclear about how the hooks will work and how the servos will be used.
+> When more is known, we will change
