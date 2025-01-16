@@ -43,4 +43,15 @@ public class RobotMap {
     public static final double SWERVE_FRONT_LEFT_ZERO_ANGLE =  84.111;
     public static final double SWERVE_BACK_RIGHT_ZERO_ANGLE =  335.30;
     public static final double SWERVE_BACK_LEFT_ZERO_ANGLE =  196.34;
+
+
+    public static final int ARM_TELESCOPIC_MOTOR_ID = 0;
+    public static final double ARM_TELESCOPIC_GEAR_RATIO = 1;
+    public static final double ARM_TELESCOPIC_P = 0;
+    public static final double ARM_TELESCOPIC_I = 0;
+    public static final double ARM_TELESCOPIC_D = 0;
+    public static final double ARM_TELESCOPIC_I_ZONE = 0;
+    public static final double ARM_TELESCOPIC_FORWARD_SOFT_LIMIT = 0;
+    public static final double ARM_TELESCOPIC_REVERSE_SOFT_LIMIT = 0;
+    public static final double ARM_TELESCOPIC_DRUM_CIRCUMFERENSE = 0;
 }
