@@ -43,4 +43,12 @@ public class RobotMap {
     public static final double SWERVE_FRONT_LEFT_ZERO_ANGLE =  84.111;
     public static final double SWERVE_BACK_RIGHT_ZERO_ANGLE =  335.30;
     public static final double SWERVE_BACK_LEFT_ZERO_ANGLE =  196.34;
+
+    public static final int HANGING_MOTOR_RIGHT_ID = 0;
+    public static final int HANGING_MOTOR_LEFT_ID = 0;
+    public static final double HANGING_CLOSE_ANGLE = 180;
+    public static final double HANGING_OPEN_ANGLE = 0;
+
+
+
 }
