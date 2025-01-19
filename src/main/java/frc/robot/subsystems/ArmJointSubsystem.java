@@ -39,9 +39,9 @@ public class ArmJointSubsystem {
 
         config.softLimit
                 .forwardSoftLimitEnabled(true)
-                .forwardSoftLimit()
+                .forwardSoftLimit(0)
                 .reverseSoftLimitEnabled(true)
-                .reverseSoftLimit();
+                .reverseSoftLimit(0);
 
     }
 
