@@ -14,9 +14,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 
 public class ArmTelescopicSystem extends SubsystemBase {
-    private SparkMax motor;
-    private RelativeEncoder encoder;
-    private SparkClosedLoopController pid;
+    private final SparkMax motor;
+    private final RelativeEncoder encoder;
+    private final SparkClosedLoopController pid;
 
     public ArmTelescopicSystem() {
         motor = new SparkMax(RobotMap.ARM_TELESCOPIC_MOTOR_ID, SparkLowLevel.MotorType.kBrushless);
