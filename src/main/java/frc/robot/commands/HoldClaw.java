@@ -14,11 +14,12 @@ public class HoldClaw extends Command {
 
     @Override
     public void initialize() {
+        clawSystem.holdItem();
     }
 
     @Override
     public void execute() {
-    clawSystem.holdItem();
+
 
     }
 

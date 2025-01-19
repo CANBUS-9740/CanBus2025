@@ -14,11 +14,12 @@ public class clawOuttake extends Command {
 
     @Override
     public void initialize() {
+        clawSystem.releaseItem();
     }
 
     @Override
     public void execute() {
-        clawSystem.releaseItem();
+
     }
 
     @Override

@@ -15,11 +15,12 @@ public class clawIntake extends Command {
 
     @Override
     public void initialize() {
+        clawSystem.collectItem();
     }
 
     @Override
     public void execute() {
-        clawSystem.collectItem();
+
     }
 
     @Override
