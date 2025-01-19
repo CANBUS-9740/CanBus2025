@@ -44,7 +44,7 @@ public class ArmTelescopicSystem extends SubsystemBase {
     }
 
     public void moveToLength(double lengthMeters){
-        pid.setReference(RobotMap.ARM_TELESCOPIC_GEAR_RATIO * RobotMap.ARM_TELESCOPIC_DRUM_CIRCUMFERENSE / lengthMeters, SparkBase.ControlType.kPosition);
+        pid.setReference(RobotMap.ARM_TELESCOPIC_GEAR_RATIO * lengthMeters / RobotMap.ARM_TELESCOPIC_DRUM_CIRCUMFERENSE, SparkBase.ControlType.kPosition);
     }
 
     public void move(double speed){
