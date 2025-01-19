@@ -2,14 +2,15 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 
 import javax.swing.*;
 
 public class HangingSystem extends SubsystemBase {
-    private Servo motorR;
-    private Servo motorL;
+    private final Servo motorR;
+    private final Servo motorL;
 
 
     public HangingSystem(){
@@ -55,6 +56,11 @@ public class HangingSystem extends SubsystemBase {
 
     public void stopRight(){
         motorR.setDisabled();
+    }
+
+    public void periodic(){
+        SmartDashboard.putNumber("leftHangAngle:", getLeftAngle());
+        SmartDashboard.putNumber("rightHangAngle:", getRightAngle());
     }
 
 }
