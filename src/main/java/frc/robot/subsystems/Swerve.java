@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -15,7 +16,6 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
-import org.opencv.core.Mat;
 import swervelib.SwerveDrive;
 import swervelib.SwerveModule;
 import swervelib.encoders.CANCoderSwerve;
@@ -23,7 +23,6 @@ import swervelib.imu.Pigeon2Swerve;
 import swervelib.math.SwerveMath;
 import swervelib.motors.SparkMaxSwerve;
 import swervelib.motors.TalonFXSwerve;
-import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveModuleConfiguration;
@@ -57,6 +56,7 @@ public class Swerve extends SubsystemBase {
         SwerveModulePhysicalCharacteristics characteristics = new SwerveModulePhysicalCharacteristics(
                 conversionFactorsJson, RobotMap.SWERVE_DRIVE_RAMP_RATE, RobotMap.SWERVE_STEER_RAMP_RATE);
 
+
         /*SwerveModulePhysicalCharacteristics characteristics = new SwerveModulePhysicalCharacteristics(
                 conversionFactorsJson,
                 RobotMap.SWERVE_WHEEL_FRICTION_COEFFICIENT,
@@ -83,7 +83,7 @@ public class Swerve extends SubsystemBase {
                 RobotMap.SWERVE_DRIVE_PIDF,
                 characteristics,
                 false,
-                true,
+                false,
                 true,
                 "FrontLeft",
                 false
@@ -117,7 +117,7 @@ public class Swerve extends SubsystemBase {
                 RobotMap.SWERVE_DRIVE_PIDF,
                 characteristics,
                 false,
-                true,
+                false,
                 true,
                 "BackLeft",
                 false
@@ -161,6 +161,8 @@ public class Swerve extends SubsystemBase {
         swerveDrive.setAngularVelocityCompensation(false, false, 0);
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
         swerveDrive.pushOffsetsToEncoders();
+        swerveDrive.setGyroOffset(new Rotation3d(270, 270, 0));
+
 
         for (SwerveModule module : swerveDrive.getModules()) {
             module.invalidateCache();
@@ -207,7 +209,7 @@ public class Swerve extends SubsystemBase {
                 this::stop);
     }
 
-    public Command drivefieldOriented(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX) {
+    public Command fieldDrive(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX) {
         return runEnd(() -> {
                     Translation2d translation2d = SwerveMath.scaleTranslation(new Translation2d(
                             translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
@@ -244,7 +246,6 @@ public class Swerve extends SubsystemBase {
         if (speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0 && speeds.omegaRadiansPerSecond == 0) {
             stop();
         } else {
-            //swerveDrive.drive(speeds, Translation2d.kZero);
             swerveDrive.driveFieldOriented(speeds, Translation2d.kZero);
         }
     }
