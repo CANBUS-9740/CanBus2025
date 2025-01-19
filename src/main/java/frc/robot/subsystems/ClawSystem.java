@@ -13,12 +13,9 @@ public class ClawSystem extends SubsystemBase {
     private final DigitalInput sensor;
 
 
-    public ClawSystem(ColorSensorV3 colorSensorV3, double targetAngle, DigitalInput sensor) {
-        this.sensor = sensor;
-
+    public ClawSystem() {
+        sensor = new DigitalInput(RobotMap.CLAW_INFRA_RED_SENSOR);
         motor = new WPI_TalonSRX(RobotMap.CLAW_MOTOR_ID);
-
-
     }
 
     public void collectItem() {

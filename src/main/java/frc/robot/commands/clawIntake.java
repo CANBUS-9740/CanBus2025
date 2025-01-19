@@ -9,11 +9,12 @@ public class clawIntake extends Command {
 
     public clawIntake(ClawSystem clawSystem) {
         this.clawSystem = clawSystem;
+
+        addRequirements(clawSystem);
     }
 
     @Override
     public void initialize() {
-
     }
 
     @Override

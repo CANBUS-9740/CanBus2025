@@ -8,12 +8,12 @@ public class HoldClaw extends Command {
 
     public HoldClaw(ClawSystem clawSystem) {
         this.clawSystem = clawSystem;
+
+        addRequirements(clawSystem);
     }
 
     @Override
     public void initialize() {
-
-
     }
 
     @Override
@@ -24,7 +24,6 @@ public class HoldClaw extends Command {
 
     @Override
     public boolean isFinished() {
-
         return false;
     }
 

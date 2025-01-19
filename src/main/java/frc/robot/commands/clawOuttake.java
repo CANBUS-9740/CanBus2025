@@ -8,19 +8,17 @@ public class clawOuttake extends Command {
 
     public clawOuttake(ClawSystem clawSystem) {
         this.clawSystem = clawSystem;
+
+        addRequirements(clawSystem);
     }
 
     @Override
     public void initialize() {
-
-
     }
 
     @Override
     public void execute() {
         clawSystem.releaseItem();
-
-
     }
 
     @Override

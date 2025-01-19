@@ -45,7 +45,7 @@ public class RobotMap {
     public static final double SWERVE_BACK_LEFT_ZERO_ANGLE =  196.34;
 
     public static final int CLAW_MOTOR_ID = 0;
-
+    public static final int CLAW_INFRA_RED_SENSOR = 1;
 
 
 }
