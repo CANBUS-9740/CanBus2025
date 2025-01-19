@@ -20,12 +20,12 @@ public class ArmTelescopicReset extends Command {
 
     @Override
     public void execute() {
-        sub.moveToLength(RobotMap.ARM_TELESCOPIC_RESET_LENGTH_METERS);
+        sub.extend();
     }
 
     @Override
     public boolean isFinished() {
-        return sub.ArmResearchLength(RobotMap.ARM_TELESCOPIC_RESET_LENGTH_METERS) && sub.getResetLimitSwitch();
+        return sub.getResetLimitSwitch();
     }
 
     @Override
