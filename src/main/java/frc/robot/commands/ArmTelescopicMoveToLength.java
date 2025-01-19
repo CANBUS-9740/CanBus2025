@@ -26,7 +26,7 @@ public class ArmTelescopicMoveToLength extends Command {
 
     @Override
     public boolean isFinished() {
-        return sub.ArmResearchLength(targetLength);
+        return sub.didResearchLength(targetLength);
     }
 
     @Override

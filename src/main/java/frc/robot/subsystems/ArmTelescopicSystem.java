@@ -5,11 +5,9 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
@@ -72,7 +70,7 @@ public class ArmTelescopicSystem extends SubsystemBase {
         motor.stopMotor();
     }
 
-    public boolean ArmResearchLength(double targetLength) {
+    public boolean didResearchLength(double targetLength) {
         return MathUtil.isNear(targetLength, getLengthMeter(), 0.1);
     }
 
