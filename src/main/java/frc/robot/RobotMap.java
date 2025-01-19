@@ -54,4 +54,5 @@ public class RobotMap {
     public static final double ARM_TELESCOPIC_FORWARD_SOFT_LIMIT = 0;
     public static final double ARM_TELESCOPIC_REVERSE_SOFT_LIMIT = 0;
     public static final double ARM_TELESCOPIC_DRUM_CIRCUMFERENSE = 1;
+    public static final double ARM_TELESCOPIC_RESET_LENGTH_METERS = 0;
 }

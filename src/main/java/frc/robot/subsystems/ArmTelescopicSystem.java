@@ -8,6 +8,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -47,6 +48,10 @@ public class ArmTelescopicSystem extends SubsystemBase {
         pid.setReference(RobotMap.ARM_TELESCOPIC_GEAR_RATIO * lengthMeters / RobotMap.ARM_TELESCOPIC_DRUM_CIRCUMFERENSE, SparkBase.ControlType.kPosition);
     }
 
+    public void setEncoderValue(double value) {
+        encoder.setPosition(value);
+    }
+
     public void move(double speed){
         motor.set(speed);
     }
@@ -65,6 +70,14 @@ public class ArmTelescopicSystem extends SubsystemBase {
 
     public void stop() {
         motor.stopMotor();
+    }
+
+    public boolean ArmResearchLength(double targetLength) {
+        return MathUtil.isNear(targetLength, getLengthMeter(), 0.1);
+    }
+
+    public boolean getResetLimitSwitch() {
+        return motor.getForwardLimitSwitch().isPressed();
     }
 
     @Override
