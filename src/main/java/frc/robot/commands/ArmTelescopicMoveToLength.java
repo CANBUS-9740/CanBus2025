@@ -16,17 +16,17 @@ public class ArmTelescopicMoveToLength extends Command {
 
     @Override
     public void initialize() {
-
-    }
-
-    @Override
-    public void execute() {
         sub.moveToLength(targetLength);
     }
 
     @Override
+    public void execute() {
+
+    }
+
+    @Override
     public boolean isFinished() {
-        return sub.didResearchLength(targetLength);
+        return sub.didReach(targetLength);
     }
 
     @Override

@@ -19,11 +19,11 @@ public class ArmTelescopicSystem extends SubsystemBase {
 
     public ArmTelescopicSystem() {
         motor = new SparkMax(RobotMap.ARM_TELESCOPIC_MOTOR_ID, SparkLowLevel.MotorType.kBrushless);
-        encoder = motor.getAlternateEncoder();
+        encoder = motor.getEncoder();
         pid = motor.getClosedLoopController();
 
         SparkMaxConfig config = new SparkMaxConfig();
-        config.idleMode(SparkBaseConfig.IdleMode.kCoast);
+        config.idleMode(SparkBaseConfig.IdleMode.kBrake);
         config.inverted(false);
         config.softLimit
                         .forwardSoftLimitEnabled(true)
@@ -38,7 +38,7 @@ public class ArmTelescopicSystem extends SubsystemBase {
         motor.configure(config, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
     }
 
-    public double getLengthMeter() {
+    public double getLengthMeters() {
         return encoder.getPosition() / RobotMap.ARM_TELESCOPIC_GEAR_RATIO * RobotMap.ARM_TELESCOPIC_DRUM_CIRCUMFERENSE;
     }
 
@@ -70,8 +70,8 @@ public class ArmTelescopicSystem extends SubsystemBase {
         motor.stopMotor();
     }
 
-    public boolean didResearchLength(double targetLength) {
-        return MathUtil.isNear(targetLength, getLengthMeter(), 0.1);
+    public boolean didReach(double targetLength) {
+        return MathUtil.isNear(targetLength, getLengthMeters(), 0.1) && Math.abs(encoder.getVelocity()) < 5;
     }
 
     public boolean getResetLimitSwitch() {
@@ -80,6 +80,6 @@ public class ArmTelescopicSystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("getLengthArmInMeters", getLengthMeter());
+        SmartDashboard.putNumber("getLengthArmInMeters", getLengthMeters());
     }
 }

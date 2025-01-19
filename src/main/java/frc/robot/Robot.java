@@ -4,15 +4,18 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.ArmTelescopicSystem;
 import frc.robot.subsystems.Swerve;
 
 public class Robot extends TimedRobot {
 
+    private ArmTelescopicSystem armTelescopicSystem;
     private Swerve swerve;
     private XboxController xbox;
 
     @Override
     public void robotInit() {
+        armTelescopicSystem = new ArmTelescopicSystem();
         swerve = new Swerve();
         xbox = new XboxController(0);
     }
