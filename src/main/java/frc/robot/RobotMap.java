@@ -77,4 +77,10 @@ public class RobotMap {
     public static final int CLAWJOINT_ABS_ENCODER_START_PULSE_US = 1;
     public static final int CLAWJOINT_ABS_ENCODER_END_PULSE_US = 1024;
     public static final int CLAWJOINT_ABS_ENCODER_ZERO_OFFSET = 0;
+
+    // hang
+    public static final int HANGING_MOTOR_RIGHT_ID = 0;
+    public static final int HANGING_MOTOR_LEFT_ID = 0;
+    public static final double HANGING_CLOSE_ANGLE = 180;
+    public static final double HANGING_OPEN_ANGLE = 0;
 }
