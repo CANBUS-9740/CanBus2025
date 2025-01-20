@@ -12,40 +12,30 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 
-
-
 public class ClawJointSubsystem extends SubsystemBase {
+
     private final SparkMax motor;
     private final AbsoluteEncoder absoluteEncoder;
     private final SparkClosedLoopController controller;
-    private ClosedLoopConfig closedLoopConfig;
-
 
     public ClawJointSubsystem(){
         motor = new SparkMax(RobotMap.CLAWJOINT_MOTOR, SparkLowLevel.MotorType.kBrushless);
 
         SparkMaxConfig config = new SparkMaxConfig();
-
-        controller = motor.getClosedLoopController();
         config.closedLoop
                 .p(RobotMap.P_CLAWJOINT)
                 .i(RobotMap.I_CLAWJOINT)
                 .d(RobotMap.D_CLAWJOINT)
                 .feedbackSensor(ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder);
-
-        absoluteEncoder = motor.getAbsoluteEncoder();
         config.absoluteEncoder
-                .startPulseUs(RobotMap.CLAWJOINT_ENCODER_START_PULSE_U)
-                .endPulseUs(RobotMap.CLAWJOINT_ENCODER_END_PULSE_US)
-                .zeroOffset(RobotMap.ZERO_OFFSET);
-
-
+                .startPulseUs(RobotMap.CLAWJOINT_ABS_ENCODER_START_PULSE_U)
+                .endPulseUs(RobotMap.CLAWJOINT_ABS_ENCODER_END_PULSE_US)
+                .zeroOffset(RobotMap.CLAWJOINT_ABS_ENCODER_ZERO_OFFSET);
         config.limitSwitch
                 .forwardLimitSwitchEnabled(true)
                 .forwardLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen)
                 .reverseLimitSwitchEnabled(true)
                 .reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen);
-
         config.softLimit
                 .forwardSoftLimitEnabled(true)
                 .forwardSoftLimit(0)
@@ -54,6 +44,8 @@ public class ClawJointSubsystem extends SubsystemBase {
 
         motor.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
+        controller = motor.getClosedLoopController();
+        absoluteEncoder = motor.getAbsoluteEncoder();
     }
 
     public boolean isPressedForward(){
@@ -68,8 +60,8 @@ public class ClawJointSubsystem extends SubsystemBase {
        return absoluteEncoder.getPosition() * 360;
     }
 
-    public void moveToPosition(double positionDegrees){
-        double targetPosition = getPositionDegrees() / 360;
+    public void moveToPosition(double positionDegrees) {
+        double targetPosition = positionDegrees / 360.0;
         controller.setReference(targetPosition, SparkBase.ControlType.kPosition);
     }
 
@@ -95,7 +87,7 @@ public class ClawJointSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("PositionDegrees",getPositionDegrees());
+        SmartDashboard.putNumber("PositionDegrees", getPositionDegrees());
         SmartDashboard.putBoolean("ForwardLimitSwitch", isPressedForward());
         SmartDashboard.putBoolean("ReverseLimitSwitch", isPressedReverse());
     }
