@@ -43,4 +43,14 @@ public class RobotMap {
     public static final double SWERVE_FRONT_LEFT_ZERO_ANGLE =  84.111;
     public static final double SWERVE_BACK_RIGHT_ZERO_ANGLE =  335.30;
     public static final double SWERVE_BACK_LEFT_ZERO_ANGLE =  196.34;
+
+    //clawJoint
+    public static final int CLAWJOINT_MOTOR = 0;
+    public static final double P_CLAWJOINT = 0;
+    public static final double I_CLAWJOINT = 0;
+    public static final double D_CLAWJOINT = 0;
+    public static final int CLAWJOINT_ENCODER_START_PULSE_U = 1;
+    public static final int CLAWJOINT_ENCODER_END_PULSE_US = 1024;
+    public static final int ZERO_OFFSET = 0;
+
 }
