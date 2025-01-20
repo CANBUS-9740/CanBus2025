@@ -8,7 +8,6 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
@@ -36,8 +35,8 @@ public class ClawJointSubsystem extends SubsystemBase {
 
         absoluteEncoder = motor.getAbsoluteEncoder();
         config.absoluteEncoder
-                .startPulseUs(RobotMap.START_PULSE_US)
-                .endPulseUs(RobotMap.END_PULSE_US)
+                .startPulseUs(RobotMap.CLAWJOINT_ENCODER_START_PULSE_U)
+                .endPulseUs(RobotMap.CLAWJOINT_ENCODER_END_PULSE_US)
                 .zeroOffset(RobotMap.ZERO_OFFSET);
 
 
@@ -49,9 +48,9 @@ public class ClawJointSubsystem extends SubsystemBase {
 
         config.softLimit
                 .forwardSoftLimitEnabled(true)
-                .forwardSoftLimit(RobotMap.FORWARD_SOFTLIMITS_CLAWJOINT)
+                .forwardSoftLimit(0)
                 .reverseSoftLimitEnabled(true)
-                .reverseSoftLimit(RobotMap.REVERSE_SOFTLIMITS_CLAWJOINT);
+                .reverseSoftLimit(0);
 
         motor.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 

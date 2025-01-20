@@ -49,10 +49,8 @@ public class RobotMap {
     public static final double P_CLAWJOINT = 0;
     public static final double I_CLAWJOINT = 0;
     public static final double D_CLAWJOINT = 0;
-    public static final int START_PULSE_US = 1;
-    public static final int END_PULSE_US = 1024;
-    public static final double ZERO_OFFSET = 0;
-    public static final int FORWARD_SOFTLIMITS_CLAWJOINT = 0;
-    public static final int REVERSE_SOFTLIMITS_CLAWJOINT = 0;
+    public static final int CLAWJOINT_ENCODER_START_PULSE_U = 1;
+    public static final int CLAWJOINT_ENCODER_END_PULSE_US = 1024;
+    public static final int ZERO_OFFSET = 0;
 
 }
