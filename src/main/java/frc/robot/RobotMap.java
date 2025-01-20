@@ -52,4 +52,7 @@ public class RobotMap {
     public static final double D_ARM_JOINT = 0;
     public static final int ARM_JOINT_MAX_ANGLE = 180;
     public static final int ARM_JOINT_MIN_ANGLE = 0;
+    public static final int START_PULSE_US = 1;
+    public static final int END_PULSE_US = 1024;
+    public static final double ZERO_OFFSET = 0;
 }
