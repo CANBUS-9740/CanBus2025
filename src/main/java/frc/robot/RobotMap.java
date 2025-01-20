@@ -45,14 +45,11 @@ public class RobotMap {
     public static final double SWERVE_BACK_LEFT_ZERO_ANGLE =  196.34;
 
     //ARM JOINT
-    public static final int ARM_JOINT = 0;
-    public static final int CPR = 4096;
+    public static final int ARMJOINT_MOTOR_ID = 0;
     public static final double P_ARM_JOINT = 0;
     public static final double I_ARM_JOINT = 0;
     public static final double D_ARM_JOINT = 0;
-    public static final int ARM_JOINT_MAX_ANGLE = 180;
-    public static final int ARM_JOINT_MIN_ANGLE = 0;
-    public static final int START_PULSE_US = 1;
-    public static final int END_PULSE_US = 1024;
-    public static final double ZERO_OFFSET = 0;
+    public static final int ARMJOINT_ENCODER_START_PULSE_US = 1;
+    public static final int ARMJOINT_ENCODER_END_PULSE_US = 1024;
+    public static final double ARMJOINT_ENCODER_ZERO_OFFSET = 0;
 }

@@ -1,16 +1,15 @@
 package frc.robot.commands;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.ArmJointSubsystem;
+import frc.robot.subsystems.ArmJointSystem;
 
 public class ArmJointHold extends Command {
-    private final ArmJointSubsystem armJointSubsystem;
+    private final ArmJointSystem armJointSystem;
 
-    private ArmJointHold(ArmJointSubsystem armJointSubsystem){
-        this.armJointSubsystem = armJointSubsystem;
+    private ArmJointHold(ArmJointSystem armJointSystem){
+        this.armJointSystem = armJointSystem;
 
-        addRequirements(armJointSubsystem);
+        addRequirements(armJointSystem);
     }
 
     @Override
@@ -19,7 +18,7 @@ public class ArmJointHold extends Command {
 
     @Override
     public void execute() {
-        armJointSubsystem.hold();
+        armJointSystem.hold();
     }
 
     @Override
@@ -29,6 +28,6 @@ public class ArmJointHold extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        armJointSubsystem.stop();
+        armJointSystem.stop();
     }
 }
