@@ -12,14 +12,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 
-public class ClawJointSubsystem extends SubsystemBase {
+public class ClawJointSystem extends SubsystemBase {
 
     private final SparkMax motor;
     private final AbsoluteEncoder absoluteEncoder;
     private final SparkClosedLoopController controller;
 
-    public ClawJointSubsystem(){
-        motor = new SparkMax(RobotMap.CLAWJOINT_MOTOR, SparkLowLevel.MotorType.kBrushless);
+    public ClawJointSystem(){
+        motor = new SparkMax(RobotMap.CLAWJOINT_MOTOR_ID, SparkLowLevel.MotorType.kBrushless);
 
         SparkMaxConfig config = new SparkMaxConfig();
         config.closedLoop
@@ -28,7 +28,7 @@ public class ClawJointSubsystem extends SubsystemBase {
                 .d(RobotMap.D_CLAWJOINT)
                 .feedbackSensor(ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder);
         config.absoluteEncoder
-                .startPulseUs(RobotMap.CLAWJOINT_ABS_ENCODER_START_PULSE_U)
+                .startPulseUs(RobotMap.CLAWJOINT_ABS_ENCODER_START_PULSE_US)
                 .endPulseUs(RobotMap.CLAWJOINT_ABS_ENCODER_END_PULSE_US)
                 .zeroOffset(RobotMap.CLAWJOINT_ABS_ENCODER_ZERO_OFFSET);
         config.limitSwitch
