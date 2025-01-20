@@ -1,22 +1,19 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.revrobotics.ColorSensorV3;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 
-public class ClawSystem extends SubsystemBase {
+public class ClawGripperSystem extends SubsystemBase {
     private final SparkMax motor;
     private final DigitalInput sensor;
 
 
-    public ClawSystem() {
-        sensor = new DigitalInput(RobotMap.CLAW_INFRA_RED_SENSOR);
+    public ClawGripperSystem() {
+        sensor = new DigitalInput(RobotMap.CLAW_SWITCH_PORT);
         motor = new SparkMax(RobotMap.CLAW_MOTOR_ID, SparkLowLevel.MotorType.kBrushless);
     }
 
