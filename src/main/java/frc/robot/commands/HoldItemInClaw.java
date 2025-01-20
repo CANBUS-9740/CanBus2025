@@ -3,10 +3,10 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ClawSystem;
 
-public class HoldClaw extends Command {
+public class HoldItemInClaw extends Command {
     private final ClawSystem clawSystem;
 
-    public HoldClaw(ClawSystem clawSystem) {
+    public HoldItemInClaw(ClawSystem clawSystem) {
         this.clawSystem = clawSystem;
 
         addRequirements(clawSystem);
@@ -19,7 +19,6 @@ public class HoldClaw extends Command {
 
     @Override
     public void execute() {
-
 
     }
 
