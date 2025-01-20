@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.ArmTelescopicSystem;
 import frc.robot.subsystems.ClawGripperSystem;
 import frc.robot.subsystems.ClawJointSystem;
+import frc.robot.subsystems.HangingSystem;
 import frc.robot.subsystems.Swerve;
 
 public class Robot extends TimedRobot {
@@ -15,6 +16,7 @@ public class Robot extends TimedRobot {
     private ClawGripperSystem clawGripperSystem;
     private ClawJointSystem clawJointSystem;
     private ArmTelescopicSystem armTelescopicSystem;
+    private HangingSystem hangingSystem;
     private XboxController xbox;
 
     @Override
@@ -23,6 +25,7 @@ public class Robot extends TimedRobot {
         clawGripperSystem = new ClawGripperSystem();
         clawJointSystem = new ClawJointSystem();
         armTelescopicSystem = new ArmTelescopicSystem();
+        hangingSystem = new HangingSystem();
 
         xbox = new XboxController(0);
     }

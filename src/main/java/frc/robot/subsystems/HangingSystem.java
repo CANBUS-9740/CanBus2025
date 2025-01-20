@@ -9,9 +9,9 @@ import frc.robot.RobotMap;
 import javax.swing.*;
 
 public class HangingSystem extends SubsystemBase {
+
     private final Servo motorR;
     private final Servo motorL;
-
 
     public HangingSystem(){
         motorR =  new Servo(RobotMap.HANGING_MOTOR_RIGHT_ID);
