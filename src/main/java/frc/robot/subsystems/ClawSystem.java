@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.ColorSensorV3;
+import com.revrobotics.spark.SparkLowLevel;
+import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -9,13 +11,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 
 public class ClawSystem extends SubsystemBase {
-    private final WPI_TalonSRX motor;
+    private final SparkMax motor;
     private final DigitalInput sensor;
 
 
     public ClawSystem() {
         sensor = new DigitalInput(RobotMap.CLAW_INFRA_RED_SENSOR);
-        motor = new WPI_TalonSRX(RobotMap.CLAW_MOTOR_ID);
+        motor = new SparkMax(RobotMap.CLAW_MOTOR_ID, SparkLowLevel.MotorType.kBrushless);
     }
 
     public void collectItem() {

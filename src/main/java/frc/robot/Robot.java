@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.ClawSystem;
 import frc.robot.subsystems.Swerve;
 
 public class Robot extends TimedRobot {
@@ -11,10 +12,14 @@ public class Robot extends TimedRobot {
     private Swerve swerve;
     private XboxController xbox;
 
+    private ClawSystem clawSystem;
+
     @Override
     public void robotInit() {
         swerve = new Swerve();
         xbox = new XboxController(0);
+
+        clawSystem = new ClawSystem();
     }
 
     @Override
