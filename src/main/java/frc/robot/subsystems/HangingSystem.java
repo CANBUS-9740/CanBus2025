@@ -34,20 +34,12 @@ public class HangingSystem extends SubsystemBase {
         motorR.setAngle(RobotMap.HANGING_CLOSE_ANGLE);
     }
 
-    public double getLeftAngle(){
-        return motorL.getAngle();
-    }
-
-    public double getRightAngle(){
-        return motorR.getPosition();
-    }
-
     public boolean didGetToAngleLeft(double targetAngle){
-        return MathUtil.isNear(targetAngle, getLeftAngle(), 0.5);
+        return MathUtil.isNear(targetAngle, motorL.getAngle(), 0.5);
     }
 
     public boolean didGetToAngleRight(double targetAngle){
-        return MathUtil.isNear(targetAngle, getRightAngle(), 0.5);
+        return MathUtil.isNear(targetAngle, motorR.getPosition(), 0.5);
     }
 
     public void stopLeft(){
@@ -59,8 +51,8 @@ public class HangingSystem extends SubsystemBase {
     }
 
     public void periodic(){
-        SmartDashboard.putNumber("leftHangAngle:", getLeftAngle());
-        SmartDashboard.putNumber("rightHangAngle:", getRightAngle());
+        SmartDashboard.putNumber("leftHangAngle:", motorL.getAngle());
+        SmartDashboard.putNumber("rightHangAngle:", motorR.getAngle());
     }
 
 }
