@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.ArmTelescopicSystem;
 import frc.robot.subsystems.ClawGripperSystem;
 import frc.robot.subsystems.ClawJointSystem;
 import frc.robot.subsystems.Swerve;
@@ -11,17 +12,19 @@ import frc.robot.subsystems.Swerve;
 public class Robot extends TimedRobot {
 
     private Swerve swerve;
-    private XboxController xbox;
-
     private ClawGripperSystem clawGripperSystem;
     private ClawJointSystem clawJointSystem;
+    private ArmTelescopicSystem armTelescopicSystem;
+    private XboxController xbox;
 
     @Override
     public void robotInit() {
         swerve = new Swerve();
-        xbox = new XboxController(0);
-
         clawGripperSystem = new ClawGripperSystem();
+        clawJointSystem = new ClawJointSystem();
+        armTelescopicSystem = new ArmTelescopicSystem();
+
+        xbox = new XboxController(0);
     }
 
     @Override
