@@ -13,14 +13,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 
 public class ArmTelescopicSystem extends SubsystemBase {
+
     private final SparkMax motor;
     private final RelativeEncoder encoder;
     private final SparkClosedLoopController pid;
 
     public ArmTelescopicSystem() {
         motor = new SparkMax(RobotMap.ARM_TELESCOPIC_MOTOR_ID, SparkLowLevel.MotorType.kBrushless);
-        encoder = motor.getEncoder();
-        pid = motor.getClosedLoopController();
 
         SparkMaxConfig config = new SparkMaxConfig();
         config.idleMode(SparkBaseConfig.IdleMode.kBrake);
@@ -35,15 +34,20 @@ public class ArmTelescopicSystem extends SubsystemBase {
                         .i(RobotMap.ARM_TELESCOPIC_I)
                         .d(RobotMap.ARM_TELESCOPIC_D)
                         .iZone(RobotMap.ARM_TELESCOPIC_I_ZONE);
+
         motor.configure(config, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
+
+        encoder = motor.getEncoder();
+        pid = motor.getClosedLoopController();
     }
 
     public double getLengthMeters() {
         return encoder.getPosition() / RobotMap.ARM_TELESCOPIC_GEAR_RATIO * RobotMap.ARM_TELESCOPIC_DRUM_CIRCUMFERENSE;
     }
 
-    public void moveToLength(double lengthMeters){
-        pid.setReference(RobotMap.ARM_TELESCOPIC_GEAR_RATIO * lengthMeters / RobotMap.ARM_TELESCOPIC_DRUM_CIRCUMFERENSE, SparkBase.ControlType.kPosition);
+    public void moveToLength(double lengthMeters) {
+        double position = lengthMeters * RobotMap.ARM_TELESCOPIC_GEAR_RATIO / RobotMap.ARM_TELESCOPIC_DRUM_CIRCUMFERENSE;
+        pid.setReference(position, SparkBase.ControlType.kPosition);
     }
 
     public void setEncoderValue(double value) {
@@ -80,6 +84,6 @@ public class ArmTelescopicSystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("getLengthArmInMeters", getLengthMeters());
+        SmartDashboard.putNumber("ArmTelescopicLength", getLengthMeters());
     }
 }
