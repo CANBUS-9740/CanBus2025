@@ -42,34 +42,18 @@ public class Swerve extends SubsystemBase {
     private final MechanismLigament2d[] moduleMechanisms;
 
     public Swerve() {
-        SmartDashboard.putNumber("HeyJude", RobotMap.SWERVE_MAX_SPEED);
         ConversionFactorsJson conversionFactorsJson = new ConversionFactorsJson();
         conversionFactorsJson.drive.gearRatio = RobotMap.SWERVE_DRIVE_GEAR_RATIO;
         conversionFactorsJson.drive.factor = 0;
         conversionFactorsJson.drive.diameter = Units.metersToInches(RobotMap.SWERVE_DRIVE_WHEEL_RADIUS * 2);
         conversionFactorsJson.angle.gearRatio = RobotMap.SWERVE_STEER_GEAR_RATIO;
         conversionFactorsJson.angle.factor = 0;
+
         conversionFactorsJson.drive.calculate();
         conversionFactorsJson.angle.calculate();
-        conversionFactorsJson.drive.diameter = Units.inchesToMeters(conversionFactorsJson.drive.diameter);
 
         SwerveModulePhysicalCharacteristics characteristics = new SwerveModulePhysicalCharacteristics(
                 conversionFactorsJson, RobotMap.SWERVE_DRIVE_RAMP_RATE, RobotMap.SWERVE_STEER_RAMP_RATE);
-
-
-        /*SwerveModulePhysicalCharacteristics characteristics = new SwerveModulePhysicalCharacteristics(
-                conversionFactorsJson,
-                RobotMap.SWERVE_WHEEL_FRICTION_COEFFICIENT,
-                RobotMap.SWERVE_OPTIMAL_VOLTAGE,
-                RobotMap.SWERVE_DRIVE_CURRENT_LIMIT,
-                RobotMap.SWERVE_STEER_CURRENT_LIMIT,
-                RobotMap.SWERVE_DRIVE_RAMP_RATE,
-                RobotMap.SWERVE_STEER_RAMP_RATE,
-                RobotMap.SWERVE_DRIVE_FRICTION_VOLTAGE,
-                RobotMap.SWERVE_STEER_FRICTION_VOLTAGE,
-                RobotMap.SWERVE_STEER_ROTATIONAL_INERTIA,
-                RobotMap.ROBOT_MASS_KG
-        );*/
 
         SwerveModuleConfiguration frontLeft = new SwerveModuleConfiguration(
                 new TalonFXSwerve(RobotMap.SWERVE_DRIVE_FRONT_LEFT_MOTOR_ID, true, DCMotor.getKrakenX60(1)),
@@ -162,34 +146,6 @@ public class Swerve extends SubsystemBase {
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
         swerveDrive.pushOffsetsToEncoders();
         swerveDrive.setGyroOffset(new Rotation3d(270, 270, 0));
-
-
-        for (SwerveModule module : swerveDrive.getModules()) {
-            module.invalidateCache();
-            module.getDriveMotor().setPosition(0);
-            module.getAngleMotor().setPosition(module.getAbsolutePosition());
-            module.setFeedforward(SwerveMath.createDriveFeedforward(
-                    RobotMap.SWERVE_OPTIMAL_VOLTAGE, 7, RobotMap.SWERVE_WHEEL_FRICTION_COEFFICIENT
-            ));
-
-            try {
-                Field field = module.getClass().getDeclaredField("maxDriveVelocity");
-                field.setAccessible(true);
-                field.set(module, edu.wpi.first.units.Units.MetersPerSecond.of(RobotMap.SWERVE_MAX_SPEED));
-            } catch (IllegalAccessException | NoSuchFieldException e) {
-                throw new Error(e);
-            }
-
-            module.absolutePositionCache.updateSupplier(()-> {
-                double angle = module.getRelativePosition();
-                angle %= 360;
-                if (angle < 0) {
-                    angle += 360;
-                }
-
-                return angle;
-            });
-        }
 
         swerveDrive.resetOdometry(Pose2d.kZero);
 

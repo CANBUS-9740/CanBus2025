@@ -14,15 +14,8 @@ public class RobotMap {
     public static final double SWERVE_DRIVE_GEAR_RATIO = 6.75;
     public static final double SWERVE_STEER_GEAR_RATIO = 150.0 / 7;
     public static final double SWERVE_MAX_SPEED = DCMotor.getKrakenX60(1).freeSpeedRadPerSec / Math.PI / SWERVE_DRIVE_GEAR_RATIO * (2 * Math.PI * SWERVE_DRIVE_WHEEL_RADIUS);
-    public static final double SWERVE_WHEEL_FRICTION_COEFFICIENT = 1.19; // stolen from yagsl
-    public static final double SWERVE_OPTIMAL_VOLTAGE = 12;
-    public static final int SWERVE_DRIVE_CURRENT_LIMIT = 40;
-    public static final int SWERVE_STEER_CURRENT_LIMIT = 20;
     public static final double SWERVE_DRIVE_RAMP_RATE = 0.25;
     public static final double SWERVE_STEER_RAMP_RATE = 0.25;
-    public static final double SWERVE_DRIVE_FRICTION_VOLTAGE = 0.2;
-    public static final double SWERVE_STEER_FRICTION_VOLTAGE = 0.3;
-    public static final double SWERVE_STEER_ROTATIONAL_INERTIA = 0.03;
     public static final PIDFConfig SWERVE_DRIVE_PIDF = new PIDFConfig(1, 0, 0.001, 20, 0); // new PIDFConfig(1, 0, 0, 0, 0);//
     public static final PIDFConfig SWERVE_STEER_PIDF = new PIDFConfig(0.07, 0, 2.5, 0, 0); // new PIDFConfig(0.01, 0, 0, 0, 0);//
     public static final PIDFConfig SWERVE_HEADING_PIDF =  new PIDFConfig(0.0075, 0, 0.0075,0,0);//new PIDFConfig(0.85, 0, 0.0250,0);
