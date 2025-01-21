@@ -1,10 +1,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.spark.SparkBase;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkLowLevel;
-import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.*;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
@@ -58,8 +55,16 @@ public class ArmJointSystem extends SubsystemBase {
         return encoder.getPosition() * 360;
     }
 
-    public void moveToPosition(double positionDegrees){
-        pidController.setReference(positionDegrees, SparkBase.ControlType.kPosition);
+    public void moveToPosition(double positionDegrees, double ff){
+        pidController.setReference(positionDegrees, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, SparkClosedLoopController.ArbFFUnits.kPercentOut);
+    }
+
+    public void resetPID() {
+        pidController.setReference(0, SparkBase.ControlType.kPosition);
+    }
+
+    public double getVelocity() {
+        return encoder.getVelocity();
     }
 
     public void raise(){

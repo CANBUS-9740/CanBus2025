@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import swervelib.parser.PIDFConfig;
 
 public class RobotMap {
@@ -52,6 +53,9 @@ public class RobotMap {
     public static final int ARMJOINT_ENCODER_START_PULSE_US = 1;
     public static final int ARMJOINT_ENCODER_END_PULSE_US = 1024;
     public static final double ARMJOINT_ENCODER_ZERO_OFFSET = 0;
+    public static final TrapezoidProfile.Constraints MOTION_PROFILE_CONSTRAINTS = new TrapezoidProfile.Constraints(RobotMap.MAX_VELOCITY, RobotMap.MAX_ACCELERATION);
+    public static final double MAX_VELOCITY = 1000;
+    public static final double MAX_ACCELERATION = 200;
 
     //claw
     public static final int CLAW_MOTOR_ID = 0;
@@ -65,4 +69,5 @@ public class RobotMap {
     public static final int CLAWJOINT_ABS_ENCODER_START_PULSE_US = 1;
     public static final int CLAWJOINT_ABS_ENCODER_END_PULSE_US = 1024;
     public static final int CLAWJOINT_ABS_ENCODER_ZERO_OFFSET = 0;
+
 }
