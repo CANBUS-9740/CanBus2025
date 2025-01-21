@@ -88,9 +88,9 @@ public class Robot extends TimedRobot {
     @Override
     public void testInit() {
         swerve.fieldDrive(
-                ()-> MathUtil.applyDeadband(Math.pow(xbox.getRightY(),3) * 0.35, 0.05),
-                ()-> MathUtil.applyDeadband(Math.pow( xbox.getRightX(),3)* 0.35, 0.05),
-                ()-> MathUtil.applyDeadband(xbox.getLeftX(), 0.05)
+                ()-> MathUtil.applyDeadband(Math.pow(xbox.getRightY(),3), 0.05),
+                ()-> MathUtil.applyDeadband(Math.pow( xbox.getRightX(),3), 0.05),
+                ()-> MathUtil.applyDeadband(xbox.getLeftX() , 0.15)
         ).schedule();
 //        swerve.drive(()-> 0.0, ()-> 0.0, ()-> -ro0.6).schedule();
         //swerve.drive(()-> 0.2, ()-> 0.0, ()-> 0.0).schedule();
