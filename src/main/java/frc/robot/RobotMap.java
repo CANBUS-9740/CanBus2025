@@ -46,16 +46,19 @@ public class RobotMap {
     public static final double SWERVE_BACK_LEFT_ZERO_ANGLE =  196.34;
 
     //ARM JOINT
-    public static final int ARMJOINT_MOTOR_ID = 0;
+    public static final int ARM_JOINT_MOTOR_ID = 0;
     public static final double P_ARM_JOINT = 0;
     public static final double I_ARM_JOINT = 0;
     public static final double D_ARM_JOINT = 0;
-    public static final int ARMJOINT_ENCODER_START_PULSE_US = 1;
-    public static final int ARMJOINT_ENCODER_END_PULSE_US = 1024;
-    public static final double ARMJOINT_ENCODER_ZERO_OFFSET = 0;
+    public static final int ARM_JOINT_ENCODER_START_PULSE_US = 1;
+    public static final int ARM_JOINT_ENCODER_END_PULSE_US = 1024;
+    public static final double ARM_JOINT_ENCODER_ZERO_OFFSET = 0;
     public static final TrapezoidProfile.Constraints MOTION_PROFILE_CONSTRAINTS = new TrapezoidProfile.Constraints(RobotMap.MAX_VELOCITY, RobotMap.MAX_ACCELERATION);
     public static final double MAX_VELOCITY = 1000;
     public static final double MAX_ACCELERATION = 200;
+    public static final double ARM_JOINT_POSITION_TOLERANCE = 2;
+    public static final double ARM_JOINT_VELOCITY_TOLERANCE = 5;
+    public static final double ARM_JOINT_KF = 0.1;
 
     //claw
     public static final int CLAW_MOTOR_ID = 0;
