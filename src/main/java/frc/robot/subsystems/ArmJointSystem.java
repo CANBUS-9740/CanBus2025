@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.*;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig;
@@ -14,7 +15,8 @@ import frc.robot.RobotMap;
 public class ArmJointSystem extends SubsystemBase {
 
     private final SparkMax motor;
-    private final AbsoluteEncoder encoder;
+    private final AbsoluteEncoder absoluteEncoder;
+    private final RelativeEncoder relativeEncoder;
     private final SparkClosedLoopController pidController;
 
     public ArmJointSystem() {
@@ -22,6 +24,9 @@ public class ArmJointSystem extends SubsystemBase {
         SparkMaxConfig config = new SparkMaxConfig();
         config.idleMode(SparkBaseConfig.IdleMode.kBrake);
 
+        config.encoder
+                .positionConversionFactor(1 / RobotMap.ARM_JOINT_GEAR_RATIO)
+                .velocityConversionFactor(1 / RobotMap.ARM_JOINT_GEAR_RATIO);
         config.absoluteEncoder
                 .startPulseUs(RobotMap.ARM_JOINT_ENCODER_START_PULSE_US)
                 .endPulseUs(RobotMap.ARM_JOINT_ENCODER_END_PULSE_US)
@@ -31,7 +36,7 @@ public class ArmJointSystem extends SubsystemBase {
                 .p(RobotMap.P_ARM_JOINT)
                 .i(RobotMap.I_ARM_JOINT)
                 .d(RobotMap.D_ARM_JOINT)
-                .feedbackSensor(ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder);
+                .feedbackSensor(ClosedLoopConfig.FeedbackSensor.kPrimaryEncoder);
 
         config.limitSwitch
                 .forwardLimitSwitchEnabled(true)
@@ -47,16 +52,19 @@ public class ArmJointSystem extends SubsystemBase {
 
         motor.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
-        encoder = motor.getAbsoluteEncoder();
+        absoluteEncoder = motor.getAbsoluteEncoder();
+        relativeEncoder = motor.getEncoder();
+        relativeEncoder.setPosition(relativeEncoder.getPosition());
         pidController = motor.getClosedLoopController();
     }
 
     public double getPositionDegrees(){
-        return encoder.getPosition() * 360;
+        return relativeEncoder.getPosition() * 360;
     }
 
     public void moveToPosition(double positionDegrees){
-        pidController.setReference(positionDegrees, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, Math.cos(Math.toRadians(getPositionDegrees())) * RobotMap.ARM_JOINT_KF, SparkClosedLoopController.ArbFFUnits.kPercentOut);
+        double ff = Math.cos(Math.toRadians(getPositionDegrees())) * RobotMap.ARM_JOINT_KF;
+        pidController.setReference(positionDegrees, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, SparkClosedLoopController.ArbFFUnits.kPercentOut);
     }
 
     public void raise(){
@@ -76,7 +84,7 @@ public class ArmJointSystem extends SubsystemBase {
     }
 
     public boolean reachedPosition(double targetPosition) {
-        return MathUtil.isNear(targetPosition, getPositionDegrees(), RobotMap.ARM_JOINT_POSITION_TOLERANCE) && Math.abs(encoder.getVelocity()) <= RobotMap.ARM_JOINT_VELOCITY_TOLERANCE;
+        return MathUtil.isNear(targetPosition, getPositionDegrees(), RobotMap.ARM_JOINT_POSITION_TOLERANCE) && Math.abs(relativeEncoder.getVelocity()) <= RobotMap.ARM_JOINT_VELOCITY_TOLERANCE;
     }
 
     @Override

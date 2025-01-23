@@ -59,6 +59,8 @@ public class RobotMap {
     public static final double ARM_JOINT_POSITION_TOLERANCE = 2;
     public static final double ARM_JOINT_VELOCITY_TOLERANCE = 5;
     public static final double ARM_JOINT_KF = 0.1;
+    public static final double ARM_JOINT_DEFAULT_POSITION = 90;
+    public static final double ARM_JOINT_GEAR_RATIO = 1;
 
     //claw
     public static final int CLAW_MOTOR_ID = 0;

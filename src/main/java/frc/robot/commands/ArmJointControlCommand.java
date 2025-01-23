@@ -27,7 +27,7 @@ public class ArmJointControlCommand extends Command {
     public void initialize() {
         isInTarget = false;
         hasNewPosition = true;
-        targetPosition = 90;
+        targetPosition = RobotMap.ARM_JOINT_DEFAULT_POSITION;
     }
 
     @Override
@@ -44,15 +44,20 @@ public class ArmJointControlCommand extends Command {
 
         if (sub.reachedPosition(targetPosition)) {
             isInTarget = true;
+            if (targetPosition == 0 || targetPosition == 180) {
+                sub.stop();
+            } else {
+                sub.moveToPosition(targetPosition);
+            }
         } else {
             motionProfileSetPoint = motionProfile.calculate(0.02, motionProfileSetPoint, motionProfileGoal);
+            sub.moveToPosition(motionProfileSetPoint.position);
         }
-        sub.moveToPosition(motionProfileSetPoint.position);
     }
 
     @Override
     public boolean isFinished() {
-        return sub.reachedPosition(0) || sub.reachedPosition(180);
+        return false;
     }
 
     @Override

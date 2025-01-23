@@ -18,6 +18,7 @@ public class Robot extends TimedRobot {
     private ClawGripperSystem clawGripperSystem;
     private ClawJointSystem clawJointSystem;
     private ArmJointSystem armJointSystem;
+    private ArmJointControlCommand armJointControlCommand;
 
     @Override
     public void robotInit() {
@@ -25,6 +26,9 @@ public class Robot extends TimedRobot {
         xbox = new XboxController(0);
 
         clawGripperSystem = new ClawGripperSystem();
+        armJointSystem = new ArmJointSystem();
+
+        CommandScheduler.getInstance().setDefaultCommand(armJointSystem, armJointControlCommand);
     }
 
     @Override
