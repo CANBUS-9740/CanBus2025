@@ -34,16 +34,18 @@ public class ArmJointControlCommand extends Command {
     public void execute() {
         if (hasNewPosition) {
            isInTarget = false;
+           hasNewPosition = false;
 
            motionProfile = new TrapezoidProfile(RobotMap.MOTION_PROFILE_CONSTRAINTS);
            motionProfileGoal = new TrapezoidProfile.State(targetPosition, 0);
            motionProfileSetPoint = new TrapezoidProfile.State(sub.getPositionDegrees(), 0);
         }
 
-
-
-        if (sub.reachedPosition(targetPosition)) {
+        if (!isInTarget && sub.reachedPosition(targetPosition)) {
             isInTarget = true;
+        }
+
+        if (isInTarget) {
             if (targetPosition == 0 || targetPosition == 180) {
                 sub.stop();
             } else {

@@ -54,8 +54,9 @@ public class ArmJointSystem extends SubsystemBase {
 
         absoluteEncoder = motor.getAbsoluteEncoder();
         relativeEncoder = motor.getEncoder();
-        relativeEncoder.setPosition(relativeEncoder.getPosition());
         pidController = motor.getClosedLoopController();
+
+        relativeEncoder.setPosition(absoluteEncoder.getPosition());
     }
 
     public double getPositionDegrees(){
@@ -64,7 +65,7 @@ public class ArmJointSystem extends SubsystemBase {
 
     public void moveToPosition(double positionDegrees){
         double ff = Math.cos(Math.toRadians(getPositionDegrees())) * RobotMap.ARM_JOINT_KF;
-        pidController.setReference(positionDegrees, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, SparkClosedLoopController.ArbFFUnits.kPercentOut);
+        pidController.setReference(positionDegrees / 360.0, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, SparkClosedLoopController.ArbFFUnits.kPercentOut);
     }
 
     public void raise(){
@@ -84,7 +85,8 @@ public class ArmJointSystem extends SubsystemBase {
     }
 
     public boolean reachedPosition(double targetPosition) {
-        return MathUtil.isNear(targetPosition, getPositionDegrees(), RobotMap.ARM_JOINT_POSITION_TOLERANCE) && Math.abs(relativeEncoder.getVelocity()) <= RobotMap.ARM_JOINT_VELOCITY_TOLERANCE;
+        return MathUtil.isNear(targetPosition, getPositionDegrees(), RobotMap.ARM_JOINT_POSITION_TOLERANCE) &&
+                Math.abs(relativeEncoder.getVelocity()) <= RobotMap.ARM_JOINT_VELOCITY_TOLERANCE;
     }
 
     @Override

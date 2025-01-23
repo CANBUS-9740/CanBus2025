@@ -28,7 +28,8 @@ public class Robot extends TimedRobot {
         clawGripperSystem = new ClawGripperSystem();
         armJointSystem = new ArmJointSystem();
 
-        CommandScheduler.getInstance().setDefaultCommand(armJointSystem, armJointControlCommand);
+        armJointControlCommand = new ArmJointControlCommand(armJointSystem);
+        armJointSystem.setDefaultCommand(armJointControlCommand);
     }
 
     @Override
