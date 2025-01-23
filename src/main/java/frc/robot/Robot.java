@@ -5,16 +5,39 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.ArmJointControlCommand;
+import frc.robot.subsystems.ArmJointSystem;
+import frc.robot.subsystems.ArmTelescopicSystem;
+import frc.robot.subsystems.ClawGripperSystem;
+import frc.robot.subsystems.ClawJointSystem;
+import frc.robot.subsystems.HangingSystem;
 import frc.robot.subsystems.Swerve;
 
 public class Robot extends TimedRobot {
 
     private Swerve swerve;
+    private ClawGripperSystem clawGripperSystem;
+    private ClawJointSystem clawJointSystem;
+    private ArmJointSystem armJointSystem;
+    private ArmTelescopicSystem armTelescopicSystem;
+    private HangingSystem hangingSystem;
+
+    private ArmJointControlCommand armJointControlCommand;
+
     private XboxController xbox;
 
     @Override
     public void robotInit() {
         swerve = new Swerve();
+        clawGripperSystem = new ClawGripperSystem();
+        armJointSystem = new ArmJointSystem();
+        clawJointSystem = new ClawJointSystem();
+        armTelescopicSystem = new ArmTelescopicSystem();
+        hangingSystem = new HangingSystem();
+
+        armJointControlCommand = new ArmJointControlCommand(armJointSystem);
+        armJointSystem.setDefaultCommand(armJointControlCommand);
+
         xbox = new XboxController(0);
     }
 
