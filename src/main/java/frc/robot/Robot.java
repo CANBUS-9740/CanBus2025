@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.ArmJointControlCommand;
 import frc.robot.subsystems.ArmJointSystem;
@@ -43,6 +44,8 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
+
+
     }
 
     @Override
@@ -72,10 +75,10 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        swerve.drive(
-                ()-> MathUtil.applyDeadband(-xbox.getLeftY(), 0.05),
-                ()-> MathUtil.applyDeadband(-xbox.getLeftX(), 0.05),
-                ()-> MathUtil.applyDeadband(-xbox.getRightX(), 0.05)
+        swerve.fieldDrive(
+                ()-> -MathUtil.applyDeadband(Math.pow(xbox.getRightY(),3), 0.05),
+                ()-> MathUtil.applyDeadband(Math.pow( xbox.getRightX(),3), 0.05),
+                ()-> MathUtil.applyDeadband(xbox.getLeftX() , 0.15)
         ).schedule();
     }
 
@@ -97,6 +100,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousPeriodic() {
 
+
     }
 
     @Override
@@ -106,8 +110,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testInit() {
-        //swerve.drive(()-> 0.0, ()-> 0.0, ()-> -0.6).schedule();
-        swerve.centerModules().schedule();
+
     }
 
     @Override
