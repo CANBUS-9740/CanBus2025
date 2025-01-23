@@ -1,13 +1,7 @@
 {
-<<<<<<<< HEAD:vendordeps/yagsl-2025.2.2.json
   "fileName": "yagsl-2025.2.2.json",
   "name": "YAGSL",
   "version": "2025.2.2",
-========
-  "fileName": "yagsl-2025.1.2.json",
-  "name": "YAGSL",
-  "version": "2025.1.2",
->>>>>>>> origin/main:vendordeps/yagsl-2025.1.2.json
   "frcYear": "2025",
   "uuid": "1ccce5a4-acd2-4d18-bca3-4b8047188400",
   "mavenUrls": [
@@ -18,11 +12,7 @@
     {
       "groupId": "swervelib",
       "artifactId": "YAGSL-java",
-<<<<<<<< HEAD:vendordeps/yagsl-2025.2.2.json
       "version": "2025.2.2"
-========
-      "version": "2025.1.2"
->>>>>>>> origin/main:vendordeps/yagsl-2025.1.2.json
     }
   ],
   "requires": [
@@ -52,11 +42,7 @@
     },
     {
       "uuid": "cb311d09-36e9-4143-a032-55bb2b94443b",
-<<<<<<<< HEAD:vendordeps/yagsl-2025.2.2.json
       "errorMessage": "Studica is required!",
-========
-      "errorMessage": "NavX is required!",
->>>>>>>> origin/main:vendordeps/yagsl-2025.1.2.json
       "offlineFileName": "Studica-2025.0.0.json",
       "onlineUrl": "https://dev.studica.com/releases/2025/Studica-2025.0.0.json"
     },
