@@ -67,7 +67,7 @@ public class Swerve extends SubsystemBase {
                 RobotMap.SWERVE_DRIVE_PIDF,
                 characteristics,
                 false,
-                false,
+                true,
                 true,
                 "FrontLeft",
                 false
@@ -84,7 +84,7 @@ public class Swerve extends SubsystemBase {
                 RobotMap.SWERVE_DRIVE_PIDF,
                 characteristics,
                 false,
-                false,
+                true,
                 true,
                 "FrontRight",
                 false
@@ -101,7 +101,7 @@ public class Swerve extends SubsystemBase {
                 RobotMap.SWERVE_DRIVE_PIDF,
                 characteristics,
                 false,
-                false,
+                true,
                 true,
                 "BackLeft",
                 false
@@ -118,7 +118,7 @@ public class Swerve extends SubsystemBase {
                 RobotMap.SWERVE_DRIVE_PIDF,
                 characteristics,
                 false,
-                false,
+                true,
                 true,
                 "BackRight",
                 false
@@ -152,6 +152,10 @@ public class Swerve extends SubsystemBase {
         mechanism = new Mechanism2d(50, 50);
         moduleMechanisms = createMechanismDisplay(mechanism);
         SmartDashboard.putData("SwerveMechanism", mechanism);
+    }
+
+    public Pose2d getPose() {
+        return swerveDrive.getPose();
     }
 
     public Command drive(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX) {
