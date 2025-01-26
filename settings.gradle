@@ -10,7 +10,7 @@ pluginManagement {
             url('https://oss.sonatype.org/content/repositories/snapshots')
         }
 
-        String frcYear = '2023'
+        String frcYear = '2025'
         File frcHome
         if (OperatingSystem.current().isWindows()) {
             String publicFolder = System.getenv('PUBLIC')
