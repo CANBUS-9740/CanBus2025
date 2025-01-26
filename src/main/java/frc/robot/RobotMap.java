@@ -18,7 +18,7 @@ public class RobotMap {
     public static final double SWERVE_STEER_RAMP_RATE = 0.25;
     public static final PIDFConfig SWERVE_DRIVE_PIDF = new PIDFConfig(1, 0, 0, 0, 0);
     public static final PIDFConfig SWERVE_STEER_PIDF = new PIDFConfig(0.01, 0, 0, 0, 0);//
-    public static final PIDFConfig SWERVE_HEADING_PIDF =  new PIDFConfig(0.00749, 0, 0.00758,0,0);//new PIDFConfig(0.4, 0, 0.01,0);
+    public static final PIDFConfig SWERVE_HEADING_PIDF =  new PIDFConfig(0.007448 , 0, 0.00758,0,0);//new PIDFConfig(0.4, 0, 0.01,0);
     public static final int SWERVE_DRIVE_FRONT_LEFT_MOTOR_ID = 12;
     public static final int SWERVE_DRIVE_FRONT_RIGHT_MOTOR_ID = 10;
     public static final int SWERVE_DRIVE_BACK_LEFT_MOTOR_ID = 13;

@@ -1,10 +1,12 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.Swerve;
 
 public class Robot extends TimedRobot {
@@ -54,8 +56,8 @@ public class Robot extends TimedRobot {
     public void teleopInit() {
         swerve.fieldDrive(
                 ()-> -MathUtil.applyDeadband(Math.pow(xbox.getRightY(),3), 0.05),
-                ()-> MathUtil.applyDeadband(Math.pow( xbox.getRightX(),3), 0.05),
-                ()-> MathUtil.applyDeadband(xbox.getLeftX() , 0.15)
+                ()-> -MathUtil.applyDeadband(Math.pow( xbox.getRightX(),3), 0.05),
+                ()-> -MathUtil.applyDeadband(xbox.getLeftX() , 0.15)
         ).schedule();
     }
 
@@ -71,6 +73,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        //new InstantCommand (()-> swerve.drive(new ChassisSpeeds(0,0.2,0))).schedule();
+        swerve.drive(()-> 0.18, ()->0,()->0).schedule();
 
     }
 
