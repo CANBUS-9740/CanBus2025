@@ -63,6 +63,8 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
+
+
     }
 
     @Override
@@ -93,9 +95,9 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         swerve.fieldDrive(
-                () -> -MathUtil.applyDeadband(Math.pow(xbox.getRightY(), 3), 0.05),
-                () -> MathUtil.applyDeadband(Math.pow(xbox.getRightX(), 3), 0.05),
-                () -> MathUtil.applyDeadband(xbox.getLeftX(), 0.15)
+                ()-> -MathUtil.applyDeadband(Math.pow(xbox.getRightY(),3), 0.05),
+                ()-> MathUtil.applyDeadband(Math.pow( xbox.getRightX(),3), 0.05),
+                ()-> MathUtil.applyDeadband(xbox.getLeftX() , 0.15)
         ).schedule();
     }
 
