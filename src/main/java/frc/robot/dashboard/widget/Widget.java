@@ -2,12 +2,12 @@ package frc.robot.dashboard.widget;
 
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardComponent;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
-import frc.robot.dashboard.Displayable;
+import frc.robot.dashboard.Element;
 import frc.robot.dashboard.Rect;
 
 import java.util.function.Supplier;
 
-public abstract class Widget<T> implements Displayable {
+public abstract class Widget<T> implements Element {
     protected final String title;
     protected final Supplier<T> supplier;
 

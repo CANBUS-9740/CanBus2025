@@ -1,4 +1,4 @@
 package frc.robot.dashboard;
 
-public record Tab(String title, String id, Displayable displayable) {
+public record Tab(String title, String id, Element rootElement) {
 }

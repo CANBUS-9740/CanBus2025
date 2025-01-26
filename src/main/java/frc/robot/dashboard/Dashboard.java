@@ -14,7 +14,7 @@ public class Dashboard {
     public void setup() {
         for (final var tab : tabs) {
             final var shuffleboardTab = Shuffleboard.getTab(tab.title());
-            tab.displayable().addTo(shuffleboardTab, new Rect(0, 0, config.width(), config.height()));
+            tab.rootElement().addTo(shuffleboardTab, new Rect(0, 0, config.width(), config.height()));
         }
     }
 

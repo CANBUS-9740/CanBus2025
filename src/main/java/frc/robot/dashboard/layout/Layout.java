@@ -1,11 +1,11 @@
 package frc.robot.dashboard.layout;
 
-import frc.robot.dashboard.Displayable;
+import frc.robot.dashboard.Element;
 
-public abstract class Layout implements Displayable {
-    protected final Displayable[] displayables;
+public abstract class Layout implements Element {
+    protected final Element[] elements;
 
-    protected Layout(Displayable... displayables) {
-        this.displayables = displayables;
+    protected Layout(Element... elements) {
+        this.elements = elements;
     }
 }
