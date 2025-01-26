@@ -3,9 +3,13 @@ package frc.robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.ArmJointControlCommand;
+import frc.robot.dashboard.Dashboard;
+import frc.robot.dashboard.Tab;
+import frc.robot.dashboard.layout.Column;
+import frc.robot.dashboard.layout.Row;
+import frc.robot.dashboard.widget.BooleanWidget;
 import frc.robot.subsystems.ArmJointSystem;
 import frc.robot.subsystems.ArmTelescopicSystem;
 import frc.robot.subsystems.ClawGripperSystem;
@@ -39,13 +43,26 @@ public class Robot extends TimedRobot {
         armJointSystem.setDefaultCommand(armJointControlCommand);
 
         xbox = new XboxController(0);
+
+        final var dashboard = new Dashboard(
+                new Dashboard.Configuration(13, 6),
+                new Tab(
+                        "Generated Tab",
+                        "generated-tab",
+                        new Row(
+                                new BooleanWidget("Boolean Widget 1", () -> true),
+                                new Column(
+                                        new BooleanWidget("Boolean Widget 2", () -> false),
+                                        new BooleanWidget("Boolean Widget 3", () -> true))
+                                )
+                )
+        );
+        dashboard.setup();
     }
 
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
-
-
     }
 
     @Override
@@ -76,9 +93,9 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         swerve.fieldDrive(
-                ()-> -MathUtil.applyDeadband(Math.pow(xbox.getRightY(),3), 0.05),
-                ()-> MathUtil.applyDeadband(Math.pow( xbox.getRightX(),3), 0.05),
-                ()-> MathUtil.applyDeadband(xbox.getLeftX() , 0.15)
+                () -> -MathUtil.applyDeadband(Math.pow(xbox.getRightY(), 3), 0.05),
+                () -> MathUtil.applyDeadband(Math.pow(xbox.getRightX(), 3), 0.05),
+                () -> MathUtil.applyDeadband(xbox.getLeftX(), 0.15)
         ).schedule();
     }
 
