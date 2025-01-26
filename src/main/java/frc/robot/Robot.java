@@ -53,8 +53,14 @@ public class Robot extends TimedRobot {
                                 new BooleanWidget("Boolean Widget 1", () -> true),
                                 new Column(
                                         new BooleanWidget("Boolean Widget 2", () -> false),
-                                        new BooleanWidget("Boolean Widget 3", () -> true))
+                                        new BooleanWidget("Boolean Widget 3", () -> true),
+                                        new BooleanWidget("Boolean Widget 4", () -> false)
+                                ),
+                                new Column(
+                                        new BooleanWidget("Boolean Widget 5", () -> true),
+                                        new BooleanWidget("Boolean Widget 6", () -> false)
                                 )
+                        )
                 )
         );
         dashboard.setup();
