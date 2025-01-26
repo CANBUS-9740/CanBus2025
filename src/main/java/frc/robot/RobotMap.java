@@ -51,7 +51,7 @@ public class RobotMap {
     public static final double ARM_TELESCOPIC_RESET_LENGTH_METERS = 0;
 
     //ARM JOINT
-    public static final int ARM_JOINT_MOTOR_ID = 0;
+    public static final int ARM_JOINT_MOTOR_ID = 1;
     public static final double P_ARM_JOINT = 0;
     public static final double I_ARM_JOINT = 0;
     public static final double D_ARM_JOINT = 0;
@@ -68,11 +68,11 @@ public class RobotMap {
     public static final double ARM_JOINT_GEAR_RATIO = 1;
 
     //claw
-    public static final int CLAW_MOTOR_ID = 0;
+    public static final int CLAW_MOTOR_ID = 2;
     public static final int CLAW_SWITCH_PORT = 1;
 
     //clawJoint
-    public static final int CLAWJOINT_MOTOR_ID = 0;
+    public static final int CLAWJOINT_MOTOR_ID = 3;
     public static final double P_CLAWJOINT = 0;
     public static final double I_CLAWJOINT = 0;
     public static final double D_CLAWJOINT = 0;
@@ -81,8 +81,8 @@ public class RobotMap {
     public static final int CLAWJOINT_ABS_ENCODER_ZERO_OFFSET = 0;
 
     // hang
-    public static final int HANGING_MOTOR_RIGHT_ID = 0;
-    public static final int HANGING_MOTOR_LEFT_ID = 0;
+    public static final int HANGING_MOTOR_RIGHT_ID = 4;
+    public static final int HANGING_MOTOR_LEFT_ID = 5;
     public static final double HANGING_CLOSE_ANGLE = 180;
     public static final double HANGING_OPEN_ANGLE = 0;
 }
