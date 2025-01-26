@@ -1,17 +1,22 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.ArmJointControlCommand;
+import edu.wpi.first.wpilibj2.command.*;
+import frc.robot.commands.*;
 import frc.robot.subsystems.ArmJointSystem;
 import frc.robot.subsystems.ArmTelescopicSystem;
 import frc.robot.subsystems.ClawGripperSystem;
 import frc.robot.subsystems.ClawJointSystem;
 import frc.robot.subsystems.HangingSystem;
 import frc.robot.subsystems.Swerve;
+import org.opencv.core.Mat;
+
+import java.util.Set;
 
 public class Robot extends TimedRobot {
 
@@ -39,6 +44,44 @@ public class Robot extends TimedRobot {
         armJointSystem.setDefaultCommand(armJointControlCommand);
 
         xbox = new XboxController(0);
+
+
+        Command collectSource = Commands.defer(()-> {
+                    double sourceDistanceA = swerve.getDistance(RobotMap.POSE_SOURCE_A);
+                    double sourceDistanceB = swerve.getDistance(RobotMap.POSE_SOURCE_B);
+                    double targetsDistance;
+                    if (sourceDistanceA > sourceDistanceB) {
+                        targetsDistance = sourceDistanceA;
+                    } else {
+                        targetsDistance = sourceDistanceB;
+                    }
+                    double length = Math.sqrt(Math.pow(targetsDistance, 2) + Math.pow(RobotMap.SOURCE_HEIGHT, 2));
+                    double angle = Math.atan(RobotMap.SOURCE_HEIGHT / targetsDistance);
+
+                    if (length > RobotMap.ARM_TELESCOPIC_MAXIMUM_LENGTH || length < RobotMap.ARM_TELESCOPIC_MINIMUM_LENGTH || angle < RobotMap.ARM_JOINT_MINIMUM_ANGLE || angle > RobotMap.ARM_JOINT_MAXIMUM_ANGLE) {
+                        return Commands.none();
+                    }
+
+                    return new SequentialCommandGroup(
+                            new ParallelCommandGroup(
+                                    new ArmTelescopicMoveToLength(armTelescopicSystem, length),
+                                    Commands.runOnce(()-> new ArmJointControlCommand(armJointSystem).setTargetPosition(angle)),
+                                    Commands.waitUntil(()-> new ArmJointControlCommand(armJointSystem).isAtTargetPosition()),
+                                    new ParallelDeadlineGroup(
+                                            new InstantCommand(()-> clawJointSystem.isReachPosition(RobotMap.CLAWJOINT_SOURCE_ANGLE)),
+                                            new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE))
+                                    ),
+                            new ClawGripperIntake(clawGripperSystem)
+
+                            );
+
+
+
+
+
+
+                }, Set.of()
+        );
     }
 
     @Override
@@ -47,6 +90,7 @@ public class Robot extends TimedRobot {
 
 
     }
+
 
     @Override
     public void simulationInit() {

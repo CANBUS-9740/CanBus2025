@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import swervelib.parser.PIDFConfig;
@@ -49,6 +50,8 @@ public class RobotMap {
     public static final double ARM_TELESCOPIC_REVERSE_SOFT_LIMIT = 0;
     public static final double ARM_TELESCOPIC_DRUM_CIRCUMFERENSE = 1;
     public static final double ARM_TELESCOPIC_RESET_LENGTH_METERS = 0;
+    public static final double ARM_TELESCOPIC_MAXIMUM_LENGTH = 180;
+    public static final double ARM_TELESCOPIC_MINIMUM_LENGTH = 0;
 
     //ARM JOINT
     public static final int ARM_JOINT_MOTOR_ID = 0;
@@ -66,6 +69,8 @@ public class RobotMap {
     public static final double ARM_JOINT_KF = 0.1;
     public static final double ARM_JOINT_DEFAULT_POSITION = 90;
     public static final double ARM_JOINT_GEAR_RATIO = 1;
+    public static final double ARM_JOINT_MINIMUM_ANGLE = 0;
+    public static final double ARM_JOINT_MAXIMUM_ANGLE = 180;
 
     //claw
     public static final int CLAW_MOTOR_ID = 0;
@@ -79,10 +84,16 @@ public class RobotMap {
     public static final int CLAWJOINT_ABS_ENCODER_START_PULSE_US = 1;
     public static final int CLAWJOINT_ABS_ENCODER_END_PULSE_US = 1024;
     public static final int CLAWJOINT_ABS_ENCODER_ZERO_OFFSET = 0;
+    public static final int CLAWJOINT_SOURCE_ANGLE = 0;
 
     // hang
     public static final int HANGING_MOTOR_RIGHT_ID = 0;
     public static final int HANGING_MOTOR_LEFT_ID = 0;
     public static final double HANGING_CLOSE_ANGLE = 180;
     public static final double HANGING_OPEN_ANGLE = 0;
+
+    //commandsGroup
+    public static final Pose2d POSE_SOURCE_A = null;
+    public static final Pose2d POSE_SOURCE_B = null;
+    public static final double SOURCE_HEIGHT = 0;
 }

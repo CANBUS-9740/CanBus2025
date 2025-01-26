@@ -157,6 +157,11 @@ public class Swerve extends SubsystemBase {
     public Pose2d getPose() {
         return swerveDrive.getPose();
     }
+    public double getDistance(Pose2d pos){
+        return Math.sqrt(
+                Math.pow(getPose().getX() - pos.getX(), 2)+ Math.pow(getPose().getY() - pos.getY(), 2)
+        );
+    }
 
     public Command drive(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX) {
         return runEnd(() -> {
