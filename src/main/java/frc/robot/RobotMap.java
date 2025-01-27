@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import swervelib.parser.PIDFConfig;
 
 public class RobotMap {
@@ -85,4 +86,12 @@ public class RobotMap {
     public static final int HANGING_MOTOR_LEFT_ID = 0;
     public static final double HANGING_CLOSE_ANGLE = 180;
     public static final double HANGING_OPEN_ANGLE = 0;
+
+    public static double MOI = 0.3;//need to check
+    public static double MAX_DRIVE_VELOCITY_MPS = 5; //need to decide
+    public static double DRIVE_WHEEL_COF = 1.19;
+    public static double DRIVE_CURRENT_LIMIT = 20; //need to decide
+    public static double DRIVE_TRACK_WIDTH_METERS = Units.inchesToMeters(28);
+    public static double DRIVE_WHEEL_RADIUS_METERS = 0.5; //need to check
+
 }
