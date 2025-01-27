@@ -1,5 +1,10 @@
 package frc.robot.subsystems;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -8,6 +13,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -32,6 +38,7 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 public class Swerve extends SubsystemBase {
@@ -152,6 +159,59 @@ public class Swerve extends SubsystemBase {
         mechanism = new Mechanism2d(50, 50);
         moduleMechanisms = createMechanismDisplay(mechanism);
         SmartDashboard.putData("SwerveMechanism", mechanism);
+    }
+
+    public void resetPose(Pose2d pose2d){
+        swerveDrive.resetOdometry(pose2d);
+    }
+
+    private void pathPlannerSetUp() {
+        RobotConfig config = new RobotConfig(
+                RobotMap.ROBOT_MASS_KG,
+                RobotMap.MOI,
+                new ModuleConfig(
+                        RobotMap.DRIVE_WHEEL_RADIUS_METERS,
+                        RobotMap.MAX_DRIVE_VELOCITY_MPS,
+                        RobotMap.DRIVE_WHEEL_COF,
+                        DCMotor.getKrakenX60(1),
+                        RobotMap.DRIVE_CURRENT_LIMIT,
+                        1),
+                RobotMap.DRIVE_TRACK_WIDTH_METERS
+        );
+
+        AutoBuilder.configure(
+                this::getPose, // Robot pose supplier
+                this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+                this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                (speedsRobotRelative, moduleFeedForwards) -> {
+                    swerveDrive.setChassisSpeeds(speedsRobotRelative);
+                }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+                new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                ),
+                config, // The robot configuration
+                () -> {
+                    shouldFlipPath(); // Boolean supplier that controls when the path will be mirrored for the red alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this // Reference to this subsystem to set requirements
+        );
+    }
+
+    private boolean shouldFlipPath() {
+        Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+        if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+        }
+        return false;
     }
 
     public Pose2d getPose() {
