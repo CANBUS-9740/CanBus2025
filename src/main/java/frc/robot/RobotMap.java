@@ -71,6 +71,7 @@ public class RobotMap {
     public static final double ARM_JOINT_GEAR_RATIO = 1;
     public static final double ARM_JOINT_MINIMUM_ANGLE = 0;
     public static final double ARM_JOINT_MAXIMUM_ANGLE = 180;
+    public static final double ARM_JOINT_FLOOR_ANGLE = 0;
 
     //claw
     public static final int CLAW_MOTOR_ID = 0;
@@ -84,7 +85,13 @@ public class RobotMap {
     public static final int CLAWJOINT_ABS_ENCODER_START_PULSE_US = 1;
     public static final int CLAWJOINT_ABS_ENCODER_END_PULSE_US = 1024;
     public static final int CLAWJOINT_ABS_ENCODER_ZERO_OFFSET = 0;
-    public static final int CLAWJOINT_SOURCE_ANGLE = 0;
+    public static final double CLAWJOINT_SOURCE_ANGLE = 0;
+    public static final double CLAWJOINT_FLOOR_ANGLE = 0;
+    public static final double CLAWJOINT_CORAL_PODIUM_POLE_ANGLE = 0;
+    public static final double CLAWJOINT_CORAL_LOWER_POLE_ANGLE = 0;
+    public static final double CLAWJOINT_CORAL_MEDIUM_POLE_ANGLE = 0;
+    public static final double CLAWJOINT_CORAL_HIGH_POLE_ANGLE = 0;
+    public static final double CLAWJOINT_PROCESSOR_ANGLE = 0;
 
     // hang
     public static final int HANGING_MOTOR_RIGHT_ID = 0;
@@ -95,5 +102,15 @@ public class RobotMap {
     //commandsGroup
     public static final Pose2d POSE_SOURCE_A = null;
     public static final Pose2d POSE_SOURCE_B = null;
+    public static final Pose2d POSE_PROCESSOR = null;
+    public static final Pose2d[][] POSE_CORAL_STANDS = {{null, null}, {null, null}, {null, null}, {null, null}, {null, null}, {null, null}};
     public static final double SOURCE_HEIGHT = 0;
+    public static final double CORAL_PODIUM_POLE_HEIGHT = 0;
+    public static final double CORAL_LOWER_POLE_HEIGHT = 0;
+    public static final double CORAL_MEDIUM_POLE_HEIGHT = 0;
+    public static final double CORAL_HIGH_POLE_HEIGHT = 0;
+    public static final double PROCESSOR_PLACE_HEIGHT = 0;
+
+
+
 }
