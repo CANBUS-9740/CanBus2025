@@ -165,13 +165,24 @@ public class Swerve extends SubsystemBase {
     }
 
     public double getDistanceReef(Pose2d[][] pose2d) {
+        Pose2d robotPose = getPose();
         double distance = getDistance(pose2d[0][0]);
+        int pose = 0;
         for (int j = 0; j < 2; j++) {
             for (int i = 0; i < 5; i++) {
                 if (distance < getDistance(pose2d[i + 1][j])){
                     distance = getDistance(pose2d[i + 1][j]);
+                    pose = i + 1;
                 }
             }
+        }
+        double robotAngle = robotPose.getRotation().getDegrees();
+        double angleStandOne = Math.atan2(pose2d[pose][0].getX() - robotPose.getX(), pose2d[pose][0].getY() - robotPose.getY());
+        double angleStandTwo = Math.atan2(pose2d[pose][1].getX() - robotPose.getX(), pose2d[pose][1].getY() - robotPose.getY());
+        if (Math.abs(robotAngle - angleStandOne) > Math.abs(robotAngle - angleStandTwo)) {
+            distance = getDistance(pose2d[pose][1]);
+        } else {
+            distance = getDistance(pose2d[pose][0]);
         }
         return distance;
     }
