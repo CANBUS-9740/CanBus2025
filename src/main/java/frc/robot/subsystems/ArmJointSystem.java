@@ -89,6 +89,10 @@ public class ArmJointSystem extends SubsystemBase {
                 Math.abs(relativeEncoder.getVelocity()) <= RobotMap.ARM_JOINT_VELOCITY_TOLERANCE;
     }
 
+    public double getCalculatedAngle(double distance, double height) {
+        return Math.atan(height / distance);
+    }
+
     @Override
     public void periodic(){
         SmartDashboard.putNumber("ArmJointPosition", getPositionDegrees());
