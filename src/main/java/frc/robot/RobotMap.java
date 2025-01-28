@@ -90,9 +90,9 @@ public class RobotMap {
     public static double MOI = 4.805;//need to check
     public static double MAX_DRIVE_VELOCITY_MPS = 10; //need to decide
     public static double DRIVE_WHEEL_COF = 1.19;
-    public static double DRIVE_CURRENT_LIMIT = 20; //need to decide
+    public static double DRIVE_CURRENT_LIMIT = 200; //need to decide
     public static double DRIVE_TRACK_WIDTH_METERS = Units.inchesToMeters(28);
     public static double DRIVE_WHEEL_RADIUS_METERS = Units.inchesToMeters(2);
-    public static final double ROBOT_MASS_KG = 15;
+    public static final double ROBOT_MASS_KG = 25;
 
 }

@@ -5,6 +5,7 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -22,6 +23,7 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
+import org.json.simple.parser.ParseException;
 import swervelib.SwerveDrive;
 import swervelib.SwerveModule;
 import swervelib.encoders.CANCoderSwerve;
@@ -36,6 +38,7 @@ import swervelib.parser.SwerveModulePhysicalCharacteristics;
 import swervelib.parser.json.modules.ConversionFactorsJson;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Optional;
@@ -159,10 +162,22 @@ public class Swerve extends SubsystemBase {
         mechanism = new Mechanism2d(50, 50);
         moduleMechanisms = createMechanismDisplay(mechanism);
         SmartDashboard.putData("SwerveMechanism", mechanism);
+
+        pathPlannerSetUp();
     }
 
     public void resetPose(Pose2d pose2d){
         swerveDrive.resetOdometry(pose2d);
+    }
+
+    public Command followPathCommand(String pathName) {
+        PathPlannerPath path;
+        try {
+            path = PathPlannerPath.fromPathFile(pathName);
+        } catch (IOException | ParseException e) {
+            throw new Error(e);
+        }
+        return AutoBuilder.followPath(path);
     }
 
     private void pathPlannerSetUp() {
@@ -192,7 +207,7 @@ public class Swerve extends SubsystemBase {
                 ),
                 config, // The robot configuration
                 () -> {
-                    shouldFlipPath(); // Boolean supplier that controls when the path will be mirrored for the red alliance
+                     // Boolean supplier that controls when the path will be mirrored for the red alliance
                     // This will flip the path being followed to the red side of the field.
                     // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
@@ -206,12 +221,8 @@ public class Swerve extends SubsystemBase {
         );
     }
 
-    private boolean shouldFlipPath() {
-        Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
-        if (alliance.isPresent()) {
-            return alliance.get() == DriverStation.Alliance.Red;
-        }
-        return false;
+    private ChassisSpeeds getRobotRelativeSpeeds() {
+        return swerveDrive.getRobotVelocity();
     }
 
     public Pose2d getPose() {

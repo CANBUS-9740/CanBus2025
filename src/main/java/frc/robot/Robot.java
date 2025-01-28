@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -16,6 +17,7 @@ import frc.robot.subsystems.Swerve;
 public class Robot extends TimedRobot {
 
     private Swerve swerve;
+    /*
     private ClawGripperSystem clawGripperSystem;
     private ClawJointSystem clawJointSystem;
     private ArmJointSystem armJointSystem;
@@ -25,11 +27,11 @@ public class Robot extends TimedRobot {
     private ArmJointControlCommand armJointControlCommand;
 
     private XboxController xbox;
-
+  */
     @Override
     public void robotInit() {
         swerve = new Swerve();
-        clawGripperSystem = new ClawGripperSystem();
+        /*clawGripperSystem = new ClawGripperSystem();
         armJointSystem = new ArmJointSystem();
         clawJointSystem = new ClawJointSystem();
         armTelescopicSystem = new ArmTelescopicSystem();
@@ -39,6 +41,8 @@ public class Robot extends TimedRobot {
         armJointSystem.setDefaultCommand(armJointControlCommand);
 
         xbox = new XboxController(0);
+         */
+        FollowPathCommand.warmupCommand().schedule();
     }
 
     @Override
@@ -75,11 +79,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        swerve.fieldDrive(
-                ()-> -MathUtil.applyDeadband(Math.pow(xbox.getRightY(),3), 0.05),
-                ()-> MathUtil.applyDeadband(Math.pow( xbox.getRightX(),3), 0.05),
-                ()-> MathUtil.applyDeadband(xbox.getLeftX() , 0.15)
-        ).schedule();
+
     }
 
     @Override
@@ -94,13 +94,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-
+        swerve.followPathCommand("Example Path").schedule();
     }
 
     @Override
     public void autonomousPeriodic() {
-
-
     }
 
     @Override
