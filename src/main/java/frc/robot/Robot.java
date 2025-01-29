@@ -9,6 +9,7 @@ import frc.robot.dashboard.Dashboard;
 import frc.robot.dashboard.Tab;
 import frc.robot.dashboard.layout.Column;
 import frc.robot.dashboard.layout.Row;
+import frc.robot.dashboard.layout.WeightedRow;
 import frc.robot.dashboard.widget.BooleanWidget;
 import frc.robot.subsystems.ArmJointSystem;
 import frc.robot.subsystems.ArmTelescopicSystem;
@@ -49,7 +50,8 @@ public class Robot extends TimedRobot {
                 new Tab(
                         "Generated Tab",
                         "generated-tab",
-                        new Row(
+                        new WeightedRow(
+                                new float[]{0.5f, 0.25f, 0.25f},
                                 new BooleanWidget("Boolean Widget 1", () -> true),
                                 new Column(
                                         new BooleanWidget("Boolean Widget 2", () -> false),
