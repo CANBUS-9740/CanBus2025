@@ -3,14 +3,14 @@ package frc.robot.dashboard;
 public record Rect(int x, int y, int w, int h) {
     public Rect spliceHorizontally(int numDivisions, int divisionIndex) {
         final var stride = (float) w / numDivisions;
-        final var start = x + divisionIndex * stride;
-        final var end = start + stride;
-        return new Rect(Math.round(start), y, Math.round(end - start), h);
+        final var start = Math.round(x + stride * divisionIndex);
+        final var end = Math.round(x + stride * (divisionIndex + 1));
+        return new Rect(start, y, end - start, h);
     }
     public Rect spliceVertically(int numDivisions, int divisionIndex) {
         final var stride = (float) h / numDivisions;
-        final var start = y + divisionIndex * stride;
-        final var end = start + stride;
-        return new Rect(x, Math.round(start), w, Math.round(end - start));
+        final var start = Math.round(y + stride * divisionIndex);
+        final var end = Math.round(y + stride * (divisionIndex + 1));
+        return new Rect(x, start, w, end - start);
     }
 }
