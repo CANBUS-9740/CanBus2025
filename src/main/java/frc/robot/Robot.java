@@ -16,6 +16,7 @@ import frc.robot.subsystems.Swerve;
 public class Robot extends TimedRobot {
 
     private Swerve swerve;
+    /*
     private ClawGripperSystem clawGripperSystem;
     private ClawJointSystem clawJointSystem;
     private ArmJointSystem armJointSystem;
@@ -23,13 +24,13 @@ public class Robot extends TimedRobot {
     private HangingSystem hangingSystem;
 
     private ArmJointControlCommand armJointControlCommand;
-
+    */
     private XboxController xbox;
 
     @Override
     public void robotInit() {
         swerve = new Swerve();
-        clawGripperSystem = new ClawGripperSystem();
+        /*clawGripperSystem = new ClawGripperSystem();
         armJointSystem = new ArmJointSystem();
         clawJointSystem = new ClawJointSystem();
         armTelescopicSystem = new ArmTelescopicSystem();
@@ -37,7 +38,7 @@ public class Robot extends TimedRobot {
 
         armJointControlCommand = new ArmJointControlCommand(armJointSystem);
         armJointSystem.setDefaultCommand(armJointControlCommand);
-
+        */
         xbox = new XboxController(0);
     }
 
