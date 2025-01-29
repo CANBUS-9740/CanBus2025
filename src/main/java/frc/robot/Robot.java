@@ -1,6 +1,8 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.*;
@@ -38,7 +40,7 @@ public class Robot extends TimedRobot {
         armJointControlCommand = new ArmJointControlCommand(armJointSystem);
 
         armJointSystem.setDefaultCommand(
-                armJointControlCommand
+                new ArmJointControlCommand(armJointSystem)
         );
         armTelescopicSystem.setDefaultCommand(
                 new SequentialCommandGroup(
@@ -47,29 +49,40 @@ public class Robot extends TimedRobot {
                 )
         );
         clawGripperSystem.setDefaultCommand(
-                new SequentialCommandGroup(
-                        Commands.idle(clawGripperSystem),
-                        new InstantCommand(()-> clawGripperSystem.hasItem()),
-                        new HoldItemInClawGripper(clawGripperSystem)
-                )
+                Commands.defer(()-> {
+                    if (clawGripperSystem.hasItem()) {
+                        return new HoldItemInClawGripper(clawGripperSystem);
+                    }
+                    return Commands.idle(clawGripperSystem);
+                }, Set.of(clawGripperSystem))
         );
+
 
         xbox = new XboxController(0);
 
 
         Command collectFromSource = Commands.defer(()-> {
-                    double sourceDistanceA = swerve.getDistance(RobotMap.POSE_SOURCE_A);
-                    double sourceDistanceB = swerve.getDistance(RobotMap.POSE_SOURCE_B);
+                    double sourceDistanceA = 0;
+                    double sourceDistanceB = 0;
+                    if (DriverStation.getAlliance().isPresent()) {
+                        if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+                            sourceDistanceA = swerve.getDistance(RobotMap.POSE_SOURCE_A_BLUE);
+                            sourceDistanceB = swerve.getDistance(RobotMap.POSE_SOURCE_B_BLUE);
+                        } else {
+                            sourceDistanceA = swerve.getDistance(RobotMap.POSE_SOURCE_A_RED);
+                            sourceDistanceB = swerve.getDistance(RobotMap.POSE_SOURCE_B_RED);
+                        }
+                    }
                     double targetsDistance;
                     if (sourceDistanceA > sourceDistanceB) {
                         targetsDistance = sourceDistanceA;
                     } else {
                         targetsDistance = sourceDistanceB;
                     }
-                    double length = armTelescopicSystem.getCalculatedLength(targetsDistance, RobotMap.SOURCE_HEIGHT);
-                    double angle = armJointSystem.getCalculatedAngle(RobotMap.SOURCE_HEIGHT, targetsDistance);
+                    double length = armTelescopicSystem.calculateLengthForTarget(targetsDistance, RobotMap.SOURCE_HEIGHT);
+                    double angle = armJointSystem.calculateAngleForTarget(RobotMap.SOURCE_HEIGHT, targetsDistance);
 
-                    if (length > RobotMap.ARM_TELESCOPIC_MAXIMUM_LENGTH || length < RobotMap.ARM_TELESCOPIC_MINIMUM_LENGTH || angle < RobotMap.ARM_JOINT_MINIMUM_ANGLE || angle > RobotMap.ARM_JOINT_MAXIMUM_ANGLE) {
+                    if (isCommandIsValid(length, angle)) {
                         return Commands.none();
                     }
 
@@ -78,10 +91,7 @@ public class Robot extends TimedRobot {
                                     new ArmTelescopicMoveToLength(armTelescopicSystem, length),
                                     Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle)),
                                     Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
-                                    new ParallelDeadlineGroup(
-                                            new InstantCommand(()-> clawJointSystem.isReachPosition(RobotMap.CLAWJOINT_SOURCE_ANGLE)),
-                                            new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE))
-                                    ),
+                                    new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE)),
                             new ClawGripperIntake(clawGripperSystem)
                             );
                 }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem)
@@ -102,11 +112,18 @@ public class Robot extends TimedRobot {
         Command placeOnReefThirdStage = placeCoralOnReefCommand(CoralReef.THIRD_STAGE);
 
         Command placeInProcessor = Commands.defer(()-> {
-                    double distance = swerve.getDistance(RobotMap.POSE_PROCESSOR);
-                    double length = armTelescopicSystem.getCalculatedLength(distance, RobotMap.PROCESSOR_PLACE_HEIGHT);
-                    double angle = armJointSystem.getCalculatedAngle(RobotMap.PROCESSOR_PLACE_HEIGHT, distance);
+                    double distance = 0;
+                    if (DriverStation.getAlliance().isPresent()) {
+                        if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+                            distance = swerve.getDistance(RobotMap.POSE_PROCESSOR_BLUE);
+                        } else {
+                            distance = swerve.getDistance(RobotMap.POSE_PROCESSOR_RED);
+                        }
+                    }
+                    double length = armTelescopicSystem.calculateLengthForTarget(distance, RobotMap.PROCESSOR_PLACE_HEIGHT);
+                    double angle = armJointSystem.calculateAngleForTarget(RobotMap.PROCESSOR_PLACE_HEIGHT, distance);
 
-                    if (length > RobotMap.ARM_TELESCOPIC_MAXIMUM_LENGTH || length < RobotMap.ARM_TELESCOPIC_MINIMUM_LENGTH || angle < RobotMap.ARM_JOINT_MINIMUM_ANGLE || angle > RobotMap.ARM_JOINT_MAXIMUM_ANGLE) {
+                    if (isCommandIsValid(length, angle)) {
                         return Commands.none();
                     }
 
@@ -115,10 +132,7 @@ public class Robot extends TimedRobot {
                                     new ArmTelescopicMoveToLength(armTelescopicSystem, length),
                                     Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle)),
                                     Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
-                                    new ParallelDeadlineGroup(
-                                            new InstantCommand(()-> clawJointSystem.isReachPosition(RobotMap.CLAWJOINT_PROCESSOR_ANGLE)),
-                                            new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_PROCESSOR_ANGLE))
-                            ),
+                                    new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE)),
                             new ClawGripperOuttake(clawGripperSystem)
                     );
                 }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem)
@@ -134,6 +148,10 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
 
 
+    }
+
+    public boolean isCommandIsValid(double length, double angle) {
+        return length > RobotMap.ARM_TELESCOPIC_MAXIMUM_LENGTH || length < RobotMap.ARM_TELESCOPIC_MINIMUM_LENGTH || angle < RobotMap.ARM_JOINT_MINIMUM_ANGLE || angle > RobotMap.ARM_JOINT_MAXIMUM_ANGLE;
     }
 
     public Command placeCoralOnReefCommand(CoralReef coralReef) {
@@ -162,11 +180,19 @@ public class Robot extends TimedRobot {
                 break;
         }
         return Commands.defer(()->{
-            double distance = swerve.getDistanceReef(RobotMap.POSE_CORAL_STANDS);
-            double length = armTelescopicSystem.getCalculatedLength(distance, reefPoleHeight);
-            double angle = armJointSystem.getCalculatedAngle(distance, reefPoleHeight);
+            Pose2d[][] coralPose = null;
+            if (DriverStation.getAlliance().isPresent()) {
+                if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+                    coralPose = RobotMap.POSE_CORAL_STANDS_BLUE;
+                } else {
+                    coralPose = RobotMap.POSE_CORAL_STANDS_RED;
+                }
+            }
+            double distance = swerve.getDistanceReef(coralPose);
+            double length = armTelescopicSystem.calculateLengthForTarget(distance, reefPoleHeight);
+            double angle = armJointSystem.calculateAngleForTarget(distance, reefPoleHeight);
 
-            if (length > RobotMap.ARM_TELESCOPIC_MAXIMUM_LENGTH || length < RobotMap.ARM_TELESCOPIC_MINIMUM_LENGTH || angle < RobotMap.ARM_JOINT_MINIMUM_ANGLE || angle > RobotMap.ARM_JOINT_MAXIMUM_ANGLE) {
+            if (isCommandIsValid(length, angle)) {
                 return Commands.none();
             }
 
@@ -175,10 +201,7 @@ public class Robot extends TimedRobot {
                             new ArmTelescopicMoveToLength(armTelescopicSystem, length),
                             Commands.runOnce(()-> armJointControlCommand.setTargetPosition(angle)),
                             Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
-                            new ParallelDeadlineGroup(
-                                    new InstantCommand(()-> clawJointSystem.isReachPosition(crawJointAngle)),
-                                    new MoveClawJointToPosition(clawJointSystem, crawJointAngle))
-                    ),
+                            new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE)),
                     new ClawGripperOuttake(clawGripperSystem)
             );
                 }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem)

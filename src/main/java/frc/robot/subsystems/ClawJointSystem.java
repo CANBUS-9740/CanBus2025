@@ -86,7 +86,7 @@ public class ClawJointSystem extends SubsystemBase {
         motor.stopMotor();
     }
 
-    public boolean isReachPosition(double targetAngle) {
+    public boolean didReachPosition(double targetAngle) {
         return MathUtil.isNear(targetAngle, getPositionDegrees(), 3) && Math.abs(absoluteEncoder.getVelocity()) < 5;
     }
 

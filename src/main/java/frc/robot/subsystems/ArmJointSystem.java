@@ -89,8 +89,8 @@ public class ArmJointSystem extends SubsystemBase {
                 Math.abs(relativeEncoder.getVelocity()) <= RobotMap.ARM_JOINT_VELOCITY_TOLERANCE;
     }
 
-    public double getCalculatedAngle(double distance, double height) {
-        return Math.atan(height / distance);
+    public double calculateAngleForTarget(double distance, double height) {
+        return Math.toDegrees(Math.atan(height / distance));
     }
 
     @Override

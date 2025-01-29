@@ -25,6 +25,6 @@ public class MoveClawJointToPosition extends Command {
     }
 
     public boolean isFinished() {
-        return false;
+        return clawJointSystem.didReachPosition(positionDegrees);
     }
 }

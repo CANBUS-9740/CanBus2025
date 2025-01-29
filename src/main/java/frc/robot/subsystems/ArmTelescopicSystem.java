@@ -78,7 +78,7 @@ public class ArmTelescopicSystem extends SubsystemBase {
         return MathUtil.isNear(targetLength, getLengthMeters(), 0.1) && Math.abs(encoder.getVelocity()) < 5;
     }
 
-    public double getCalculatedLength(double distance, double height) {
+    public double calculateLengthForTarget(double distance, double height) {
         return Math.sqrt(Math.pow(distance, 2) + Math.pow(height, 2));
     }
 
