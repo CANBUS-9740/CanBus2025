@@ -8,7 +8,6 @@ import frc.robot.commands.ArmJointControlCommand;
 import frc.robot.dashboard.Dashboard;
 import frc.robot.dashboard.Tab;
 import frc.robot.dashboard.layout.Column;
-import frc.robot.dashboard.layout.Row;
 import frc.robot.dashboard.layout.WeightedRow;
 import frc.robot.dashboard.widget.BooleanWidget;
 import frc.robot.subsystems.ArmJointSystem;
@@ -26,6 +25,8 @@ public class Robot extends TimedRobot {
     private ArmJointSystem armJointSystem;
     private ArmTelescopicSystem armTelescopicSystem;
     private HangingSystem hangingSystem;
+
+    private Dashboard dashboard;
 
     private ArmJointControlCommand armJointControlCommand;
 
@@ -45,7 +46,7 @@ public class Robot extends TimedRobot {
 
         xbox = new XboxController(0);
 
-        final var dashboard = new Dashboard(
+        dashboard = new Dashboard(
                 new Dashboard.Configuration(13, 6),
                 new Tab(
                         "Generated Tab",
