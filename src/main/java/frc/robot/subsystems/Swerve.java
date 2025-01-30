@@ -8,10 +8,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -30,13 +27,14 @@ import swervelib.parser.SwerveModulePhysicalCharacteristics;
 import swervelib.parser.json.modules.ConversionFactorsJson;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.function.DoubleSupplier;
 
 public class Swerve extends SubsystemBase {
 
     public final SwerveDrive swerveDrive;
+
+    private final Field2d field = new Field2d();
 
     private final Mechanism2d mechanism;
     private final MechanismLigament2d[] moduleMechanisms;
@@ -185,6 +183,10 @@ public class Swerve extends SubsystemBase {
                 .forEach(it -> it.setAngle(0.0)));
     }
 
+    public Field2d getField() {
+        return field;
+    }
+
     @Override
     public void periodic() {
         SwerveModulePosition[] modulePositions = swerveDrive.getModulePositions();
@@ -192,6 +194,8 @@ public class Swerve extends SubsystemBase {
             moduleMechanisms[i].setAngle(modulePositions[i].angle.getDegrees() + 90);
             SmartDashboard.putNumber("ModuleHeading " + i, modulePositions[i].angle.getDegrees());
         }
+
+        field.setRobotPose(getPose());
     }
 
     private void drive(ChassisSpeeds speeds) {

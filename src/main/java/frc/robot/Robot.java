@@ -10,6 +10,7 @@ import frc.robot.dashboard.Tab;
 import frc.robot.dashboard.layout.Column;
 import frc.robot.dashboard.layout.WeightedRow;
 import frc.robot.dashboard.widget.BooleanWidget;
+import frc.robot.dashboard.widget.FieldWidget;
 import frc.robot.subsystems.ArmJointSystem;
 import frc.robot.subsystems.ArmTelescopicSystem;
 import frc.robot.subsystems.ClawGripperSystem;
@@ -53,7 +54,7 @@ public class Robot extends TimedRobot {
                         "generated-tab",
                         new WeightedRow(
                                 new float[]{0.5f, 0.25f, 0.25f},
-                                new BooleanWidget("Boolean Widget 1", () -> true),
+                                new FieldWidget("Estimated Position", swerve.getField()),
                                 new Column(
                                         new BooleanWidget("Boolean Widget 2", () -> false),
                                         new BooleanWidget("Boolean Widget 3", () -> true),

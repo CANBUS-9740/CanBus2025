@@ -5,15 +5,11 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
 import frc.robot.dashboard.Element;
 import frc.robot.dashboard.Rect;
 
-import java.util.function.Supplier;
-
-public abstract class Widget<T> implements Element {
+public abstract class Widget implements Element {
     protected final String title;
-    protected final Supplier<T> supplier;
 
-    protected Widget(String title, Supplier<T> supplier) {
+    protected Widget(String title) {
         this.title = title;
-        this.supplier = supplier;
     }
 
     protected abstract ShuffleboardComponent<?> makeIn(ShuffleboardContainer container);
