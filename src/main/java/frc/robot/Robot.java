@@ -3,9 +3,14 @@ package frc.robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.ArmJointControlCommand;
+import frc.robot.dashboard.Dashboard;
+import frc.robot.dashboard.Tab;
+import frc.robot.dashboard.layout.Column;
+import frc.robot.dashboard.layout.WeightedRow;
+import frc.robot.dashboard.widget.BooleanWidget;
+import frc.robot.dashboard.widget.FieldWidget;
 import frc.robot.subsystems.ArmJointSystem;
 import frc.robot.subsystems.ArmTelescopicSystem;
 import frc.robot.subsystems.ClawGripperSystem;
@@ -21,6 +26,8 @@ public class Robot extends TimedRobot {
     private ArmJointSystem armJointSystem;
     private ArmTelescopicSystem armTelescopicSystem;
     private HangingSystem hangingSystem;
+
+    private Dashboard dashboard;
 
     private ArmJointControlCommand armJointControlCommand;
 
@@ -39,6 +46,28 @@ public class Robot extends TimedRobot {
         armJointSystem.setDefaultCommand(armJointControlCommand);
 
         xbox = new XboxController(0);
+
+        dashboard = new Dashboard(
+                new Dashboard.Configuration(13, 6),
+                new Tab(
+                        "Generated Tab",
+                        "generated-tab",
+                        new WeightedRow(
+                                new float[]{0.5f, 0.25f, 0.25f},
+                                new FieldWidget("Estimated Position", swerve.getField()),
+                                new Column(
+                                        new BooleanWidget("Boolean Widget 2", () -> false),
+                                        new BooleanWidget("Boolean Widget 3", () -> true),
+                                        new BooleanWidget("Boolean Widget 4", () -> false)
+                                ),
+                                new Column(
+                                        new BooleanWidget("Boolean Widget 5", () -> true),
+                                        new BooleanWidget("Boolean Widget 6", () -> false)
+                                )
+                        )
+                )
+        );
+        dashboard.setup();
     }
 
     @Override
