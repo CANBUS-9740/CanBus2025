@@ -15,10 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -162,7 +159,8 @@ public class Swerve extends SubsystemBase {
         mechanism = new Mechanism2d(50, 50);
         moduleMechanisms = createMechanismDisplay(mechanism);
         SmartDashboard.putData("SwerveMechanism", mechanism);
-
+        SmartDashboard.putNumber("MaxA", swerveDrive.getMaximumChassisAngularVelocity());
+        SmartDashboard.putNumber("MaxAX", Math.toDegrees(swerveDrive.getMaximumChassisAngularVelocity()));
         pathPlannerSetUp();
     }
 
@@ -180,30 +178,25 @@ public class Swerve extends SubsystemBase {
         return AutoBuilder.followPath(path);
     }
 
+
     private void pathPlannerSetUp() {
-        RobotConfig config = new RobotConfig(
-                RobotMap.ROBOT_MASS_KG,
-                RobotMap.MOI,
-                new ModuleConfig(
-                        RobotMap.DRIVE_WHEEL_RADIUS_METERS,
-                        RobotMap.MAX_DRIVE_VELOCITY_MPS,
-                        RobotMap.DRIVE_WHEEL_COF,
-                        DCMotor.getKrakenX60(1),
-                        RobotMap.DRIVE_CURRENT_LIMIT,
-                        1),
-                RobotMap.DRIVE_TRACK_WIDTH_METERS
-        );
+        RobotConfig config = null;
+        try {
+            config = RobotConfig.fromGUISettings();
+        } catch (IOException | ParseException e) {
+            throw new Error(e);
+        }
 
         AutoBuilder.configure(
                 this::getPose, // Robot pose supplier
                 this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
                 this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                 (speedsRobotRelative, moduleFeedForwards) -> {
-                    swerveDrive.setChassisSpeeds(speedsRobotRelative);
+                    drive(speedsRobotRelative);
                 }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
                 new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
                         new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                        new PIDConstants(10, 0.0, 0.0) // Rotation PID constants
                 ),
                 config, // The robot configuration
                 () -> {
