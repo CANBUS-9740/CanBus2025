@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -101,13 +102,13 @@ public class RobotMap {
     public static final double HANGING_OPEN_ANGLE = 0;
 
     //commandsGroup
-    public static final Pose2d POSE_SOURCE_A_BLUE = new Pose2d(33.51, 25.80, Rotation2d.fromDegrees(54));
-    public static final Pose2d POSE_SOURCE_A_RED = new Pose2d(657.37, 25.80, Rotation2d.fromDegrees(126));
-    public static final Pose2d POSE_SOURCE_B_BLUE = new Pose2d(33.51, 291.20, Rotation2d.fromDegrees(306));
-    public static final Pose2d POSE_SOURCE_B_RED = new Pose2d(657.37, 25.80, Rotation2d.fromDegrees(126));
-    public static final Pose2d POSE_PROCESSOR_BLUE = new Pose2d(235.73, -0.15, Rotation2d.fromDegrees(90));
-    public static final Pose2d POSE_PROCESSOR_RED = new Pose2d(455.15, 317.15, Rotation2d.fromDegrees(270));
-    public static final Pose2d[][] POSE_CORAL_STANDS_BLUE = {{new Pose2d(530.49,130.17, Rotation2d.fromDegrees(300)), null}, {null, null}, {null, null}, {null, null}, {null, null}, {null, null}};
+    public static final Pose2d POSE_SOURCE_A_BLUE = new Pose2d(0.851, 0.655, Rotation2d.fromDegrees(54));
+    public static final Pose2d POSE_SOURCE_A_RED = new Pose2d(16.697, 0.655, Rotation2d.fromDegrees(126));
+    public static final Pose2d POSE_SOURCE_B_BLUE = new Pose2d(0.851, 7.396, Rotation2d.fromDegrees(306));
+    public static final Pose2d POSE_SOURCE_B_RED = new Pose2d(16.697, 0.655, Rotation2d.fromDegrees(126));
+    public static final Pose2d POSE_PROCESSOR_BLUE = new Pose2d(5.987, -0.003, Rotation2d.fromDegrees(90));
+    public static final Pose2d POSE_PROCESSOR_RED = new Pose2d(11.560, 8.055, Rotation2d.fromDegrees(270));
+    public static final Pose2d[][] POSE_CORAL_STANDS_BLUE = {{new Pose2d(13.474,3.306, Rotation2d.fromDegrees(300)), null}, {null, null}, {null, null}, {null, null}, {null, null}, {null, null}};
     public static final Pose2d[][] POSE_CORAL_STANDS_RED = {{null, null}, {null, null}, {null, null}, {null, null}, {null, null}, {null, null}};
     public static final double SOURCE_HEIGHT = 0;
     public static final double CORAL_PODIUM_POLE_HEIGHT = 0;
