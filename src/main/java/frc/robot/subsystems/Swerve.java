@@ -31,7 +31,6 @@ import swervelib.parser.SwerveModulePhysicalCharacteristics;
 import swervelib.parser.json.modules.ConversionFactorsJson;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.function.DoubleSupplier;
 
@@ -165,9 +164,9 @@ public class Swerve extends SubsystemBase {
         );
     }
 
-    public double getDistanceReef(Pose2d[][] pose2d) {
-        Pose2d robotPose = getPose();
+    public Pose2d selectReefStand(Pose2d[][] pose2d, Pose2d robotPose) {
         double distance = getDistance(pose2d[0][0]);
+        Pose2d stand = pose2d[0][0];
         double robotAngle = robotPose.getRotation().getDegrees();
         double angleStand = Math.atan2(pose2d[0][0].getX() - robotPose.getX(), pose2d[0][0].getY() - robotPose.getY());
         int pose = 0;
@@ -176,12 +175,12 @@ public class Swerve extends SubsystemBase {
                 if (distance < getDistance(pose2d[i + 1][j])) {
                     angleStand = Math.atan2(pose2d[i + 1][j].getX() - robotPose.getX(), pose2d[i + 1][j].getY() - robotPose.getY());
                     if (MathUtil.isNear(angleStand, robotAngle, 5)) {
-                        distance = getDistance(pose2d[i + 1][j]);
+                        stand = pose2d[i + 1][j];
                     }
                 }
             }
         }
-        return distance;
+        return stand;
     }
 
     public Command drive(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX) {

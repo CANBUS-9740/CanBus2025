@@ -188,7 +188,8 @@ public class Robot extends TimedRobot {
                     coralPose = RobotMap.POSE_CORAL_STANDS_RED;
                 }
             }
-            double distance = swerve.getDistanceReef(coralPose);
+            Pose2d stand = swerve.selectReefStand(coralPose, swerve.getPose());
+            double distance = swerve.getDistance(stand);
             double length = armTelescopicSystem.calculateLengthForTarget(distance, reefPoleHeight);
             double angle = armJointSystem.calculateAngleForTarget(distance, reefPoleHeight);
 
