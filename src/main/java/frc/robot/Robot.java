@@ -15,37 +15,33 @@ import frc.robot.subsystems.ArmJointSystem;
 import frc.robot.subsystems.ArmTelescopicSystem;
 import frc.robot.subsystems.ClawGripperSystem;
 import frc.robot.subsystems.ClawJointSystem;
-import frc.robot.subsystems.HangingSystem;
 import frc.robot.subsystems.Swerve;
 
 public class Robot extends TimedRobot {
 
     private Swerve swerve;
-    /*
+    private Command auto;
+
     private ClawGripperSystem clawGripperSystem;
     private ClawJointSystem clawJointSystem;
     private ArmJointSystem armJointSystem;
     private ArmTelescopicSystem armTelescopicSystem;
-    private HangingSystem hangingSystem;
 
     private ArmJointControlCommand armJointControlCommand;
-*/
+
     private XboxController xbox;
     private SendableChooser<Command> autoChooser;
 
     @Override
     public void robotInit() {
         swerve = new Swerve();
-        SmartDashboard.putData("Swerve", swerve);
-        /*clawGripperSystem = new ClawGripperSystem();
+        clawGripperSystem = new ClawGripperSystem();
         armJointSystem = new ArmJointSystem();
         clawJointSystem = new ClawJointSystem();
         armTelescopicSystem = new ArmTelescopicSystem();
-        hangingSystem = new HangingSystem();
 
         armJointControlCommand = new ArmJointControlCommand(armJointSystem);
         armJointSystem.setDefaultCommand(armJointControlCommand);
-*/
         xbox = new XboxController(0);
 
         FollowPathCommand.warmupCommand().schedule();
@@ -87,11 +83,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        swerve.drive(
-                ()-> MathUtil.applyDeadband(-xbox.getRightY(), 0.05),
-                ()-> MathUtil.applyDeadband(xbox.getRightX(), 0.05),
-                ()-> MathUtil.applyDeadband(xbox.getLeftX(), 0.05)
-                ).schedule();
+        swerve.fieldDrive(
+                ()-> -MathUtil.applyDeadband(Math.pow(xbox.getRightY(),3), 0.05),
+                ()-> MathUtil.applyDeadband(Math.pow( xbox.getRightX(),3), 0.05),
+                ()-> MathUtil.applyDeadband(xbox.getLeftX() , 0.15)
+        ).schedule();
     }
 
     @Override
@@ -106,8 +102,10 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        swerve.resetPose(Pose2d.kZero);
-        autoChooser.getSelected().schedule();
+        auto = autoChooser.getSelected();
+        if(auto != null){
+            auto.schedule();
+        }
     }
 
     @Override
@@ -116,7 +114,10 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousExit() {
-
+        if(auto != null){
+            auto.cancel();
+            auto = null;
+        }
     }
 
     @Override

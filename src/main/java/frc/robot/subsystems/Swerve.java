@@ -159,8 +159,6 @@ public class Swerve extends SubsystemBase {
         mechanism = new Mechanism2d(50, 50);
         moduleMechanisms = createMechanismDisplay(mechanism);
         SmartDashboard.putData("SwerveMechanism", mechanism);
-        SmartDashboard.putNumber("MaxA", swerveDrive.getMaximumChassisAngularVelocity());
-        SmartDashboard.putNumber("MaxAX", Math.toDegrees(swerveDrive.getMaximumChassisAngularVelocity()));
         pathPlannerSetUp();
     }
 
