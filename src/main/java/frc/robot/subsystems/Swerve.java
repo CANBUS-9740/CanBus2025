@@ -164,8 +164,9 @@ public class Swerve extends SubsystemBase {
         );
     }
 
-    public Pose2d selectReefStand(Pose2d[][] pose2d, Pose2d robotPose) {
+    public Pose2d selectReefStand(Pose2d[][] pose2d) {
         double distance = getDistance(pose2d[0][0]);
+        Pose2d robotPose = getPose();
         Pose2d stand = pose2d[0][0];
         double robotAngle = robotPose.getRotation().getDegrees();
         double angleStand = Math.atan2(pose2d[0][0].getX() - robotPose.getX(), pose2d[0][0].getY() - robotPose.getY());
@@ -180,6 +181,27 @@ public class Swerve extends SubsystemBase {
                 }
             }
         }
+        return stand;
+    }
+
+    public Pose2d selectReefStand(Pose2d[][] pose2d, Pose2d robotPose) {
+        double distance = getDistance(pose2d[0][0]);
+        Pose2d stand = pose2d[0][0];
+        double robotAngle = robotPose.getRotation().getDegrees();
+        double angleStand = Math.atan2(pose2d[0][0].getX() - robotPose.getX(), pose2d[0][0].getY() - robotPose.getY());
+        int pose = 0;
+        for (int j = 0; j < 2; j++) {
+            for (int i = 0; i < 5; i++) {
+                if (distance < getDistance(pose2d[i + 1][j])) {
+                    angleStand = Math.toDegrees(Math.atan2(pose2d[i + 1][j].getX() - robotPose.getX(), pose2d[i + 1][j].getY() - robotPose.getY()));
+                    System.out.println(angleStand);
+                    if (MathUtil.isNear(angleStand, robotAngle, 5)) {
+                        stand = pose2d[i + 1][j];
+                    }
+                }
+            }
+        }
+
         return stand;
     }
 

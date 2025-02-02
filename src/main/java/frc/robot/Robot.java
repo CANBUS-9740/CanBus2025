@@ -2,9 +2,12 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.commands.*;
 import frc.robot.subsystems.ArmJointSystem;
@@ -64,14 +67,12 @@ public class Robot extends TimedRobot {
         Command collectFromSource = Commands.defer(()-> {
                     double sourceDistanceA = 0;
                     double sourceDistanceB = 0;
-                    if (DriverStation.getAlliance().isPresent()) {
-                        if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
-                            sourceDistanceA = swerve.getDistance(RobotMap.POSE_SOURCE_A_BLUE);
-                            sourceDistanceB = swerve.getDistance(RobotMap.POSE_SOURCE_B_BLUE);
-                        } else {
-                            sourceDistanceA = swerve.getDistance(RobotMap.POSE_SOURCE_A_RED);
-                            sourceDistanceB = swerve.getDistance(RobotMap.POSE_SOURCE_B_RED);
-                        }
+                    if (isAllianceRed()) {
+                        sourceDistanceA = swerve.getDistance(RobotMap.POSE_SOURCE_A_RED);
+                        sourceDistanceB = swerve.getDistance(RobotMap.POSE_SOURCE_B_RED);
+                    } else {
+                        sourceDistanceA = swerve.getDistance(RobotMap.POSE_SOURCE_A_BLUE);
+                        sourceDistanceB = swerve.getDistance(RobotMap.POSE_SOURCE_B_BLUE);
                     }
                     double targetsDistance;
                     if (sourceDistanceA > sourceDistanceB) {
@@ -113,12 +114,10 @@ public class Robot extends TimedRobot {
 
         Command placeInProcessor = Commands.defer(()-> {
                     double distance = 0;
-                    if (DriverStation.getAlliance().isPresent()) {
-                        if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
-                            distance = swerve.getDistance(RobotMap.POSE_PROCESSOR_BLUE);
-                        } else {
-                            distance = swerve.getDistance(RobotMap.POSE_PROCESSOR_RED);
-                        }
+                    if (isAllianceRed()) {
+                        distance = swerve.getDistance(RobotMap.POSE_PROCESSOR_RED);
+                    } else {
+                        distance = swerve.getDistance(RobotMap.POSE_PROCESSOR_BLUE);
                     }
                     double length = armTelescopicSystem.calculateLengthForTarget(distance, RobotMap.PROCESSOR_PLACE_HEIGHT);
                     double angle = armJointSystem.calculateAngleForTarget(RobotMap.PROCESSOR_PLACE_HEIGHT, distance);
@@ -138,6 +137,15 @@ public class Robot extends TimedRobot {
                 }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem)
         );
 
+        Field2d field = new Field2d();
+        Pose2d robotPose = new Pose2d(12, 5, Rotation2d.fromDegrees(94.64098932040183));
+        field.setRobotPose(robotPose);
+
+        Pose2d coralPose = swerve.selectReefStand(RobotMap.POSE_CORAL_STANDS_RED, robotPose);
+        double distance = swerve.getDistance(coralPose);
+        System.out.println(distance);
+
+        SmartDashboard.putData("asd", field);
 
 
 
@@ -148,6 +156,16 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
 
 
+    }
+
+    public boolean isAllianceRed(){
+        boolean isAllianceRed = false;
+        if (DriverStation.getAlliance().isPresent()){
+            if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
+                isAllianceRed = true;
+            }
+        }
+        return isAllianceRed;
     }
 
     public boolean isCommandIsValid(double length, double angle) {
@@ -181,12 +199,10 @@ public class Robot extends TimedRobot {
         }
         return Commands.defer(()->{
             Pose2d[][] coralPose = null;
-            if (DriverStation.getAlliance().isPresent()) {
-                if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
-                    coralPose = RobotMap.POSE_CORAL_STANDS_BLUE;
-                } else {
-                    coralPose = RobotMap.POSE_CORAL_STANDS_RED;
-                }
+            if (isAllianceRed()) {
+                coralPose = RobotMap.POSE_CORAL_STANDS_RED;
+            } else {
+                coralPose = RobotMap.POSE_CORAL_STANDS_BLUE;
             }
             Pose2d stand = swerve.selectReefStand(coralPose, swerve.getPose());
             double distance = swerve.getDistance(stand);
@@ -257,7 +273,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-
     }
 
     @Override
