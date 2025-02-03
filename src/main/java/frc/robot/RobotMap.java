@@ -116,6 +116,7 @@ public class RobotMap {
     public static final double CORAL_MEDIUM_POLE_HEIGHT = 0;
     public static final double CORAL_HIGH_POLE_HEIGHT = 0;
     public static final double PROCESSOR_PLACE_HEIGHT = 0;
+    public static final double ROBOT_MAXIMUM_DISTANCE = 0;
 
 
 

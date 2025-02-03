@@ -31,6 +31,7 @@ import swervelib.parser.SwerveModulePhysicalCharacteristics;
 import swervelib.parser.json.modules.ConversionFactorsJson;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
+import java.sql.SQLSyntaxErrorException;
 import java.util.Arrays;
 import java.util.function.DoubleSupplier;
 
@@ -157,23 +158,22 @@ public class Swerve extends SubsystemBase {
     public Pose2d getPose() {
         return swerveDrive.getPose();
     }
-    public double getDistance(Pose2d pos){
-        Pose2d robotPose = getPose();
+
+    public double getDistance(Pose2d pos, Pose2d robotPose){
         return Math.sqrt(
                 Math.pow(robotPose.getX() - pos.getX(), 2)+ Math.pow(robotPose.getY() - pos.getY(), 2)
         );
     }
 
     public Pose2d selectReefStand(Pose2d[][] pose2d) {
-        double distance = getDistance(pose2d[0][0]);
         Pose2d robotPose = getPose();
+        double distance = getDistance(pose2d[0][0], robotPose);
         Pose2d stand = pose2d[0][0];
         double robotAngle = robotPose.getRotation().getDegrees();
         double angleStand = Math.atan2(pose2d[0][0].getX() - robotPose.getX(), pose2d[0][0].getY() - robotPose.getY());
-        int pose = 0;
         for (int j = 0; j < 2; j++) {
             for (int i = 0; i < 5; i++) {
-                if (distance < getDistance(pose2d[i + 1][j])) {
+                if (distance < getDistance(pose2d[i + 1][j], robotPose)) {
                     angleStand = Math.atan2(pose2d[i + 1][j].getX() - robotPose.getX(), pose2d[i + 1][j].getY() - robotPose.getY());
                     if (MathUtil.isNear(angleStand, robotAngle, 5)) {
                         stand = pose2d[i + 1][j];
@@ -185,23 +185,21 @@ public class Swerve extends SubsystemBase {
     }
 
     public Pose2d selectReefStand(Pose2d[][] pose2d, Pose2d robotPose) {
-        double distance = getDistance(pose2d[0][0]);
+        double distance = getDistance(pose2d[0][0], robotPose);
         Pose2d stand = pose2d[0][0];
         double robotAngle = robotPose.getRotation().getDegrees();
         double angleStand = Math.atan2(pose2d[0][0].getX() - robotPose.getX(), pose2d[0][0].getY() - robotPose.getY());
-        int pose = 0;
         for (int j = 0; j < 2; j++) {
             for (int i = 0; i < 5; i++) {
-                if (distance < getDistance(pose2d[i + 1][j])) {
+                if (distance < getDistance(pose2d[i + 1][j], robotPose)) {
                     angleStand = Math.toDegrees(Math.atan2(pose2d[i + 1][j].getX() - robotPose.getX(), pose2d[i + 1][j].getY() - robotPose.getY()));
-                    System.out.println(angleStand);
+                    distance = getDistance(pose2d[i + 1][j], robotPose);
                     if (MathUtil.isNear(angleStand, robotAngle, 5)) {
                         stand = pose2d[i + 1][j];
                     }
                 }
             }
         }
-
         return stand;
     }
 

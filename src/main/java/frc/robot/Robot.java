@@ -2,12 +2,9 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.commands.*;
 import frc.robot.subsystems.ArmJointSystem;
@@ -67,12 +64,13 @@ public class Robot extends TimedRobot {
         Command collectFromSource = Commands.defer(()-> {
                     double sourceDistanceA = 0;
                     double sourceDistanceB = 0;
+                    Pose2d robotPose = swerve.getPose();
                     if (isAllianceRed()) {
-                        sourceDistanceA = swerve.getDistance(RobotMap.POSE_SOURCE_A_RED);
-                        sourceDistanceB = swerve.getDistance(RobotMap.POSE_SOURCE_B_RED);
+                        sourceDistanceA = swerve.getDistance(RobotMap.POSE_SOURCE_A_RED, robotPose);
+                        sourceDistanceB = swerve.getDistance(RobotMap.POSE_SOURCE_B_RED, robotPose);
                     } else {
-                        sourceDistanceA = swerve.getDistance(RobotMap.POSE_SOURCE_A_BLUE);
-                        sourceDistanceB = swerve.getDistance(RobotMap.POSE_SOURCE_B_BLUE);
+                        sourceDistanceA = swerve.getDistance(RobotMap.POSE_SOURCE_A_BLUE, robotPose);
+                        sourceDistanceB = swerve.getDistance(RobotMap.POSE_SOURCE_B_BLUE, robotPose);
                     }
                     double targetsDistance;
                     if (sourceDistanceA > sourceDistanceB) {
@@ -83,7 +81,7 @@ public class Robot extends TimedRobot {
                     double length = armTelescopicSystem.calculateLengthForTarget(targetsDistance, RobotMap.SOURCE_HEIGHT);
                     double angle = armJointSystem.calculateAngleForTarget(RobotMap.SOURCE_HEIGHT, targetsDistance);
 
-                    if (isCommandIsValid(length, angle)) {
+                    if (isCommandIsValid(length, angle, targetsDistance)) {
                         return Commands.none();
                     }
 
@@ -114,15 +112,16 @@ public class Robot extends TimedRobot {
 
         Command placeInProcessor = Commands.defer(()-> {
                     double distance = 0;
+                    Pose2d robotPose = swerve.getPose();
                     if (isAllianceRed()) {
-                        distance = swerve.getDistance(RobotMap.POSE_PROCESSOR_RED);
+                        distance = swerve.getDistance(RobotMap.POSE_PROCESSOR_RED, robotPose);
                     } else {
-                        distance = swerve.getDistance(RobotMap.POSE_PROCESSOR_BLUE);
+                        distance = swerve.getDistance(RobotMap.POSE_PROCESSOR_BLUE, robotPose);
                     }
                     double length = armTelescopicSystem.calculateLengthForTarget(distance, RobotMap.PROCESSOR_PLACE_HEIGHT);
                     double angle = armJointSystem.calculateAngleForTarget(RobotMap.PROCESSOR_PLACE_HEIGHT, distance);
 
-                    if (isCommandIsValid(length, angle)) {
+                    if (isCommandIsValid(length, angle, distance)) {
                         return Commands.none();
                     }
 
@@ -136,19 +135,6 @@ public class Robot extends TimedRobot {
                     );
                 }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem)
         );
-
-        Field2d field = new Field2d();
-        Pose2d robotPose = new Pose2d(12, 5, Rotation2d.fromDegrees(94.64098932040183));
-        field.setRobotPose(robotPose);
-
-        Pose2d coralPose = swerve.selectReefStand(RobotMap.POSE_CORAL_STANDS_RED, robotPose);
-        double distance = swerve.getDistance(coralPose);
-        System.out.println(distance);
-
-        SmartDashboard.putData("asd", field);
-
-
-
     }
 
     @Override
@@ -168,8 +154,8 @@ public class Robot extends TimedRobot {
         return isAllianceRed;
     }
 
-    public boolean isCommandIsValid(double length, double angle) {
-        return length > RobotMap.ARM_TELESCOPIC_MAXIMUM_LENGTH || length < RobotMap.ARM_TELESCOPIC_MINIMUM_LENGTH || angle < RobotMap.ARM_JOINT_MINIMUM_ANGLE || angle > RobotMap.ARM_JOINT_MAXIMUM_ANGLE;
+    public boolean isCommandIsValid(double length, double angle, double distance) {
+        return length > RobotMap.ARM_TELESCOPIC_MAXIMUM_LENGTH || length < RobotMap.ARM_TELESCOPIC_MINIMUM_LENGTH || angle < RobotMap.ARM_JOINT_MINIMUM_ANGLE || angle > RobotMap.ARM_JOINT_MAXIMUM_ANGLE || distance > RobotMap.ROBOT_MAXIMUM_DISTANCE;
     }
 
     public Command placeCoralOnReefCommand(CoralReef coralReef) {
@@ -204,12 +190,13 @@ public class Robot extends TimedRobot {
             } else {
                 coralPose = RobotMap.POSE_CORAL_STANDS_BLUE;
             }
-            Pose2d stand = swerve.selectReefStand(coralPose, swerve.getPose());
-            double distance = swerve.getDistance(stand);
+            Pose2d robotPose = swerve.getPose();
+            Pose2d stand = swerve.selectReefStand(coralPose, robotPose);
+            double distance = swerve.getDistance(stand, robotPose);
             double length = armTelescopicSystem.calculateLengthForTarget(distance, reefPoleHeight);
             double angle = armJointSystem.calculateAngleForTarget(distance, reefPoleHeight);
 
-            if (isCommandIsValid(length, angle)) {
+            if (isCommandIsValid(length, angle, distance)) {
                 return Commands.none();
             }
 
