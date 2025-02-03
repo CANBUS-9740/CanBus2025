@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import swervelib.parser.PIDFConfig;
 
 public class RobotMap {
@@ -12,14 +13,14 @@ public class RobotMap {
     public static final double SWERVE_WIDTH = 0.71;
     public static final double SWERVE_LENGTH = 0.71;
     public static final double SWERVE_DRIVE_WHEEL_RADIUS = 0.0508;
-    public static final double SWERVE_DRIVE_GEAR_RATIO = 6.75;
+    public static final double SWERVE_DRIVE_GEAR_RATIO = 6.12;
     public static final double SWERVE_STEER_GEAR_RATIO = 150.0 / 7;
     public static final double SWERVE_MAX_SPEED = DCMotor.getKrakenX60(1).freeSpeedRadPerSec / Math.PI / SWERVE_DRIVE_GEAR_RATIO * (2 * Math.PI * SWERVE_DRIVE_WHEEL_RADIUS);
     public static final double SWERVE_DRIVE_RAMP_RATE = 0.25;
     public static final double SWERVE_STEER_RAMP_RATE = 0.25;
-    public static final PIDFConfig SWERVE_DRIVE_PIDF = new PIDFConfig(1, 0, 0, 0, 0);
+    public static final PIDFConfig SWERVE_DRIVE_PIDF = new PIDFConfig(2, 0, 0, 0, 0);
     public static final PIDFConfig SWERVE_STEER_PIDF = new PIDFConfig(0.01, 0, 0, 0, 0);
-    public static final PIDFConfig SWERVE_HEADING_PIDF = new PIDFConfig(0.00749, 0, 0.00758, 0, 0);//new PIDFConfig(0.4, 0, 0.01,0);
+    public static final PIDFConfig SWERVE_HEADING_PIDF = new PIDFConfig(0.007448, 0, 0.00758, 0, 0);//new PIDFConfig(0.4, 0, 0.01,0);
     public static final int SWERVE_DRIVE_FRONT_LEFT_MOTOR_ID = 12;
     public static final int SWERVE_DRIVE_FRONT_RIGHT_MOTOR_ID = 10;
     public static final int SWERVE_DRIVE_BACK_LEFT_MOTOR_ID = 13;
@@ -85,4 +86,5 @@ public class RobotMap {
     public static final int HANGING_MOTOR_LEFT_ID = 0;
     public static final double HANGING_CLOSE_ANGLE = 180;
     public static final double HANGING_OPEN_ANGLE = 0;
+
 }
