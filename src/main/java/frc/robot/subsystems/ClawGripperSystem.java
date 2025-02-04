@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.Rev2mDistanceSensor;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -9,12 +10,17 @@ import frc.robot.RobotMap;
 
 public class ClawGripperSystem extends SubsystemBase {
     private final SparkMax motor;
-    private final DigitalInput sensor;
+    private Rev2mDistanceSensor distMXP;
 
 
     public ClawGripperSystem() {
-        sensor = new DigitalInput(RobotMap.CLAW_SWITCH_PORT);
         motor = new SparkMax(RobotMap.CLAW_MOTOR_ID, SparkLowLevel.MotorType.kBrushless);
+        distMXP = new Rev2mDistanceSensor(Rev2mDistanceSensor.Port.kMXP);
+        distMXP.setAutomaticMode(true);
+        distMXP.setEnabled(true);
+        distMXP.setMeasurementPeriod(0.01);
+        distMXP.setDistanceUnits(Rev2mDistanceSensor.Unit.kMillimeters);
+        distMXP.setRangeProfile(Rev2mDistanceSensor.RangeProfile.kDefault);
     }
 
     public void collectItem() {
@@ -34,10 +40,12 @@ public class ClawGripperSystem extends SubsystemBase {
     }
 
     public boolean hasItem() {
-        return !sensor.get();
+        return(distMXP.getRange()>=RobotMap.CLAW_SENSOR_MIN_DISTANCE && distMXP.getRange()<=RobotMap.CLAW_SENSOR_MAX_DISTANCE) ;
+
     }
     public void periodic(){
-        SmartDashboard.putBoolean("HasItem", hasItem());
+        SmartDashboard.putNumber("DistanceSensorRange", distMXP.getRange());
+        SmartDashboard.putBoolean("ItemInClaw", hasItem());
     }
 }
 

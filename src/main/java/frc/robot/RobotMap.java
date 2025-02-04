@@ -70,6 +70,8 @@ public class RobotMap {
     //claw
     public static final int CLAW_MOTOR_ID = 0;
     public static final int CLAW_SWITCH_PORT = 1;
+    public static final int CLAW_SENSOR_MIN_DISTANCE = 70;
+    public static final int CLAW_SENSOR_MAX_DISTANCE = 90;
 
     //clawJoint
     public static final int CLAWJOINT_MOTOR_ID = 0;
