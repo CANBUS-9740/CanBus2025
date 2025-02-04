@@ -8,6 +8,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
@@ -83,6 +84,10 @@ public class ClawJointSystem extends SubsystemBase {
 
     public void stop(){
         motor.stopMotor();
+    }
+
+    public boolean didReachPosition(double targetAngle) {
+        return MathUtil.isNear(targetAngle, getPositionDegrees(), 3) && Math.abs(absoluteEncoder.getVelocity()) < 5;
     }
 
     @Override
