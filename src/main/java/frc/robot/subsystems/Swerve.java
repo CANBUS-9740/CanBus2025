@@ -1,5 +1,11 @@
 package frc.robot.subsystems;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -8,6 +14,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -15,7 +23,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.AngleUtils;
 import frc.robot.RobotMap;
+import frc.robot.SelectedStand;
+import org.json.simple.parser.ParseException;
 import swervelib.SwerveDrive;
 import swervelib.SwerveModule;
 import swervelib.encoders.CANCoderSwerve;
@@ -30,8 +41,10 @@ import swervelib.parser.SwerveModulePhysicalCharacteristics;
 import swervelib.parser.json.modules.ConversionFactorsJson;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
-import java.lang.reflect.Field;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.function.DoubleSupplier;
 
 public class Swerve extends SubsystemBase {
@@ -140,7 +153,7 @@ public class Swerve extends SubsystemBase {
         SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
 
         swerveDrive = new SwerveDrive(configuration, controllerConfiguration, RobotMap.SWERVE_MAX_SPEED, new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
-        swerveDrive.setHeadingCorrection(false);
+        swerveDrive.setHeadingCorrection(true);
         swerveDrive.setCosineCompensator(false);
         swerveDrive.setAngularVelocityCompensation(false, false, 0);
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
@@ -152,10 +165,108 @@ public class Swerve extends SubsystemBase {
         mechanism = new Mechanism2d(50, 50);
         moduleMechanisms = createMechanismDisplay(mechanism);
         SmartDashboard.putData("SwerveMechanism", mechanism);
+        pathPlannerSetUp();
+    }
+
+    public Field2d getField() {
+        return swerveDrive.field;
+    }
+
+    public void resetPose(Pose2d pose2d){
+        swerveDrive.resetOdometry(pose2d);
+    }
+
+    public Command followPathCommand(String pathName) {
+        PathPlannerPath path;
+        try {
+            path = PathPlannerPath.fromPathFile(pathName);
+        } catch (IOException | ParseException e) {
+            throw new Error(e);
+        }
+        return AutoBuilder.followPath(path);
+    }
+
+
+    private void pathPlannerSetUp() {
+        RobotConfig config = null;
+        try {
+            config = RobotConfig.fromGUISettings();
+        } catch (IOException | ParseException e) {
+            throw new Error(e);
+        }
+
+        AutoBuilder.configure(
+                this::getPose, // Robot pose supplier
+                this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+                this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                (speedsRobotRelative, moduleFeedForwards) -> {
+                    drive(speedsRobotRelative);
+                }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+                new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                        new PIDConstants(10, 0.0, 0.0) // Rotation PID constants
+                ),
+                config, // The robot configuration
+                () -> {
+                     // Boolean supplier that controls when the path will be mirrored for the red alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this // Reference to this subsystem to set requirements
+        );
+    }
+
+    private ChassisSpeeds getRobotRelativeSpeeds() {
+        return swerveDrive.getRobotVelocity();
     }
 
     public Pose2d getPose() {
         return swerveDrive.getPose();
+    }
+
+    public double getDistanceToMeters(Pose2d robotPose, Pose2d pos) {
+        return Math.sqrt(Math.pow(robotPose.getX() - pos.getX(), 2) + Math.pow(robotPose.getY() - pos.getY(), 2));
+    }
+
+    public double getAngleToDegrees(Pose2d robotPose, Pose2d targetPose) {
+        return AngleUtils.translateAngle(Math.toDegrees(Math.atan2(targetPose.getY() - robotPose.getY(), targetPose.getX() - robotPose.getX())));
+    }
+
+    public Optional<SelectedStand> findBestStand(Pose2d robotPose, Pose2d[][] stands, boolean considerAngle) {
+        double robotHeading = AngleUtils.translateAngle(robotPose.getRotation().getDegrees());
+        Pose2d bestStand = null;
+        int bestStandIndex = -1;
+        int bestStandRow = -1;
+        double bestDistance = -1;
+
+        for (int i = 0; i < stands.length; i++) {
+            for (int j = 0; j < stands[i].length; j++) {
+                Pose2d stand = stands[i][j];
+                double distance = getDistanceToMeters(robotPose, stand);
+                double angleTo = getAngleToDegrees(robotPose, stand);
+
+                if ((bestDistance < 0 || distance < bestDistance) &&
+                        (!considerAngle || (MathUtil.isNear(angleTo, robotHeading, RobotMap.STAND_SELECTION_HEADING_MARGIN) &&
+                                MathUtil.isNear(AngleUtils.translateAngle(stand.getRotation().getDegrees() + 180), robotHeading, RobotMap.STAND_SELECTION_GENERAL_ORIENTATION_MARGIN)))) {
+                    bestDistance = distance;
+                    bestStand = stand;
+                    bestStandIndex = i;
+                    bestStandRow = j;
+                }
+            }
+        }
+
+        if (bestStand != null) {
+            return Optional.of(new SelectedStand(bestStandIndex, bestStandRow, bestStand));
+        }
+
+        return Optional.empty();
     }
 
     public Command drive(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX) {
@@ -194,7 +305,7 @@ public class Swerve extends SubsystemBase {
         }
     }
 
-    private void drive(ChassisSpeeds speeds) {
+    public void drive(ChassisSpeeds speeds) {
         if (speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0 && speeds.omegaRadiansPerSecond == 0) {
             stop();
         } else {

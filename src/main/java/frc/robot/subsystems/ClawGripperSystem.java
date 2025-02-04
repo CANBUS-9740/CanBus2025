@@ -9,8 +9,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 
 public class ClawGripperSystem extends SubsystemBase {
+
     private final SparkMax motor;
-    private Rev2mDistanceSensor distMXP;
+    private final Rev2mDistanceSensor distMXP;
 
 
     public ClawGripperSystem() {
@@ -40,7 +41,8 @@ public class ClawGripperSystem extends SubsystemBase {
     }
 
     public boolean hasItem() {
-        return(distMXP.getRange()>=RobotMap.CLAW_SENSOR_MIN_DISTANCE && distMXP.getRange()<=RobotMap.CLAW_SENSOR_MAX_DISTANCE) ;
+        double distance = distMXP.getRange();
+        return distance >=RobotMap.CLAW_SENSOR_MIN_DISTANCE && distance <= RobotMap.CLAW_SENSOR_MAX_DISTANCE;
 
     }
     public void periodic(){
