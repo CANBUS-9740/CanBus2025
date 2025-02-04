@@ -150,7 +150,7 @@ public class Swerve extends SubsystemBase {
                 RobotMap.SWERVE_MAX_SPEED
         );
 
-        SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.LOW;
+        SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
 
         swerveDrive = new SwerveDrive(configuration, controllerConfiguration, RobotMap.SWERVE_MAX_SPEED, new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
         swerveDrive.setHeadingCorrection(true);
@@ -161,8 +161,6 @@ public class Swerve extends SubsystemBase {
         swerveDrive.setGyroOffset(new Rotation3d(270, 270, 0));
 
         swerveDrive.resetOdometry(Pose2d.kZero);
-        swerveDrive.field.setRobotPose(Pose2d.kZero);
-        SmartDashboard.putData("Field", swerveDrive.field);
 
         mechanism = new Mechanism2d(50, 50);
         moduleMechanisms = createMechanismDisplay(mechanism);
@@ -229,7 +227,7 @@ public class Swerve extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        return swerveDrive.field.getRobotPose();//swerveDrive.getPose();
+        return swerveDrive.getPose();
     }
 
     public double getDistanceToMeters(Pose2d robotPose, Pose2d pos) {
