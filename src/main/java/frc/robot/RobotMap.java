@@ -97,6 +97,7 @@ public class RobotMap {
     public static final double CLAWJOINT_CORAL_MEDIUM_POLE_ANGLE = 0;
     public static final double CLAWJOINT_CORAL_HIGH_POLE_ANGLE = 0;
     public static final double CLAWJOINT_PROCESSOR_ANGLE = 0;
+    public static final double CLAWJOINT_LENGTH = 0;
 
     //commandsGroup
     public static final Pose2d POSE_SOURCE_A_BLUE = new Pose2d(0.851, 0.655, Rotation2d.fromDegrees(54));

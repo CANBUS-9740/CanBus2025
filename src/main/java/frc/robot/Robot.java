@@ -84,7 +84,7 @@ public class Robot extends TimedRobot {
                     double length = armTelescopicSystem.calculateLengthForTarget(targetsDistance, RobotMap.SOURCE_HEIGHT);
                     double angle = armJointSystem.calculateAngleForTarget(targetsDistance, RobotMap.SOURCE_HEIGHT);
 
-                    if (isCommandIsValid(length, angle, targetsDistance)) {
+                    if (isCommandIsValid(length, angle, targetsDistance, RobotMap.CLAWJOINT_SOURCE_ANGLE)) {
                         return Commands.none();
                     }
 
@@ -127,7 +127,7 @@ public class Robot extends TimedRobot {
                     double length = armTelescopicSystem.calculateLengthForTarget(distance, RobotMap.PROCESSOR_PLACE_HEIGHT);
                     double angle = armJointSystem.calculateAngleForTarget(distance, RobotMap.PROCESSOR_PLACE_HEIGHT);
 
-                    if (isCommandIsValid(length, angle, distance)) {
+                    if (isCommandIsValid(length, angle, distance, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)) {
                         return Commands.none();
                     }
 
@@ -266,17 +266,17 @@ public class Robot extends TimedRobot {
         return allianceOptional.isPresent() && allianceOptional.get() == DriverStation.Alliance.Red;
     }
 
-    private double getXDistance(double targetAngle, double armTargetLength) {
-        return (Math.cos(targetAngle) * armTargetLength) - RobotMap.ROBOT_HALF_DISTANCE;
+    private double getXDistance(double targetAngle, double armTargetLength, double clawTargetAngle) {
+        return ((Math.cos(targetAngle) * (armTargetLength)) + (Math.cos(clawTargetAngle) * RobotMap.CLAWJOINT_LENGTH)) - RobotMap.ROBOT_HALF_DISTANCE;
     }
 
-    private boolean isCommandIsValid(double length, double angle, double distance) {
+    private boolean isCommandIsValid(double length, double angle, double distance, double clawAngle) {
         return length > RobotMap.ARM_TELESCOPIC_MAXIMUM_LENGTH ||
                 length < RobotMap.ARM_TELESCOPIC_MINIMUM_LENGTH ||
                 angle < RobotMap.ARM_JOINT_MINIMUM_ANGLE ||
                 angle > RobotMap.ARM_JOINT_MAXIMUM_ANGLE ||
                 distance > RobotMap.ROBOT_MAXIMUM_DISTANCE ||
-                getXDistance(angle, distance) > RobotMap.ARM_TELESCOPIC_LEGAL_X_LENGTH;
+                getXDistance(angle, distance, clawAngle) > RobotMap.ARM_TELESCOPIC_LEGAL_X_LENGTH;
     }
 
     private Optional<SelectedStand> getBestStand() {
@@ -345,7 +345,7 @@ public class Robot extends TimedRobot {
             double length = armTelescopicSystem.calculateLengthForTarget(distance, reefPoleHeight);
             double angle = armJointSystem.calculateAngleForTarget(distance, reefPoleHeight);
 
-            if (isCommandIsValid(length, angle, distance)) {
+            if (isCommandIsValid(length, angle, distance, crawJointAngle)) {
                 return Commands.none();
             }
 
