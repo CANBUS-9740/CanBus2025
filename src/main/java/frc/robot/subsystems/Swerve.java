@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -36,9 +35,8 @@ import swervelib.parser.json.modules.ConversionFactorsJson;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Optional;
+import java.util.Timer;
 import java.util.function.DoubleSupplier;
 
 public class Swerve extends SubsystemBase {
@@ -47,6 +45,7 @@ public class Swerve extends SubsystemBase {
 
     private final Mechanism2d mechanism;
     private final MechanismLigament2d[] moduleMechanisms;
+    private final LimeLight limeLight;
 
     public Swerve() {
         ConversionFactorsJson conversionFactorsJson = new ConversionFactorsJson();
@@ -55,9 +54,9 @@ public class Swerve extends SubsystemBase {
         conversionFactorsJson.drive.diameter = Units.metersToInches(RobotMap.SWERVE_DRIVE_WHEEL_RADIUS * 2);
         conversionFactorsJson.angle.gearRatio = RobotMap.SWERVE_STEER_GEAR_RATIO;
         conversionFactorsJson.angle.factor = 0;
-
         conversionFactorsJson.drive.calculate();
         conversionFactorsJson.angle.calculate();
+        limeLight = new LimeLight(RobotMap.APRIL_TAG_LIMELIGHT_NAME);
 
         SwerveModulePhysicalCharacteristics characteristics = new SwerveModulePhysicalCharacteristics(
                 conversionFactorsJson, RobotMap.SWERVE_DRIVE_RAMP_RATE, RobotMap.SWERVE_STEER_RAMP_RATE);
@@ -254,6 +253,9 @@ public class Swerve extends SubsystemBase {
             moduleMechanisms[i].setAngle(modulePositions[i].angle.getDegrees() + 90);
             SmartDashboard.putNumber("ModuleHeading " + i, modulePositions[i].angle.getDegrees());
         }
+
+
+
     }
 
     public void drive(ChassisSpeeds speeds) {
@@ -310,5 +312,10 @@ public class Swerve extends SubsystemBase {
                 mechanismBottomLeft,
                 mechanismBottomRight
         };
+    }
+    private void odometryUpdate(){
+        if(limeLight.isGoodDetection(swerveDrive.getPose())){
+            swerveDrive.addVisionMeasurement(swerveDrive.getPose(), edu.wpi.first.wpilibj.Timer.getTimestamp());
+        }
     }
 }
