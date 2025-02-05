@@ -42,6 +42,8 @@ public class RobotMap {
     public static final double SWERVE_FRONT_LEFT_ZERO_ANGLE = 68.291016;
     public static final double SWERVE_BACK_RIGHT_ZERO_ANGLE = 277.207031;
     public static final double SWERVE_BACK_LEFT_ZERO_ANGLE = 226.582031;
+    public static final double SWERVE_HEIGHT = 0;
+    public static final double SWERVE_DISTANCE= 0;
 
     // arm telescopic
     public static final int ARM_TELESCOPIC_MOTOR_ID = 0;
@@ -122,11 +124,12 @@ public class RobotMap {
             {new Pose2d(12.227, 4.198, Rotation2d.fromDegrees(180)), new Pose2d(12.227, 3.861, Rotation2d.fromDegrees(180))},
             {new Pose2d(12.561, 3.448, Rotation2d.fromDegrees(240)), new Pose2d(12.725, 2.164, Rotation2d.fromDegrees(240))}
     };
-    public static final double SOURCE_HEIGHT = 0;
-    public static final double CORAL_PODIUM_POLE_HEIGHT = 0;
-    public static final double CORAL_LOWER_POLE_HEIGHT = 0;
-    public static final double CORAL_MEDIUM_POLE_HEIGHT = 0;
-    public static final double CORAL_HIGH_POLE_HEIGHT = 0;
-    public static final double PROCESSOR_PLACE_HEIGHT = 0;
+    public static final double SOURCE_HEIGHT = 1.35;
+    public static final double CORAL_PODIUM_POLE_HEIGHT = 0.46;
+    public static final double CORAL_LOWER_POLE_HEIGHT = 0.81;
+    public static final double CORAL_MEDIUM_POLE_HEIGHT = 1.21;
+    public static final double CORAL_HIGH_POLE_HEIGHT = 1.83;
+    public static final double PROCESSOR_PLACE_HEIGHT = 1.35;
     public static final double ROBOT_MAXIMUM_DISTANCE = 2;
+
 }

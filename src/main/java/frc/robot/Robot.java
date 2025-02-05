@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -176,6 +175,49 @@ public class Robot extends TimedRobot {
             SmartDashboard.putNumber("ClosestStand", -1);
             SmartDashboard.putNumber("ClosestStandRow", -1);
         }
+
+        Command collectFromSourceNotAuto = new ParallelCommandGroup(
+                new ArmTelescopicMoveToLength(armTelescopicSystem,
+                        Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE,2) + Math.pow(RobotMap.SOURCE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.SOURCE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE))),
+                Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
+                new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_SOURCE_ANGLE)
+                );
+
+        Command coralPlaceNotAutoL1 = new ParallelCommandGroup(
+                new ArmTelescopicMoveToLength(armTelescopicSystem,Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE,2) + Math.pow(RobotMap.CORAL_PODIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.CORAL_PODIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE))),
+                Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
+                new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_CORAL_PODIUM_POLE_ANGLE)
+        );
+
+        Command coralPlaceNotAutoL2 = new ParallelCommandGroup(
+                new ArmTelescopicMoveToLength(armTelescopicSystem,Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE,2) + Math.pow(RobotMap.CORAL_LOWER_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.CORAL_LOWER_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE))),
+                Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
+                new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_CORAL_LOWER_POLE_ANGLE)
+        );
+
+        Command coralPlaceNotAutoL3 = new ParallelCommandGroup(
+                new ArmTelescopicMoveToLength(armTelescopicSystem,Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE,2) + Math.pow(RobotMap.CORAL_MEDIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.CORAL_MEDIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE))),
+                Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
+                new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_CORAL_PODIUM_POLE_ANGLE)
+        );
+
+        Command coralPlaceNotAutoL4 = new ParallelCommandGroup(
+                new ArmTelescopicMoveToLength(armTelescopicSystem,Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE,2) + Math.pow(RobotMap.CORAL_HIGH_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.CORAL_HIGH_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE))),
+                Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
+                new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_CORAL_HIGH_POLE_ANGLE)
+        );
+
+        Command placeInProcessorNotAuto = new ParallelCommandGroup(
+                new ArmTelescopicMoveToLength(armTelescopicSystem,Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE,2) + Math.pow(RobotMap.PROCESSOR_PLACE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.PROCESSOR_PLACE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE))),
+                Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
+                new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_PROCESSOR_ANGLE)
+        );
 
         Pair<Integer, Pose2d> closestSource = getClosestSource();
         SmartDashboard.putNumber("ClosestSource", closestSource.getFirst());
