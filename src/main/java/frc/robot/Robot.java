@@ -267,7 +267,15 @@ public class Robot extends TimedRobot {
     }
 
     private double getXDistance(double targetAngle, double armTargetLength, double clawTargetAngle) {
-        return Math.abs(((Math.cos(targetAngle) * (armTargetLength)) + (Math.cos(clawTargetAngle) * RobotMap.CLAWJOINT_LENGTH)) - RobotMap.ROBOT_HALF_DISTANCE);
+        targetAngle = Math.toRadians(targetAngle);
+        clawTargetAngle = Math.toRadians(clawTargetAngle);
+        double distance = Math.abs(((Math.cos(targetAngle) * (armTargetLength)) + (Math.cos(clawTargetAngle) * RobotMap.CLAWJOINT_LENGTH));
+        if(distance > (Math.cos(targetAngle) * (armTargetLength))){
+            return distance- RobotMap.ROBOT_HALF_DISTANCE;
+        } else{
+            return (Math.cos(targetAngle) * (armTargetLength));
+        }
+
     }
 
     private boolean isCommandIsValid(double length, double angle, double distance, double clawAngle) {
@@ -276,7 +284,7 @@ public class Robot extends TimedRobot {
                 angle < RobotMap.ARM_JOINT_MINIMUM_ANGLE ||
                 angle > RobotMap.ARM_JOINT_MAXIMUM_ANGLE ||
                 distance > RobotMap.ROBOT_MAXIMUM_DISTANCE ||
-                getXDistance(Math.toRadians(angle), distance, Math.toRadians(clawAngle)) > RobotMap.ARM_TELESCOPIC_LEGAL_X_LENGTH;
+                getXDistance(angle, distance, clawAngle) > RobotMap.ARM_TELESCOPIC_LEGAL_X_LENGTH;
     }
 
     private Optional<SelectedStand> getBestStand() {
