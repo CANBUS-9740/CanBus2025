@@ -267,7 +267,7 @@ public class Robot extends TimedRobot {
     }
 
     private double getXDistance(double targetAngle, double armTargetLength) {
-        return (Math.toDegrees(Math.acos(targetAngle)) * armTargetLength) - RobotMap.ROBOT_HALF_DISTANCE;
+        return (Math.cos(targetAngle) * armTargetLength) - RobotMap.ROBOT_HALF_DISTANCE;
     }
 
     private boolean isCommandIsValid(double length, double angle, double distance) {
