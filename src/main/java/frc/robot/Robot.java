@@ -266,12 +266,17 @@ public class Robot extends TimedRobot {
         return allianceOptional.isPresent() && allianceOptional.get() == DriverStation.Alliance.Red;
     }
 
+    private double getXDistance(double targetAngle, double armTargetLength) {
+        return (Math.toDegrees(Math.acos(targetAngle)) * armTargetLength) - RobotMap.ROBOT_HALF_DISTANCE;
+    }
+
     private boolean isCommandIsValid(double length, double angle, double distance) {
         return length > RobotMap.ARM_TELESCOPIC_MAXIMUM_LENGTH ||
                 length < RobotMap.ARM_TELESCOPIC_MINIMUM_LENGTH ||
                 angle < RobotMap.ARM_JOINT_MINIMUM_ANGLE ||
                 angle > RobotMap.ARM_JOINT_MAXIMUM_ANGLE ||
-                distance > RobotMap.ROBOT_MAXIMUM_DISTANCE;
+                distance > RobotMap.ROBOT_MAXIMUM_DISTANCE ||
+                getXDistance(angle, distance) > RobotMap.ARM_TELESCOPIC_LEGAL_X_LENGTH;
     }
 
     private Optional<SelectedStand> getBestStand() {
