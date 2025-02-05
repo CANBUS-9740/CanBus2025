@@ -269,11 +269,12 @@ public class Robot extends TimedRobot {
     private double getXDistance(double targetAngle, double armTargetLength, double clawTargetAngle) {
         targetAngle = Math.toRadians(targetAngle);
         clawTargetAngle = Math.toRadians(clawTargetAngle);
-        double distance = Math.abs(((Math.cos(targetAngle) * (armTargetLength)) + (Math.cos(clawTargetAngle) * RobotMap.CLAWJOINT_LENGTH));
-        if(distance > (Math.cos(targetAngle) * (armTargetLength))){
-            return distance- RobotMap.ROBOT_HALF_DISTANCE;
-        } else{
-            return (Math.cos(targetAngle) * (armTargetLength));
+
+        double distance = Math.abs(((Math.cos(targetAngle) * (armTargetLength)) + (Math.cos(clawTargetAngle) * RobotMap.CLAWJOINT_LENGTH)));
+        if (distance > (Math.cos(targetAngle) * armTargetLength)) {
+            return distance - RobotMap.ROBOT_HALF_DISTANCE;
+        } else {
+            return (Math.cos(targetAngle) * armTargetLength) - RobotMap.ROBOT_HALF_DISTANCE;
         }
 
     }
