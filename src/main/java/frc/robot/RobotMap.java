@@ -129,5 +129,5 @@ public class RobotMap {
     public static final double CORAL_HIGH_POLE_HEIGHT = 0;
     public static final double PROCESSOR_PLACE_HEIGHT = 0;
     public static final double ROBOT_MAXIMUM_DISTANCE = 2;
-    public static final double ROBOT_HALF_DISTANCE = 36;
+    public static final double ARM_BASE_POSITION_ON_ROBOT = 36;
 }
