@@ -178,43 +178,43 @@ public class Robot extends TimedRobot {
 
         Command collectFromSourceNotAuto = new ParallelCommandGroup(
                 new ArmTelescopicMoveToLength(armTelescopicSystem,
-                        Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE,2) + Math.pow(RobotMap.SOURCE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
-                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.SOURCE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE))),
+                        Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_SOURCE,2) + Math.pow(RobotMap.SOURCE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.SOURCE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL))),
                 Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
                 new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_SOURCE_ANGLE)
                 );
 
         Command coralPlaceNotAutoL1 = new ParallelCommandGroup(
-                new ArmTelescopicMoveToLength(armTelescopicSystem,Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE,2) + Math.pow(RobotMap.CORAL_PODIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
-                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.CORAL_PODIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE))),
+                new ArmTelescopicMoveToLength(armTelescopicSystem,Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_PODIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.CORAL_PODIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL))),
                 Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
                 new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_CORAL_PODIUM_POLE_ANGLE)
         );
 
         Command coralPlaceNotAutoL2 = new ParallelCommandGroup(
-                new ArmTelescopicMoveToLength(armTelescopicSystem,Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE,2) + Math.pow(RobotMap.CORAL_LOWER_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
-                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.CORAL_LOWER_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE))),
+                new ArmTelescopicMoveToLength(armTelescopicSystem,Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_LOWER_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.CORAL_LOWER_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL))),
                 Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
                 new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_CORAL_LOWER_POLE_ANGLE)
         );
 
         Command coralPlaceNotAutoL3 = new ParallelCommandGroup(
-                new ArmTelescopicMoveToLength(armTelescopicSystem,Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE,2) + Math.pow(RobotMap.CORAL_MEDIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
-                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.CORAL_MEDIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE))),
+                new ArmTelescopicMoveToLength(armTelescopicSystem,Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_MEDIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.CORAL_MEDIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL))),
                 Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
                 new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_CORAL_PODIUM_POLE_ANGLE)
         );
 
         Command coralPlaceNotAutoL4 = new ParallelCommandGroup(
-                new ArmTelescopicMoveToLength(armTelescopicSystem,Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE,2) + Math.pow(RobotMap.CORAL_HIGH_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
-                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.CORAL_HIGH_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE))),
+                new ArmTelescopicMoveToLength(armTelescopicSystem,Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_HIGH_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.CORAL_HIGH_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL))),
                 Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
                 new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_CORAL_HIGH_POLE_ANGLE)
         );
 
         Command placeInProcessorNotAuto = new ParallelCommandGroup(
-                new ArmTelescopicMoveToLength(armTelescopicSystem,Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE,2) + Math.pow(RobotMap.PROCESSOR_PLACE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
-                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.PROCESSOR_PLACE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE))),
+                new ArmTelescopicMoveToLength(armTelescopicSystem,Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_PROCESSOR,2) + Math.pow(RobotMap.PROCESSOR_PLACE_HEIGHT-RobotMap.SWERVE_HEIGHT,2))),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.PROCESSOR_PLACE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL))),
                 Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
                 new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_PROCESSOR_ANGLE)
         );

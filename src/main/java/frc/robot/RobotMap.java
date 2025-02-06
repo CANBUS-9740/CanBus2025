@@ -43,7 +43,9 @@ public class RobotMap {
     public static final double SWERVE_BACK_RIGHT_ZERO_ANGLE = 277.207031;
     public static final double SWERVE_BACK_LEFT_ZERO_ANGLE = 226.582031;
     public static final double SWERVE_HEIGHT = 0;
-    public static final double SWERVE_DISTANCE= 0;
+    public static final double SWERVE_DISTANCE_FROM_SOURCE = 0;
+    public static final double SWERVE_DISTANCE_FROM_CORAL = 0;
+    public static final double SWERVE_DISTANCE_FROM_PROCESSOR = 0;
 
     // arm telescopic
     public static final int ARM_TELESCOPIC_MOTOR_ID = 0;
