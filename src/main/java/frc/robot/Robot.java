@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.ArmJointControlCommand;
 import frc.robot.commands.ArmTelescopicHold;
 import frc.robot.commands.ArmTelescopicMoveToLength;
@@ -185,7 +186,13 @@ public class Robot extends TimedRobot {
                 new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_PROCESSOR_ANGLE)
         );
 
-        x
+        new JoystickButton(xbox, XboxController.Button.kB.value).onTrue(placeCoralOnReefCommandL1);
+        new JoystickButton(xbox, XboxController.Button.kA.value).onTrue(placeCoralOnReefCommandL4);
+        new JoystickButton(xbox, XboxController.Button.kY.value).onTrue(placeCoralOnReefCommandL2);
+        new JoystickButton(xbox, XboxController.Button.kX.value).onTrue(placeCoralOnReefCommandL3);
+        new JoystickButton(xbox, XboxController.Button.kRightBumper.value).onTrue(placeInProcessorCommand);
+        new JoystickButton(xbox, XboxController.Button.kLeftBumper.value).onTrue(collectFromSourceCommand);
+
 
         FollowPathCommand.warmupCommand().schedule();
         autoChooser = AutoBuilder.buildAutoChooser();
