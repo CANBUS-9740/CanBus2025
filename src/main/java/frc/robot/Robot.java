@@ -10,11 +10,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.commands.*;
 import frc.robot.subsystems.ArmJointSystem;
 import frc.robot.subsystems.ArmTelescopicSystem;
@@ -36,8 +32,6 @@ public class Robot extends TimedRobot {
     private ArmTelescopicSystem armTelescopicSystem;
 
     private ArmJointControlCommand armJointControlCommand;
-
-    private LimitArmLengthCommand limitArmLengthCommand;
 
     private XboxController xbox;
     private SendableChooser<Command> autoChooser;
@@ -84,13 +78,18 @@ public class Robot extends TimedRobot {
 
                     return new SequentialCommandGroup(
                             new ParallelCommandGroup(
-                                    //new ArmTelescopicMoveToLength(armTelescopicSystem, length),
-                                    new LimitArmLengthCommand(armTelescopicSystem,armJointSystem,length,angle, targetsDistance, RobotMap.CLAWJOINT_SOURCE_ANGLE),
-                                    Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle)),
-                                    Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
-                                    new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE)),
+                                    new ParallelDeadlineGroup(
+                                            new ParallelRaceGroup(
+                                                    Commands.waitUntil(()-> isCommandIsValid(armTelescopicSystem.getLengthMeters(), armJointSystem.getPositionDegrees(), targetsDistance, clawJointSystem.getPositionDegrees())),                                                  new ParallelCommandGroup(
+                                                            Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
+                                                            new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE)
+                                                    )
+                                            ),
+                                            Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle))
+                                    )
+                            ),
                             new ClawGripperIntake(clawGripperSystem)
-                            );
+                    );
                 }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem)
         );
 
@@ -126,13 +125,20 @@ public class Robot extends TimedRobot {
                         return Commands.none();
                     }
 
-                    return new SequentialCommandGroup(
+                    double finalDistance = distance;
+
+            return new SequentialCommandGroup(
                             new ParallelCommandGroup(
-                                    //new ArmTelescopicMoveToLength(armTelescopicSystem, length),
-                                    new LimitArmLengthCommand(armTelescopicSystem,armJointSystem,length,angle, distance, RobotMap.CLAWJOINT_PROCESSOR_ANGLE),
-                                    Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle)),
-                                    Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
-                                    new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)),
+                                    new ParallelDeadlineGroup(
+                                            new ParallelRaceGroup(
+                                                    Commands.waitUntil(()-> isCommandIsValid(armTelescopicSystem.getLengthMeters(), armJointSystem.getPositionDegrees(), finalDistance, clawJointSystem.getPositionDegrees())),                                                    new ParallelCommandGroup(
+                                                            Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
+                                                            new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)
+                                                    )
+                                            ),
+                                            Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle))
+                                    )
+                            ),
                             new ClawGripperOuttake(clawGripperSystem)
                     );
                 }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem)
@@ -262,20 +268,19 @@ public class Robot extends TimedRobot {
         return allianceOptional.isPresent() && allianceOptional.get() == DriverStation.Alliance.Red;
     }
 
-    private double getXDistance(double targetAngle, double armTargetLength, double clawTargetAngle) {
+    private static double getXDistance(double targetAngle, double armTargetLength, double clawTargetAngle) {
         targetAngle = Math.toRadians(targetAngle);
         clawTargetAngle = Math.toRadians(clawTargetAngle);
 
         double distance = Math.abs(((Math.cos(targetAngle) * (armTargetLength)) + (Math.cos(clawTargetAngle) * RobotMap.CLAWJOINT_LENGTH)));
         if (distance > (Math.cos(targetAngle) * armTargetLength)) {
-            return distance - RobotMap.ARM_BASE_POSITION_ON_ROBOT;
+            return distance - RobotMap.ARM_BASE_POSITION_ON_ROBOT_CM;
         } else {
-            return (Math.cos(targetAngle) * armTargetLength) - RobotMap.ARM_BASE_POSITION_ON_ROBOT;
+            return (Math.cos(targetAngle) * armTargetLength) - RobotMap.ARM_BASE_POSITION_ON_ROBOT_CM;
         }
-
     }
 
-    private boolean isCommandIsValid(double length, double angle, double distance, double clawAngle) {
+    public static boolean isCommandIsValid(double length, double angle, double distance, double clawAngle) {
         return length > RobotMap.ARM_TELESCOPIC_MAXIMUM_LENGTH ||
                 length < RobotMap.ARM_TELESCOPIC_MINIMUM_LENGTH ||
                 angle < RobotMap.ARM_JOINT_MINIMUM_ANGLE ||
@@ -356,10 +361,17 @@ public class Robot extends TimedRobot {
 
             return new SequentialCommandGroup(
                     new ParallelCommandGroup(
-                            new ArmTelescopicMoveToLength(armTelescopicSystem, length),
-                            Commands.runOnce(()-> armJointControlCommand.setTargetPosition(angle)),
-                            Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
-                            new MoveClawJointToPosition(clawJointSystem, crawJointAngle)),
+                            new ParallelDeadlineGroup(
+                                    new ParallelRaceGroup(
+                                            Commands.waitUntil(()-> isCommandIsValid(armTelescopicSystem.getLengthMeters(), armJointSystem.getPositionDegrees(), distance, clawJointSystem.getPositionDegrees())),
+                                            new ParallelCommandGroup(
+                                                    Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
+                                                    new MoveClawJointToPosition(clawJointSystem, crawJointAngle)
+                                            )
+                                    ),
+                                    Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle))
+                            )
+                    ),
                     new ClawGripperOuttake(clawGripperSystem)
             );
         }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem));

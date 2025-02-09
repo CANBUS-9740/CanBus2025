@@ -29,6 +29,7 @@ public class ArmTelescopicSystem extends SubsystemBase {
                         .forwardSoftLimit(RobotMap.ARM_TELESCOPIC_FORWARD_SOFT_LIMIT)
                         .reverseSoftLimitEnabled(true)
                         .reverseSoftLimit(RobotMap.ARM_TELESCOPIC_REVERSE_SOFT_LIMIT);
+
         config.closedLoop
                         .p(RobotMap.ARM_TELESCOPIC_P)
                         .i(RobotMap.ARM_TELESCOPIC_I)
@@ -43,28 +44,6 @@ public class ArmTelescopicSystem extends SubsystemBase {
 
     public double getLengthMeters() {
         return encoder.getPosition() / RobotMap.ARM_TELESCOPIC_GEAR_RATIO * RobotMap.ARM_TELESCOPIC_DRUM_CIRCUMFERENSE;
-    }
-
-    public double getXDistance(double targetAngle, double armTargetLength, double clawTargetAngle) {
-        targetAngle = Math.toRadians(targetAngle);
-        clawTargetAngle = Math.toRadians(clawTargetAngle);
-
-        double distance = Math.abs(((Math.cos(targetAngle) * (armTargetLength)) + (Math.cos(clawTargetAngle) * RobotMap.CLAWJOINT_LENGTH)));
-        if (distance > (Math.cos(targetAngle) * armTargetLength)) {
-            return distance - RobotMap.ARM_BASE_POSITION_ON_ROBOT;
-        } else {
-            return (Math.cos(targetAngle) * armTargetLength) - RobotMap.ARM_BASE_POSITION_ON_ROBOT;
-        }
-
-    }
-
-    public boolean isCommandIsValid(double length, double angle, double distance, double clawAngle) {
-        return length > RobotMap.ARM_TELESCOPIC_MAXIMUM_LENGTH ||
-                length < RobotMap.ARM_TELESCOPIC_MINIMUM_LENGTH ||
-                angle < RobotMap.ARM_JOINT_MINIMUM_ANGLE ||
-                angle > RobotMap.ARM_JOINT_MAXIMUM_ANGLE ||
-                distance > RobotMap.ROBOT_MAXIMUM_DISTANCE ||
-                getXDistance(angle, length, clawAngle) > RobotMap.ARM_TELESCOPIC_LEGAL_X_LENGTH;
     }
 
     public void moveToLength(double lengthMeters) {
