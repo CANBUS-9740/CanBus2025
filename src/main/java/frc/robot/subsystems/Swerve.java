@@ -4,7 +4,10 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,6 +27,7 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.AngleUtils;
+import frc.robot.Robot;
 import frc.robot.RobotMap;
 import frc.robot.SelectedStand;
 import org.json.simple.parser.ParseException;
@@ -43,6 +47,7 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.DoubleSupplier;
@@ -137,7 +142,7 @@ public class Swerve extends SubsystemBase {
                 false
         );
         SwerveDriveConfiguration configuration = new SwerveDriveConfiguration(
-                new SwerveModuleConfiguration[] {
+                new SwerveModuleConfiguration[]{
                         frontLeft, frontRight, backLeft, backRight
                 },
                 new Pigeon2Swerve(RobotMap.SWERVE_PIGEON_ID),
@@ -172,7 +177,7 @@ public class Swerve extends SubsystemBase {
         return swerveDrive.field;
     }
 
-    public void resetPose(Pose2d pose2d){
+    public void resetPose(Pose2d pose2d) {
         swerveDrive.resetOdometry(pose2d);
     }
 
@@ -186,6 +191,51 @@ public class Swerve extends SubsystemBase {
         return AutoBuilder.followPath(path);
     }
 
+    Pose2d bestStandPose = Robot.getClosestStand(this).isPresent() ?
+            Robot.getClosestStand(this).get().pose : null;
+
+    Pose2d bestSourcePose = Robot.getClosestSource(this).getSecond();
+
+    Pose2d processorPose = RobotMap.isAllianceRed() ? RobotMap.POSE_PROCESSOR_RED : RobotMap.POSE_SOURCE_A_BLUE;
+
+
+    PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also use unlimited constraints, only limited by motor torque and nominal battery voltage
+
+    PathPlannerPath alignWithReefStandPath = new PathPlannerPath(
+            PathPlannerPath.waypointsFromPoses(bestStandPose),
+            constraints,
+            null, // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
+            new GoalEndState(0.0, bestStandPose.getRotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
+    );
+
+    public PathPlannerPath getAlignWithReefStandPath() {
+        alignWithReefStandPath.preventFlipping = true;
+        return alignWithReefStandPath;
+    }
+
+    PathPlannerPath alignWithSourcePath = new PathPlannerPath(
+            PathPlannerPath.waypointsFromPoses(bestSourcePose),
+            constraints,
+            null, // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
+            new GoalEndState(0.0, bestSourcePose.getRotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
+    );
+
+    public PathPlannerPath getAlignWithSourcePath() {
+        alignWithSourcePath.preventFlipping = true;
+        return alignWithSourcePath;
+    }
+
+    PathPlannerPath alignWithProcessorPath = new PathPlannerPath(
+            PathPlannerPath.waypointsFromPoses(processorPose),
+            constraints,
+            null, // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
+            new GoalEndState(0.0, bestSourcePose.getRotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
+    );
+
+    public PathPlannerPath getAlignWithProcessorPath() {
+        alignWithProcessorPath.preventFlipping = true;
+        return alignWithProcessorPath;
+    }
 
     private void pathPlannerSetUp() {
         RobotConfig config = null;
@@ -208,7 +258,7 @@ public class Swerve extends SubsystemBase {
                 ),
                 config, // The robot configuration
                 () -> {
-                     // Boolean supplier that controls when the path will be mirrored for the red alliance
+                    // Boolean supplier that controls when the path will be mirrored for the red alliance
                     // This will flip the path being followed to the red side of the field.
                     // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
@@ -353,7 +403,7 @@ public class Swerve extends SubsystemBase {
         MechanismLigament2d mechanismTopLeft = driveBaseMechanismTopLeft.append(new MechanismLigament2d("module-topleft", WHEEL_DIR_LENGTH, 90, WHEEL_DIR_WIDTH, WHEEL_DIR_COLOR));
         MechanismLigament2d mechanismTopRight = driveBaseMechanismTopRight.append(new MechanismLigament2d("module-topright", WHEEL_DIR_LENGTH, 90, WHEEL_DIR_WIDTH, WHEEL_DIR_COLOR));
 
-        return new MechanismLigament2d[] {
+        return new MechanismLigament2d[]{
                 mechanismTopLeft,
                 mechanismTopRight,
                 mechanismBottomLeft,

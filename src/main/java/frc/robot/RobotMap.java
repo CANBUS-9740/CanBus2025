@@ -4,7 +4,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DriverStation;
 import swervelib.parser.PIDFConfig;
+
+import java.util.Optional;
 
 public class RobotMap {
 
@@ -129,4 +132,9 @@ public class RobotMap {
     public static final double CORAL_HIGH_POLE_HEIGHT = 0;
     public static final double PROCESSOR_PLACE_HEIGHT = 0;
     public static final double ROBOT_MAXIMUM_DISTANCE = 2;
+
+    public static boolean isAllianceRed() {
+        Optional<DriverStation.Alliance> allianceOptional = DriverStation.getAlliance();
+        return allianceOptional.isPresent() && allianceOptional.get() == DriverStation.Alliance.Red;
+    }
 }
