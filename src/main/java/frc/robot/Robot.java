@@ -80,9 +80,11 @@ public class Robot extends TimedRobot {
                             new ParallelCommandGroup(
                                     new ParallelDeadlineGroup(
                                             new ParallelRaceGroup(
-                                                    Commands.waitUntil(()-> isCommandIsValid(armTelescopicSystem.getLengthMeters(), armJointSystem.getPositionDegrees(), targetsDistance, clawJointSystem.getPositionDegrees())),                                                  new ParallelCommandGroup(
+                                                    Commands.waitUntil(()-> isCommandIsValid(armTelescopicSystem.getLengthMeters(), armJointSystem.getPositionDegrees(), targetsDistance, clawJointSystem.getPositionDegrees())),
+                                                    new ParallelCommandGroup(
                                                             Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
-                                                            new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE)
+                                                            new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE),
+                                                            new ArmTelescopicMoveToLength(armTelescopicSystem, length)
                                                     )
                                             ),
                                             Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle))
@@ -131,9 +133,11 @@ public class Robot extends TimedRobot {
                             new ParallelCommandGroup(
                                     new ParallelDeadlineGroup(
                                             new ParallelRaceGroup(
-                                                    Commands.waitUntil(()-> isCommandIsValid(armTelescopicSystem.getLengthMeters(), armJointSystem.getPositionDegrees(), finalDistance, clawJointSystem.getPositionDegrees())),                                                    new ParallelCommandGroup(
+                                                    Commands.waitUntil(()-> isCommandIsValid(armTelescopicSystem.getLengthMeters(), armJointSystem.getPositionDegrees(), finalDistance, clawJointSystem.getPositionDegrees())),
+                                                    new ParallelCommandGroup(
                                                             Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
-                                                            new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)
+                                                            new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_PROCESSOR_ANGLE),
+                                                            new ArmTelescopicMoveToLength(armTelescopicSystem, length)
                                                     )
                                             ),
                                             Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle))
@@ -366,7 +370,8 @@ public class Robot extends TimedRobot {
                                             Commands.waitUntil(()-> isCommandIsValid(armTelescopicSystem.getLengthMeters(), armJointSystem.getPositionDegrees(), distance, clawJointSystem.getPositionDegrees())),
                                             new ParallelCommandGroup(
                                                     Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
-                                                    new MoveClawJointToPosition(clawJointSystem, crawJointAngle)
+                                                    new MoveClawJointToPosition(clawJointSystem, crawJointAngle),
+                                                    new ArmTelescopicMoveToLength(armTelescopicSystem, length)
                                             )
                                     ),
                                     Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle))
