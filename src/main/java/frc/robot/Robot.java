@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -146,6 +145,26 @@ public class Robot extends TimedRobot {
                 new ArmTelescopicReset(armTelescopicSystem),
                 Commands.runOnce(()->  armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_UNDER_CAGE_ANGLE)),
                 new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_UNDER_CAGE_ANGLE)
+        );
+
+        SequentialCommandGroup reefLowerAlgae = new SequentialCommandGroup(
+                new ParallelCommandGroup(
+                        new ArmTelescopicMoveToLength(armTelescopicSystem, RobotMap.ARM_TELESCOPIC_LOWER_REEF_ALGAE_LENGTH),
+                        Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_LOWER_REEF_ALGAE_ANGLE)),
+                        Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
+                        new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_LOWER_REEF_ALGAE_ANGLE)
+                ),
+                new ClawGripperIntake(clawGripperSystem)
+        );
+
+        SequentialCommandGroup reefHighAlgae = new SequentialCommandGroup(
+                new ParallelCommandGroup(
+                        new ArmTelescopicMoveToLength(armTelescopicSystem, RobotMap.ARM_TELESCOPIC_HIGH_REEF_ALGAE_LENGTH),
+                        Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_HIGH_REEF_ALGAE_ANGLE)),
+                        Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
+                        new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_HIGH_REEF_ALGAE_ANGLE)
+                ),
+                new ClawGripperIntake(clawGripperSystem)
         );
 
         FollowPathCommand.warmupCommand().schedule();
