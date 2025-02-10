@@ -68,7 +68,7 @@ public class Robot extends TimedRobot {
                 )
         );
         clawGripperSystem.setDefaultCommand(
-                Commands.defer(()-> {
+                Commands.defer(() -> {
                     if (clawGripperSystem.hasItem()) {
                         return new HoldItemInClawGripper(clawGripperSystem);
                     }
@@ -76,7 +76,7 @@ public class Robot extends TimedRobot {
                 }, Set.of(clawGripperSystem))
         );
 
-        Command collectFromSource = Commands.defer(()-> {
+        Command collectFromSource = Commands.defer(() -> {
                     Pose2d robotPose = swerve.getPose();
                     Pose2d sourcePose = getClosestSource().getSecond();
 
@@ -91,18 +91,18 @@ public class Robot extends TimedRobot {
                     return new SequentialCommandGroup(
                             new ParallelCommandGroup(
                                     new ArmTelescopicMoveToLength(armTelescopicSystem, length),
-                                    Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle)),
-                                    Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
+                                    Commands.runOnce(() -> armJointControlCommand.setTargetPosition(angle)),
+                                    Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
                                     new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE)),
                             new ClawGripperIntake(clawGripperSystem)
-                            );
+                    );
                 }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem)
         );
 
         SequentialCommandGroup collectFromFloor = new SequentialCommandGroup(
                 new ParallelCommandGroup(
-                        Commands.runOnce(()->  armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_FLOOR_ANGLE)),
-                        Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
+                        Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_FLOOR_ANGLE)),
+                        Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
                         new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_FLOOR_ANGLE)
                 ),
                 new ClawGripperIntake(clawGripperSystem)
@@ -113,7 +113,7 @@ public class Robot extends TimedRobot {
         Command placeOnReefSecondStage = placeCoralOnReefCommand(CoralReef.SECOND_STAGE);
         Command placeOnReefThirdStage = placeCoralOnReefCommand(CoralReef.THIRD_STAGE);
 
-        Command placeInProcessor = Commands.defer(()-> {
+        Command placeInProcessor = Commands.defer(() -> {
                     double distance = 0;
 
                     Pose2d robotPose = swerve.getPose();
@@ -134,8 +134,8 @@ public class Robot extends TimedRobot {
                     return new SequentialCommandGroup(
                             new ParallelCommandGroup(
                                     new ArmTelescopicMoveToLength(armTelescopicSystem, length),
-                                    Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle)),
-                                    Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
+                                    Commands.runOnce(() -> armJointControlCommand.setTargetPosition(angle)),
+                                    Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
                                     new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)),
                             new ClawGripperOuttake(clawGripperSystem)
                     );
@@ -145,51 +145,51 @@ public class Robot extends TimedRobot {
 
         Command collectFromSourceCommand = new ParallelCommandGroup(
                 new ArmTelescopicMoveToLength(armTelescopicSystem,
-                       RobotMap.CALCULATION_COLLECT_FROM_SOURCE),
-                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.SOURCE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL))),
-                Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
-                new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_SOURCE_ANGLE)
+                        RobotMap.CALCULATION_COLLECT_FROM_SOURCE),
+                Commands.runOnce(() -> armJointControlCommand.setTargetPosition(Math.atan(RobotMap.SOURCE_HEIGHT - RobotMap.SWERVE_HEIGHT / RobotMap.SWERVE_DISTANCE_FROM_CORAL))),
+                Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
+                new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE)
         );
 
-        Command placeCoralOnReefCommandL1 = new ParallelCommandGroup(
-                new ArmTelescopicMoveToLength(armTelescopicSystem,RobotMap.CALCULATION_CORAL_PLACE_L1),
-                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.CORAL_PODIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL))),
-                Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
-                new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_CORAL_PODIUM_POLE_ANGLE)
+        /*Command placeCoralOnReefCommandL1 = new ParallelCommandGroup(
+                new ArmTelescopicMoveToLength(armTelescopicSystem, RobotMap.CALCULATION_CORAL_PLACE_L1),
+                Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ANGLE_COLLECT_FROM_SOURCE)),
+                Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
+                new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_CORAL_PODIUM_POLE_ANGLE)
         );
 
         Command placeCoralOnReefCommandL2 = new ParallelCommandGroup(
-                new ArmTelescopicMoveToLength(armTelescopicSystem,RobotMap.CALCULATION_CORAL_PLACE_L2),
-                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.CORAL_LOWER_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL))),
-                Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
-                new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_CORAL_LOWER_POLE_ANGLE)
+                new ArmTelescopicMoveToLength(armTelescopicSystem, RobotMap.CALCULATION_CORAL_PLACE_L2),
+                Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ANGLE_CORAL_PLACE_L2)),
+                Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
+                new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_CORAL_LOWER_POLE_ANGLE)
         );
 
         Command placeCoralOnReefCommandL3 = new ParallelCommandGroup(
-                new ArmTelescopicMoveToLength(armTelescopicSystem,RobotMap.CALCULATION_CORAL_PLACE_L3),
-                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.CORAL_MEDIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL))),
-                Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
-                new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_CORAL_PODIUM_POLE_ANGLE)
+                new ArmTelescopicMoveToLength(armTelescopicSystem, RobotMap.CALCULATION_CORAL_PLACE_L3),
+                Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ANGLE_CORAL_PLACE_L3)),
+                Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
+                new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_CORAL_PODIUM_POLE_ANGLE)
         );
 
         Command placeCoralOnReefCommandL4 = new ParallelCommandGroup(
-                new ArmTelescopicMoveToLength(armTelescopicSystem,RobotMap.CALCULATION_CORAL_PLACE_L4),
-                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.CORAL_HIGH_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL))),
-                Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
-                new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_CORAL_HIGH_POLE_ANGLE)
-        );
+                new ArmTelescopicMoveToLength(armTelescopicSystem, RobotMap.CALCULATION_CORAL_PLACE_L4),
+                Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ANGLE_CORAL_PLACE_L4)),
+                Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
+                new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_CORAL_HIGH_POLE_ANGLE)
+        );*/
 
         Command placeInProcessorCommand = new ParallelCommandGroup(
                 new ArmTelescopicMoveToLength(armTelescopicSystem, RobotMap.CALCULATION_PLACE_IN_PROCESSOR),
-                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(Math.atan(RobotMap.PROCESSOR_PLACE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL))),
-                Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
-                new MoveClawJointToPosition(clawJointSystem,RobotMap.CLAWJOINT_PROCESSOR_ANGLE)
+                Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ANGLE_PROCESSOR)),
+                Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
+                new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)
         );
 
-        new JoystickButton(xbox, XboxController.Button.kB.value).onTrue(placeCoralOnReefCommandL1);
-        new JoystickButton(xbox, XboxController.Button.kA.value).onTrue(placeCoralOnReefCommandL4);
-        new JoystickButton(xbox, XboxController.Button.kY.value).onTrue(placeCoralOnReefCommandL2);
-        new JoystickButton(xbox, XboxController.Button.kX.value).onTrue(placeCoralOnReefCommandL3);
+        new JoystickButton(xbox, XboxController.Button.kB.value).onTrue(placeCoralOnReefCommandSimple(CoralReef.PODIUM_SIMPLE));
+        new JoystickButton(xbox, XboxController.Button.kA.value).onTrue(placeCoralOnReefCommandSimple(CoralReef.THIRD_STAGE_SIMPLE));
+        new JoystickButton(xbox, XboxController.Button.kY.value).onTrue(placeCoralOnReefCommandSimple(CoralReef.SECOND_STAGE_SIMPLE));
+        new JoystickButton(xbox, XboxController.Button.kX.value).onTrue(placeCoralOnReefCommandSimple(CoralReef.FIRST_STAGE_SIMPLE));
         new JoystickButton(xbox, XboxController.Button.kRightBumper.value).onTrue(placeInProcessorCommand);
         new JoystickButton(xbox, XboxController.Button.kLeftBumper.value).onTrue(collectFromSourceCommand);
 
@@ -262,9 +262,9 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         swerve.fieldDrive(
-                ()-> -MathUtil.applyDeadband(Math.pow(xbox.getRightY(),3), 0.05),
-                ()-> MathUtil.applyDeadband(Math.pow( xbox.getRightX(),3), 0.05),
-                ()-> MathUtil.applyDeadband(xbox.getLeftX() , 0.15)
+                () -> -MathUtil.applyDeadband(Math.pow(xbox.getRightY(), 3), 0.05),
+                () -> MathUtil.applyDeadband(Math.pow(xbox.getRightX(), 3), 0.05),
+                () -> MathUtil.applyDeadband(xbox.getLeftX(), 0.15)
         ).schedule();
     }
 
@@ -281,7 +281,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         auto = autoChooser.getSelected();
-        if(auto != null){
+        if (auto != null) {
             auto.schedule();
         }
     }
@@ -292,7 +292,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousExit() {
-        if(auto != null){
+        if (auto != null) {
             auto.cancel();
             auto = null;
         }
@@ -356,7 +356,7 @@ public class Robot extends TimedRobot {
     private Command placeCoralOnReefCommand(CoralReef coralReef) {
         double reefPoleHeight;
         double crawJointAngle;
-        switch (coralReef){
+        switch (coralReef) {
             case PODIUM:
                 reefPoleHeight = RobotMap.CORAL_PODIUM_POLE_HEIGHT;
                 crawJointAngle = RobotMap.CLAWJOINT_CORAL_PODIUM_POLE_ANGLE;
@@ -379,7 +379,7 @@ public class Robot extends TimedRobot {
                 break;
         }
 
-        return Commands.defer(()-> {
+        return Commands.defer(() -> {
             Optional<SelectedStand> standOptional = getBestStand();
             if (standOptional.isEmpty()) {
                 return Commands.none();
@@ -399,11 +399,53 @@ public class Robot extends TimedRobot {
             return new SequentialCommandGroup(
                     new ParallelCommandGroup(
                             new ArmTelescopicMoveToLength(armTelescopicSystem, length),
-                            Commands.runOnce(()-> armJointControlCommand.setTargetPosition(angle)),
-                            Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
+                            Commands.runOnce(() -> armJointControlCommand.setTargetPosition(angle)),
+                            Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
                             new MoveClawJointToPosition(clawJointSystem, crawJointAngle)),
                     new ClawGripperOuttake(clawGripperSystem)
             );
         }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem));
+    }
+
+
+    private Command placeCoralOnReefCommandSimple(CoralReef coralReef) {
+        switch (coralReef) {
+            case PODIUM_SIMPLE:
+                new ParallelCommandGroup(
+                        new ArmTelescopicMoveToLength(armTelescopicSystem, RobotMap.CALCULATION_CORAL_PLACE_L1),
+                        Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ANGLE_COLLECT_FROM_SOURCE)),
+                        Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
+                        new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_CORAL_PODIUM_POLE_ANGLE)
+                );
+                break;
+            case FIRST_STAGE_SIMPLE:
+                new ParallelCommandGroup(
+                        new ArmTelescopicMoveToLength(armTelescopicSystem, RobotMap.CALCULATION_CORAL_PLACE_L2),
+                        Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ANGLE_CORAL_PLACE_L2)),
+                        Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
+                        new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_CORAL_LOWER_POLE_ANGLE)
+                );
+                break;
+            case SECOND_STAGE_SIMPLE:
+                new ParallelCommandGroup(
+                        new ArmTelescopicMoveToLength(armTelescopicSystem, RobotMap.CALCULATION_CORAL_PLACE_L3),
+                        Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ANGLE_CORAL_PLACE_L3)),
+                        Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
+                        new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_CORAL_PODIUM_POLE_ANGLE)
+                );
+                break;
+            case THIRD_STAGE_SIMPLE:
+                new ParallelCommandGroup(
+                        new ArmTelescopicMoveToLength(armTelescopicSystem, RobotMap.CALCULATION_PLACE_IN_PROCESSOR),
+                        Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ANGLE_PROCESSOR)),
+                        Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
+                        new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)
+                );
+                break;
+            default:
+                return null;
+            break;
+
+        }
     }
 }
