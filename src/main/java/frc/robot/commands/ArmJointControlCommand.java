@@ -1,15 +1,18 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
 import frc.robot.RobotMap;
 import frc.robot.subsystems.ArmJointSystem;
 import frc.robot.subsystems.ArmTelescopicSystem;
+import frc.robot.subsystems.ClawJointSystem;
 
 public class ArmJointControlCommand extends Command {
     private final ArmJointSystem armJointSystem;
     private final ArmTelescopicSystem armTelescopicSystem;
+    private final ClawJointSystem clawJointSystem;
     private double targetPosition;
     private boolean isInTarget;
     private boolean hasNewPosition;
@@ -17,12 +20,10 @@ public class ArmJointControlCommand extends Command {
     private TrapezoidProfile.State motionProfileGoal;
     private TrapezoidProfile.State motionProfileSetPoint;
 
-    private double distance;
-    private double clawAngle;
-
-    public ArmJointControlCommand(ArmJointSystem sub, ArmTelescopicSystem armTelescopicSystem) {
+    public ArmJointControlCommand(ArmJointSystem sub, ArmTelescopicSystem armTelescopicSystem, ClawJointSystem clawJointSystem) {
         this.armJointSystem = sub;
         this.armTelescopicSystem = armTelescopicSystem;
+        this.clawJointSystem = clawJointSystem;
 
         addRequirements(sub);
     }
@@ -50,7 +51,7 @@ public class ArmJointControlCommand extends Command {
         }
 
         if (isInTarget) {
-            if (targetPosition == 0 || targetPosition == 180 || (Robot.isCommandIsValid(armTelescopicSystem.getLengthMeters(), armJointSystem.getPositionDegrees(), distance, clawAngle) && armTelescopicSystem.getMotorSpeed() < 0)) {
+            if (targetPosition == 0 || targetPosition == 180 || (Robot.getXDistance(armJointSystem.getPositionDegrees(), armTelescopicSystem.getLengthMeters(), clawJointSystem.getPositionDegrees()) > RobotMap.ARM_TELESCOPIC_LEGAL_X_LENGTH && armTelescopicSystem.getMotorSpeed() < 0)) {
                 armJointSystem.stop();
             } else {
                 armJointSystem.moveToPosition(targetPosition);
@@ -69,13 +70,6 @@ public class ArmJointControlCommand extends Command {
     @Override
     public void end(boolean interrupted) {
         armJointSystem.stop();
-    }
-
-    public void setTargetPosition(double newPosition, double distance, double clawAngle){
-        targetPosition = newPosition;
-        hasNewPosition = true;
-        this.distance = distance;
-        this.clawAngle = clawAngle;
     }
 
     public void setTargetPosition(double newPosition){

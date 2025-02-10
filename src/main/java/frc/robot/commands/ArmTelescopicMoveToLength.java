@@ -2,23 +2,22 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
+import frc.robot.RobotMap;
 import frc.robot.subsystems.ArmJointSystem;
 import frc.robot.subsystems.ArmTelescopicSystem;
+import frc.robot.subsystems.ClawJointSystem;
 
 public class ArmTelescopicMoveToLength extends Command {
     private final ArmTelescopicSystem armTelescopicSystem;
     private final ArmJointSystem armJointSystem;
+    private final ClawJointSystem clawJointSystem;
     private final double targetLength;
 
-    private final double distance;
-    private final double clawAngle;
-
-    public ArmTelescopicMoveToLength(ArmTelescopicSystem sub,ArmJointSystem armJointSystem , double targetLength, double distance, double clawAngle) {
+    public ArmTelescopicMoveToLength(ArmTelescopicSystem sub, ArmJointSystem armJointSystem, ClawJointSystem clawJointSystem, double targetLength) {
         this.armTelescopicSystem = sub;
         this.targetLength = targetLength;
         this.armJointSystem = armJointSystem;
-        this.distance = distance;
-        this.clawAngle = clawAngle;
+        this.clawJointSystem = clawJointSystem;
 
         addRequirements(sub);
     }
@@ -29,7 +28,7 @@ public class ArmTelescopicMoveToLength extends Command {
 
     @Override
     public void execute() {
-        if((Robot.isCommandIsValid(armTelescopicSystem.getLengthMeters(), armJointSystem.getPositionDegrees(), distance, clawAngle) && armTelescopicSystem.getMotorSpeed() > 0)) {
+        if(Robot.getXDistance(armJointSystem.getPositionDegrees(), armTelescopicSystem.getLengthMeters(), clawJointSystem.getPositionDegrees()) > RobotMap.ARM_TELESCOPIC_LEGAL_X_LENGTH && armTelescopicSystem.getMotorSpeed() > 0) {
             armTelescopicSystem.hold();
         } else {
             armTelescopicSystem.moveToLength(targetLength);

@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
 
         xbox = new XboxController(0);
 
-        armJointControlCommand = new ArmJointControlCommand(armJointSystem, armTelescopicSystem);
+        armJointControlCommand = new ArmJointControlCommand(armJointSystem, armTelescopicSystem, clawJointSystem);
         armJointSystem.setDefaultCommand(armJointControlCommand);
 
         armTelescopicSystem.setDefaultCommand(
@@ -78,8 +78,8 @@ public class Robot extends TimedRobot {
 
                     return new SequentialCommandGroup(
                             new ParallelCommandGroup(
-                                    new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem, length, targetsDistance, RobotMap.CLAWJOINT_SOURCE_ANGLE),
-                                    Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle, targetsDistance, RobotMap.CLAWJOINT_SOURCE_ANGLE)),
+                                    new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem, clawJointSystem, length),
+                                    Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle)),
                                     Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
                                     new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE)
                             ),
@@ -124,8 +124,8 @@ public class Robot extends TimedRobot {
 
             return new SequentialCommandGroup(
                             new ParallelCommandGroup(
-                                    new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem, length, distance, RobotMap.CLAWJOINT_PROCESSOR_ANGLE),
-                                    Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle, finalDistance, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)),
+                                    new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem,clawJointSystem , length),
+                                    Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle)),
                                     Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
                                     new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)
                             ),
@@ -258,7 +258,7 @@ public class Robot extends TimedRobot {
         return allianceOptional.isPresent() && allianceOptional.get() == DriverStation.Alliance.Red;
     }
 
-    private static double getXDistance(double targetAngle, double armTargetLength, double clawTargetAngle) {
+    public static double getXDistance(double targetAngle, double armTargetLength, double clawTargetAngle) {
         targetAngle = Math.toRadians(targetAngle);
         clawTargetAngle = Math.toRadians(clawTargetAngle);
 
@@ -351,8 +351,8 @@ public class Robot extends TimedRobot {
 
             return new SequentialCommandGroup(
                     new ParallelCommandGroup(
-                            new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem, length, distance, crawJointAngle),
-                            Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle, distance, crawJointAngle)),
+                            new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem, clawJointSystem, length),
+                            Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle)),
                             Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
                             new MoveClawJointToPosition(clawJointSystem, crawJointAngle)
                     ),
