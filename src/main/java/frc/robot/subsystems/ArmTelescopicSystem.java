@@ -75,6 +75,10 @@ public class ArmTelescopicSystem extends SubsystemBase {
         motor.stopMotor();
     }
 
+    public double getMotorSpeed(){
+        return motor.get();
+    }
+
     public boolean didReach(double targetLength) {
         return MathUtil.isNear(targetLength, getLengthMeters(), 0.1) && Math.abs(encoder.getVelocity()) < 5;
     }

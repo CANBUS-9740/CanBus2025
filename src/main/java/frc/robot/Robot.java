@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
 
         xbox = new XboxController(0);
 
-        armJointControlCommand = new ArmJointControlCommand(armJointSystem);
+        armJointControlCommand = new ArmJointControlCommand(armJointSystem, armTelescopicSystem);
         armJointSystem.setDefaultCommand(armJointControlCommand);
 
         armTelescopicSystem.setDefaultCommand(
@@ -78,17 +78,10 @@ public class Robot extends TimedRobot {
 
                     return new SequentialCommandGroup(
                             new ParallelCommandGroup(
-                                    new ParallelDeadlineGroup(
-                                            new ParallelRaceGroup(
-                                                    Commands.waitUntil(()-> isCommandIsValid(armTelescopicSystem.getLengthMeters(), armJointSystem.getPositionDegrees(), targetsDistance, clawJointSystem.getPositionDegrees())),
-                                                    new ParallelCommandGroup(
-                                                            Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
-                                                            new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE),
-                                                            new ArmTelescopicMoveToLength(armTelescopicSystem, length)
-                                                    )
-                                            ),
-                                            Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle))
-                                    )
+                                    new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem, length, targetsDistance, RobotMap.CLAWJOINT_SOURCE_ANGLE),
+                                    Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle, targetsDistance, RobotMap.CLAWJOINT_SOURCE_ANGLE)),
+                                    Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
+                                    new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE)
                             ),
                             new ClawGripperIntake(clawGripperSystem)
                     );
@@ -131,17 +124,10 @@ public class Robot extends TimedRobot {
 
             return new SequentialCommandGroup(
                             new ParallelCommandGroup(
-                                    new ParallelDeadlineGroup(
-                                            new ParallelRaceGroup(
-                                                    Commands.waitUntil(()-> isCommandIsValid(armTelescopicSystem.getLengthMeters(), armJointSystem.getPositionDegrees(), finalDistance, clawJointSystem.getPositionDegrees())),
-                                                    new ParallelCommandGroup(
-                                                            Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
-                                                            new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_PROCESSOR_ANGLE),
-                                                            new ArmTelescopicMoveToLength(armTelescopicSystem, length)
-                                                    )
-                                            ),
-                                            Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle))
-                                    )
+                                    new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem, length, distance, RobotMap.CLAWJOINT_PROCESSOR_ANGLE),
+                                    Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle, finalDistance, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)),
+                                    Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
+                                    new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)
                             ),
                             new ClawGripperOuttake(clawGripperSystem)
                     );
@@ -365,17 +351,10 @@ public class Robot extends TimedRobot {
 
             return new SequentialCommandGroup(
                     new ParallelCommandGroup(
-                            new ParallelDeadlineGroup(
-                                    new ParallelRaceGroup(
-                                            Commands.waitUntil(()-> isCommandIsValid(armTelescopicSystem.getLengthMeters(), armJointSystem.getPositionDegrees(), distance, clawJointSystem.getPositionDegrees())),
-                                            new ParallelCommandGroup(
-                                                    Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
-                                                    new MoveClawJointToPosition(clawJointSystem, crawJointAngle),
-                                                    new ArmTelescopicMoveToLength(armTelescopicSystem, length)
-                                            )
-                                    ),
-                                    Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle))
-                            )
+                            new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem, length, distance, crawJointAngle),
+                            Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle, distance, crawJointAngle)),
+                            Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
+                            new MoveClawJointToPosition(clawJointSystem, crawJointAngle)
                     ),
                     new ClawGripperOuttake(clawGripperSystem)
             );
