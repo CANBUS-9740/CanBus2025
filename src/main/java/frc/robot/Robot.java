@@ -142,6 +142,12 @@ public class Robot extends TimedRobot {
                 }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem)
         );
 
+        ParallelCommandGroup underCage = new ParallelCommandGroup(
+                new ArmTelescopicReset(armTelescopicSystem),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_UNDER_CAGE_ANGLE)),
+                new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_UNDER_CAGE_ANGLE)
+        );
+
         FollowPathCommand.warmupCommand().schedule();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);

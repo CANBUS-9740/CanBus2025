@@ -76,6 +76,7 @@ public class RobotMap {
     public static final double ARM_JOINT_MINIMUM_ANGLE = 0;
     public static final double ARM_JOINT_MAXIMUM_ANGLE = 180;
     public static final double ARM_JOINT_FLOOR_ANGLE = 0;
+    public static final double ARM_JOINT_UNDER_CAGE_ANGLE = 0;
 
     //claw
     public static final int CLAW_MOTOR_ID = 2;
@@ -98,6 +99,7 @@ public class RobotMap {
     public static final double CLAWJOINT_CORAL_MEDIUM_POLE_ANGLE = 0;
     public static final double CLAWJOINT_CORAL_HIGH_POLE_ANGLE = 0;
     public static final double CLAWJOINT_PROCESSOR_ANGLE = 0;
+    public static final double CLAWJOINT_UNDER_CAGE_ANGLE = 0;
 
     //commandsGroup
     public static final Pose2d POSE_SOURCE_A_BLUE = new Pose2d(0.851, 0.655, Rotation2d.fromDegrees(54));
