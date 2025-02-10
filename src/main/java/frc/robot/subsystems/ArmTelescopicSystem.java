@@ -29,6 +29,7 @@ public class ArmTelescopicSystem extends SubsystemBase {
                         .forwardSoftLimit(RobotMap.ARM_TELESCOPIC_FORWARD_SOFT_LIMIT)
                         .reverseSoftLimitEnabled(true)
                         .reverseSoftLimit(RobotMap.ARM_TELESCOPIC_REVERSE_SOFT_LIMIT);
+
         config.closedLoop
                         .p(RobotMap.ARM_TELESCOPIC_P)
                         .i(RobotMap.ARM_TELESCOPIC_I)
@@ -72,6 +73,10 @@ public class ArmTelescopicSystem extends SubsystemBase {
 
     public void stop() {
         motor.stopMotor();
+    }
+
+    public double getMotorSpeed(){
+        return motor.get();
     }
 
     public boolean didReach(double targetLength) {

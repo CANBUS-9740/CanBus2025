@@ -3,13 +3,16 @@ package frc.robot.commands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Robot;
 import frc.robot.RobotMap;
 import frc.robot.subsystems.ArmJointSystem;
-
-import java.util.PrimitiveIterator;
+import frc.robot.subsystems.ArmTelescopicSystem;
+import frc.robot.subsystems.ClawJointSystem;
 
 public class ArmJointControlCommand extends Command {
-    private final ArmJointSystem sub;
+    private final ArmJointSystem armJointSystem;
+    private final ArmTelescopicSystem armTelescopicSystem;
+    private final ClawJointSystem clawJointSystem;
     private double targetPosition;
     private boolean isInTarget;
     private boolean hasNewPosition;
@@ -17,8 +20,10 @@ public class ArmJointControlCommand extends Command {
     private TrapezoidProfile.State motionProfileGoal;
     private TrapezoidProfile.State motionProfileSetPoint;
 
-    public ArmJointControlCommand(ArmJointSystem sub) {
-        this.sub = sub;
+    public ArmJointControlCommand(ArmJointSystem sub, ArmTelescopicSystem armTelescopicSystem, ClawJointSystem clawJointSystem) {
+        this.armJointSystem = sub;
+        this.armTelescopicSystem = armTelescopicSystem;
+        this.clawJointSystem = clawJointSystem;
 
         addRequirements(sub);
     }
@@ -38,22 +43,22 @@ public class ArmJointControlCommand extends Command {
 
            motionProfile = new TrapezoidProfile(RobotMap.MOTION_PROFILE_CONSTRAINTS);
            motionProfileGoal = new TrapezoidProfile.State(targetPosition, 0);
-           motionProfileSetPoint = new TrapezoidProfile.State(sub.getPositionDegrees(), 0);
+           motionProfileSetPoint = new TrapezoidProfile.State(armJointSystem.getPositionDegrees(), 0);
         }
 
-        if (!isInTarget && sub.reachedPosition(targetPosition)) {
+        if (!isInTarget && armJointSystem.reachedPosition(targetPosition)) {
             isInTarget = true;
         }
 
         if (isInTarget) {
-            if (targetPosition == 0 || targetPosition == 180) {
-                sub.stop();
+            if (targetPosition == 0 || targetPosition == 180 || (Robot.getXDistance(armJointSystem.getPositionDegrees(), armTelescopicSystem.getLengthMeters(), clawJointSystem.getPositionDegrees()) > RobotMap.ARM_TELESCOPIC_LEGAL_X_LENGTH && armTelescopicSystem.getMotorSpeed() < 0)) {
+                armJointSystem.stop();
             } else {
-                sub.moveToPosition(targetPosition);
+                armJointSystem.moveToPosition(targetPosition);
             }
         } else {
             motionProfileSetPoint = motionProfile.calculate(0.02, motionProfileSetPoint, motionProfileGoal);
-            sub.moveToPosition(motionProfileSetPoint.position);
+            armJointSystem.moveToPosition(motionProfileSetPoint.position);
         }
     }
 
@@ -64,7 +69,7 @@ public class ArmJointControlCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        sub.stop();
+        armJointSystem.stop();
     }
 
     public void setTargetPosition(double newPosition){
