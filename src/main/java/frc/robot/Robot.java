@@ -2,9 +2,12 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -63,7 +66,7 @@ public class Robot extends TimedRobot {
 
         Command collectFromSource = Commands.defer(()-> {
                     Pose2d robotPose = swerve.getPose();
-                    Pose2d sourcePose = getClosestSource(swerve).getSecond();
+                    Pose2d sourcePose = getClosestSource().getSecond();
 
                     double targetsDistance = swerve.getDistanceToMeters(robotPose, sourcePose);
                     double length = armTelescopicSystem.calculateLengthForTarget(targetsDistance, RobotMap.SOURCE_HEIGHT);
@@ -131,6 +134,26 @@ public class Robot extends TimedRobot {
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
+        Command alignWithSource = Commands.defer(()->{
+            Pose2d sourcePose = getClosestSource().getSecond();
+            sourcePose = new Pose2d(sourcePose.getX(),sourcePose.getY(), Rotation2d.fromRadians(Math.toRadians(sourcePose.getRotation().getDegrees()+180)));
+
+            return AutoBuilder.followPath(swerve.getFollowPathToTarget(sourcePose));
+        }, Set.of(swerve));
+
+        Command alignWithProcessor = Commands.defer(()->{
+            Pose2d processorPose = RobotMap.isAllianceRed() ? RobotMap.POSE_INFRONT_PROCESSOR_RED : RobotMap.POSE_INFRONT_PROCESSOR_BLUE;
+            return AutoBuilder.followPath(swerve.getFollowPathToTarget(processorPose));
+        }, Set.of(swerve));
+
+        Command alignWithCoralStand = Commands.defer(()->{
+            Optional<SelectedStand> optionalStand = getClosestStand();
+            if (optionalStand.isEmpty()) {
+                return Commands.none();
+            }
+            Pose2d stand = optionalStand.get().pose;
+            return AutoBuilder.followPath(swerve.getFollowPathToTarget(stand));
+        }, Set.of(swerve));
     }
 
     @Override
@@ -151,7 +174,7 @@ public class Robot extends TimedRobot {
             SmartDashboard.putBoolean("HasBestStand", false);
         }
 
-        standOptional = getClosestStand(swerve);
+        standOptional = getClosestStand();
         if (standOptional.isPresent()) {
             SelectedStand stand = standOptional.get();
             swerve.getField().getObject("ClosestStand").setPose(stand.pose);
@@ -163,7 +186,7 @@ public class Robot extends TimedRobot {
             SmartDashboard.putNumber("ClosestStandRow", -1);
         }
 
-        Pair<Integer, Pose2d> closestSource = getClosestSource(swerve);
+        Pair<Integer, Pose2d> closestSource = getClosestSource();
         SmartDashboard.putNumber("ClosestSource", closestSource.getFirst());
         swerve.getField().getObject("ClosestSource").setPose(closestSource.getSecond());
     }
@@ -261,20 +284,20 @@ public class Robot extends TimedRobot {
         return swerve.findBestStand(pose, stands, true);
     }
 
-    public static Optional<SelectedStand> getClosestStand(Swerve swerve_var) {
-        Pose2d pose = swerve_var.getPose();
+    private Optional<SelectedStand> getClosestStand() {
+        Pose2d pose = swerve.getPose();
         Pose2d[][] stands = isAllianceRed() ? RobotMap.POSE_CORAL_STANDS_RED : RobotMap.POSE_CORAL_STANDS_BLUE;
-        return swerve_var.findBestStand(pose, stands, false);
+        return swerve.findBestStand(pose, stands, false);
     }
 
-    public static Pair<Integer, Pose2d> getClosestSource(Swerve swerve_var) {
-        Pose2d robotPose = swerve_var.getPose();
+    public Pair<Integer, Pose2d> getClosestSource() {
+        Pose2d robotPose = swerve.getPose();
 
         Pose2d sourceA = isAllianceRed() ? RobotMap.POSE_SOURCE_A_RED : RobotMap.POSE_SOURCE_A_BLUE;
         Pose2d sourceB = isAllianceRed() ? RobotMap.POSE_SOURCE_B_RED : RobotMap.POSE_SOURCE_B_BLUE;
 
-        double sourceDistanceA = swerve_var.getDistanceToMeters(robotPose, sourceA);
-        double sourceDistanceB = swerve_var.getDistanceToMeters(robotPose, sourceB);
+        double sourceDistanceA = swerve.getDistanceToMeters(robotPose, sourceA);
+        double sourceDistanceB = swerve.getDistanceToMeters(robotPose, sourceB);
         if (sourceDistanceA < sourceDistanceB) {
             return Pair.of(0, sourceA);
         } else {

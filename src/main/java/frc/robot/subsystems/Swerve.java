@@ -191,50 +191,17 @@ public class Swerve extends SubsystemBase {
         return AutoBuilder.followPath(path);
     }
 
-    Pose2d bestStandPose = Robot.getClosestStand(this).isPresent() ?
-            Robot.getClosestStand(this).get().pose : null;
-
-    Pose2d bestSourcePose = Robot.getClosestSource(this).getSecond();
-
-    Pose2d processorPose = RobotMap.isAllianceRed() ? RobotMap.POSE_PROCESSOR_RED : RobotMap.POSE_SOURCE_A_BLUE;
-
-
     PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also use unlimited constraints, only limited by motor torque and nominal battery voltage
 
-    PathPlannerPath alignWithReefStandPath = new PathPlannerPath(
-            PathPlannerPath.waypointsFromPoses(bestStandPose),
-            constraints,
-            null, // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
-            new GoalEndState(0.0, bestStandPose.getRotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
-    );
-
-    public PathPlannerPath getAlignWithReefStandPath() {
-        alignWithReefStandPath.preventFlipping = true;
-        return alignWithReefStandPath;
-    }
-
-    PathPlannerPath alignWithSourcePath = new PathPlannerPath(
-            PathPlannerPath.waypointsFromPoses(bestSourcePose),
-            constraints,
-            null, // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
-            new GoalEndState(0.0, bestSourcePose.getRotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
-    );
-
-    public PathPlannerPath getAlignWithSourcePath() {
-        alignWithSourcePath.preventFlipping = true;
-        return alignWithSourcePath;
-    }
-
-    PathPlannerPath alignWithProcessorPath = new PathPlannerPath(
-            PathPlannerPath.waypointsFromPoses(processorPose),
-            constraints,
-            null, // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
-            new GoalEndState(0.0, bestSourcePose.getRotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
-    );
-
-    public PathPlannerPath getAlignWithProcessorPath() {
-        alignWithProcessorPath.preventFlipping = true;
-        return alignWithProcessorPath;
+    public PathPlannerPath getFollowPathToTarget(Pose2d targetPos){
+        PathPlannerPath path = new PathPlannerPath(
+                PathPlannerPath.waypointsFromPoses(targetPos),
+                constraints,
+                null, // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
+                new GoalEndState(0.0, targetPos.getRotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
+        );
+        path.preventFlipping=true;
+        return path;
     }
 
     private void pathPlannerSetUp() {
