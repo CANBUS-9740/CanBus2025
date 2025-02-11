@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ArmJointControlCommand;
 import frc.robot.commands.ArmTelescopicHold;
 import frc.robot.commands.ArmTelescopicMoveToLength;
@@ -147,6 +150,11 @@ public class Robot extends TimedRobot {
                 new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_UNDER_CAGE_ANGLE)
         );
 
+        ParallelCommandGroup hang = new ParallelCommandGroup(
+                new ArmTelescopicReset(armTelescopicSystem),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_FLOOR_ANGLE)),
+        );
+
         SequentialCommandGroup reefLowerAlgae = new SequentialCommandGroup(
                 new ParallelCommandGroup(
                         new ArmTelescopicMoveToLength(armTelescopicSystem, RobotMap.ARM_TELESCOPIC_LOWER_REEF_ALGAE_LENGTH),
@@ -170,6 +178,11 @@ public class Robot extends TimedRobot {
         FollowPathCommand.warmupCommand().schedule();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
+
+        new JoystickButton(xbox, XboxController.Button.kRightBumper.value).onTrue(reefHighAlgae);
+        new JoystickButton(xbox, XboxController.Button.kLeftBumper.value).onTrue(placeInProcessor);
+        new Trigger(() -> xbox.getRightTriggerAxis() > 0.5).onTrue(reefLowerAlgae);
+        new Trigger(() -> xbox.getLeftTriggerAxis() > 0.5).onTrue(hang);
     }
 
     @Override
