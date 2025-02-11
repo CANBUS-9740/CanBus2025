@@ -98,9 +98,9 @@ public class RobotMap {
     public static final double CLAWJOINT_SOURCE_ANGLE = 0;
     public static final double CLAWJOINT_FLOOR_ANGLE = 0;
     public static final double CLAWJOINT_CORAL_PODIUM_POLE_ANGLE = 0;
-    public static final double CLAWJOINT_CORAL_LOWER_POLE_ANGLE = 0;
-    public static final double CLAWJOINT_CORAL_MEDIUM_POLE_ANGLE = 0;
-    public static final double CLAWJOINT_CORAL_HIGH_POLE_ANGLE = 0;
+    public static final double CLAWJOINT_CORAL_FIRST_POLE_ANGLE = 0;
+    public static final double CLAWJOINT_CORAL_SECOND_POLE_ANGLE = 0;
+    public static final double CLAWJOINT_CORAL_THIRD_POLE_ANGLE = 0;
     public static final double CLAWJOINT_PROCESSOR_ANGLE = 0;
 
     //commandsGroup
@@ -136,10 +136,10 @@ public class RobotMap {
 
     //simple command groups
     public static final double CALCULATION_COLLECT_FROM_SOURCE = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_SOURCE,2) + Math.pow(RobotMap.SOURCE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
-    public static final double CALCULATION_CORAL_PLACE_L1 = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_PODIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
-    public static final double CALCULATION_CORAL_PLACE_L2 = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_LOWER_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
-    public static final double CALCULATION_CORAL_PLACE_L3 = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_MEDIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
-    public static final double CALCULATION_CORAL_PLACE_L4 = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_HIGH_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
+    public static final double ARM_LENGTH_PODIUM = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_PODIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
+    public static final double ARM_LENGTH_FIRST = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_LOWER_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
+    public static final double ARM_LENGTH_SECOND = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_MEDIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
+    public static final double ARM_LENGTH_THIRD = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_HIGH_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
     public static final double CALCULATION_PLACE_IN_PROCESSOR = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_PROCESSOR,2) + Math.pow(RobotMap.PROCESSOR_PLACE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
     public static final double ANGLE_COLLECT_FROM_SOURCE = Math.atan(RobotMap.SOURCE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL);
     public static final double ANGLE_CORAL_PLACE_L1 = Math.atan(RobotMap.CORAL_PODIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL);
@@ -147,6 +147,10 @@ public class RobotMap {
     public static final double ANGLE_CORAL_PLACE_L3 = Math.atan(RobotMap.CORAL_MEDIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL);
     public static final double ANGLE_CORAL_PLACE_L4 = Math.atan(RobotMap.CORAL_HIGH_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL);
     public static final double ANGLE_PROCESSOR = Math.atan(RobotMap.PROCESSOR_PLACE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL);
+    public static final double ARM_JOINT_ANGLE_PODIUM = 0;
+    public static final double ARM_JOINT_ANGLE_FIRST = 0;
+    public static final double ARM_JOINT_ANGLE_SECOND = 0;
+    public static final double ARM_JOINT_ANGLE_THIRD = 0;
 
 
 }
