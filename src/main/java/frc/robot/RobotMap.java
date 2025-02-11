@@ -109,8 +109,6 @@ public class RobotMap {
     public static final Pose2d POSE_SOURCE_B_RED = new Pose2d(16.697, 0.655, Rotation2d.fromDegrees(126));
     public static final Pose2d POSE_PROCESSOR_BLUE = new Pose2d(5.987, -0.003, Rotation2d.fromDegrees(90));
     public static final Pose2d POSE_PROCESSOR_RED = new Pose2d(11.560, 8.055, Rotation2d.fromDegrees(270));
-    public static final Pose2d POSE_INFRONT_PROCESSOR_BLUE = new Pose2d(5.987, -0.003, Rotation2d.fromDegrees(90));
-    public static final Pose2d POSE_INFRONT_PROCESSOR_RED = new Pose2d(11.560, 8.055, Rotation2d.fromDegrees(270));
 
     public static final Pose2d[][] POSE_CORAL_STANDS_BLUE = {
             {new Pose2d(3.991, 3.448, Rotation2d.fromDegrees(240)), new Pose2d(4.155, 3.164, Rotation2d.fromDegrees(240))},

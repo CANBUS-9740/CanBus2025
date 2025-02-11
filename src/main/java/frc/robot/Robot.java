@@ -136,14 +136,12 @@ public class Robot extends TimedRobot {
 
         Command alignWithSource = Commands.defer(()->{
             Pose2d sourcePose = getClosestSource().getSecond();
-            sourcePose = new Pose2d(sourcePose.getX(),sourcePose.getY(), Rotation2d.fromRadians(Math.toRadians(sourcePose.getRotation().getDegrees()+180)));
-
-            return AutoBuilder.followPath(swerve.getFollowPathToTarget(sourcePose));
+            return AutoBuilder.followPath(swerve.getFollowPathToTarget(sourcePose, true, 0, 0));//need to check what to add in the field
         }, Set.of(swerve));
 
         Command alignWithProcessor = Commands.defer(()->{
-            Pose2d processorPose = RobotMap.isAllianceRed() ? RobotMap.POSE_INFRONT_PROCESSOR_RED : RobotMap.POSE_INFRONT_PROCESSOR_BLUE;
-            return AutoBuilder.followPath(swerve.getFollowPathToTarget(processorPose));
+            Pose2d processorPose = RobotMap.isAllianceRed() ? RobotMap.POSE_PROCESSOR_RED : RobotMap.POSE_PROCESSOR_BLUE;
+            return AutoBuilder.followPath(swerve.getFollowPathToTarget(processorPose, true, 0, 0));//need to check what to add in the field
         }, Set.of(swerve));
 
         Command alignWithCoralStand = Commands.defer(()->{
@@ -152,7 +150,7 @@ public class Robot extends TimedRobot {
                 return Commands.none();
             }
             Pose2d stand = optionalStand.get().pose;
-            return AutoBuilder.followPath(swerve.getFollowPathToTarget(stand));
+            return AutoBuilder.followPath(swerve.getFollowPathToTarget(stand, false, 0, 0));//need to check what to add in the field
         }, Set.of(swerve));
     }
 

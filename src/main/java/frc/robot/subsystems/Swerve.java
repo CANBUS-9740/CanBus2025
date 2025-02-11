@@ -193,14 +193,21 @@ public class Swerve extends SubsystemBase {
 
     PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also use unlimited constraints, only limited by motor torque and nominal battery voltage
 
-    public PathPlannerPath getFollowPathToTarget(Pose2d targetPos){
+    public PathPlannerPath getFollowPathToTarget(Pose2d targetPos, boolean shouldFlipRotation, double addX, double addY) {
+        double rotateDegrees = targetPos.getRotation().getDegrees();
+        if (shouldFlipRotation) {
+            rotateDegrees += 180;
+        }
+
+        targetPos = new Pose2d(targetPos.getX() + addX, targetPos.getY() + addY, Rotation2d.fromRadians(Math.toRadians(rotateDegrees + 180)));
+
         PathPlannerPath path = new PathPlannerPath(
                 PathPlannerPath.waypointsFromPoses(targetPos),
                 constraints,
                 null, // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
                 new GoalEndState(0.0, targetPos.getRotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
         );
-        path.preventFlipping=true;
+        path.preventFlipping = true;
         return path;
     }
 
