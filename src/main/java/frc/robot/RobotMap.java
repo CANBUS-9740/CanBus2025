@@ -42,6 +42,10 @@ public class RobotMap {
     public static final double SWERVE_FRONT_LEFT_ZERO_ANGLE = 68.291016;
     public static final double SWERVE_BACK_RIGHT_ZERO_ANGLE = 277.207031;
     public static final double SWERVE_BACK_LEFT_ZERO_ANGLE = 226.582031;
+    public static final double SWERVE_HEIGHT = 0;
+    public static final double SWERVE_DISTANCE_FROM_SOURCE = 0;
+    public static final double SWERVE_DISTANCE_FROM_CORAL = 0;
+    public static final double SWERVE_DISTANCE_FROM_PROCESSOR = 0;
 
     // arm telescopic
     public static final int ARM_TELESCOPIC_MOTOR_ID = 0;
@@ -91,13 +95,6 @@ public class RobotMap {
     public static final int CLAWJOINT_ABS_ENCODER_START_PULSE_US = 1;
     public static final int CLAWJOINT_ABS_ENCODER_END_PULSE_US = 1024;
     public static final int CLAWJOINT_ABS_ENCODER_ZERO_OFFSET = 0;
-    public static final double CLAWJOINT_SOURCE_ANGLE = 0;
-    public static final double CLAWJOINT_FLOOR_ANGLE = 0;
-    public static final double CLAWJOINT_CORAL_PODIUM_POLE_ANGLE = 0;
-    public static final double CLAWJOINT_CORAL_LOWER_POLE_ANGLE = 0;
-    public static final double CLAWJOINT_CORAL_MEDIUM_POLE_ANGLE = 0;
-    public static final double CLAWJOINT_CORAL_HIGH_POLE_ANGLE = 0;
-    public static final double CLAWJOINT_PROCESSOR_ANGLE = 0;
 
     //commandsGroup
     public static final Pose2d POSE_SOURCE_A_BLUE = new Pose2d(0.851, 0.655, Rotation2d.fromDegrees(54));
@@ -122,11 +119,33 @@ public class RobotMap {
             {new Pose2d(12.227, 4.198, Rotation2d.fromDegrees(180)), new Pose2d(12.227, 3.861, Rotation2d.fromDegrees(180))},
             {new Pose2d(12.561, 3.448, Rotation2d.fromDegrees(240)), new Pose2d(12.725, 2.164, Rotation2d.fromDegrees(240))}
     };
-    public static final double SOURCE_HEIGHT = 0;
-    public static final double CORAL_PODIUM_POLE_HEIGHT = 0;
-    public static final double CORAL_LOWER_POLE_HEIGHT = 0;
-    public static final double CORAL_MEDIUM_POLE_HEIGHT = 0;
-    public static final double CORAL_HIGH_POLE_HEIGHT = 0;
-    public static final double PROCESSOR_PLACE_HEIGHT = 0;
+    public static final double SOURCE_HEIGHT = 1.35;
+    public static final double CORAL_PODIUM_POLE_HEIGHT = 0.46;
+    public static final double CORAL_LOWER_POLE_HEIGHT = 0.81;
+    public static final double CORAL_MEDIUM_POLE_HEIGHT = 1.21;
+    public static final double CORAL_HIGH_POLE_HEIGHT = 1.83;
+    public static final double PROCESSOR_PLACE_HEIGHT = 1.35;
     public static final double ROBOT_MAXIMUM_DISTANCE = 2;
+
+    // command groups
+    public static final double CALCULATION_COLLECT_FROM_SOURCE = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_SOURCE,2) + Math.pow(RobotMap.SOURCE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
+    public static final double ARM_LENGTH_PODIUM = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_PODIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
+    public static final double ARM_LENGTH_FIRST = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_LOWER_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
+    public static final double ARM_LENGTH_SECOND = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_MEDIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
+    public static final double ARM_LENGTH_THIRD = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_HIGH_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
+    public static final double ARM_LENGTH_FLOOR = 0;
+    public static final double CALCULATION_PLACE_IN_PROCESSOR = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_PROCESSOR,2) + Math.pow(RobotMap.PROCESSOR_PLACE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
+    public static final double ANGLE_PROCESSOR = Math.atan(RobotMap.PROCESSOR_PLACE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL);
+    public static final double ARM_JOINT_ANGLE_PODIUM = 0;
+    public static final double ARM_JOINT_ANGLE_FIRST = 0;
+    public static final double ARM_JOINT_ANGLE_SECOND = 0;
+    public static final double ARM_JOINT_ANGLE_THIRD = 0;
+    public static final double ARM_JOINT_ANGLE_SOURCE = 0;
+    public static final double CLAWJOINT_SOURCE_ANGLE = 0;
+    public static final double CLAWJOINT_FLOOR_ANGLE = 0;
+    public static final double CLAWJOINT_CORAL_PODIUM_POLE_ANGLE = 0;
+    public static final double CLAWJOINT_CORAL_FIRST_POLE_ANGLE = 0;
+    public static final double CLAWJOINT_CORAL_SECOND_POLE_ANGLE = 0;
+    public static final double CLAWJOINT_CORAL_THIRD_POLE_ANGLE = 0;
+    public static final double CLAWJOINT_PROCESSOR_ANGLE = 0;
 }
