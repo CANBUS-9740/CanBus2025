@@ -28,11 +28,7 @@ public class ArmTelescopicMoveToLength extends Command {
 
     @Override
     public void execute() {
-        if(Robot.getXDistance(armJointSystem.getPositionDegrees(), armTelescopicSystem.getLengthMeters(), clawJointSystem.getPositionDegrees()) > RobotMap.ARM_TELESCOPIC_LEGAL_X_LENGTH && armTelescopicSystem.getMotorSpeed() > 0) {
-            armTelescopicSystem.hold();
-        } else {
             armTelescopicSystem.moveToLength(targetLength);
-        }
     }
 
     @Override

@@ -56,7 +56,7 @@ public class RobotMap {
     public static final double ARM_TELESCOPIC_RESET_LENGTH_METERS = 0;
     public static final double ARM_TELESCOPIC_MAXIMUM_LENGTH = 180;
     public static final double ARM_TELESCOPIC_MINIMUM_LENGTH = 0;
-    public static final double ARM_TELESCOPIC_LEGAL_X_LENGTH = 43;
+    public static final double ARM_TELESCOPIC_LEGAL_X_LENGTH_METERS = 0.43;
 
     //ARM JOINT
     public static final int ARM_JOINT_MOTOR_ID = 1;
@@ -129,5 +129,5 @@ public class RobotMap {
     public static final double CORAL_HIGH_POLE_HEIGHT = 0;
     public static final double PROCESSOR_PLACE_HEIGHT = 0;
     public static final double ROBOT_MAXIMUM_DISTANCE = 2;
-    public static final double ARM_BASE_POSITION_ON_ROBOT_CM = 36;
+    public static final double ARM_BASE_POSITION_ON_ROBOT_METERS = 0.36;
 }

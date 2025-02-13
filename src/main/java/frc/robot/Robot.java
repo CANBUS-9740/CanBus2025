@@ -78,10 +78,7 @@ public class Robot extends TimedRobot {
 
                     return new SequentialCommandGroup(
                             new ParallelCommandGroup(
-                                    new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem, clawJointSystem, length),
-                                    Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle)),
-                                    Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
-                                    new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE)
+                                    movementArmOrder(length, angle, RobotMap.CLAWJOINT_SOURCE_ANGLE)
                             ),
                             new ClawGripperIntake(clawGripperSystem)
                     );
@@ -122,12 +119,9 @@ public class Robot extends TimedRobot {
 
                     double finalDistance = distance;
 
-            return new SequentialCommandGroup(
+                    return new SequentialCommandGroup(
                             new ParallelCommandGroup(
-                                    new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem,clawJointSystem , length),
-                                    Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle)),
-                                    Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
-                                    new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)
+                                    movementArmOrder(length, angle, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)
                             ),
                             new ClawGripperOuttake(clawGripperSystem)
                     );
@@ -262,11 +256,11 @@ public class Robot extends TimedRobot {
         targetAngle = Math.toRadians(targetAngle);
         clawTargetAngle = Math.toRadians(clawTargetAngle);
 
-        double distance = Math.abs(((Math.cos(targetAngle) * (armTargetLength)) + (Math.cos(clawTargetAngle) * RobotMap.CLAWJOINT_LENGTH)));
-        if (distance > (Math.cos(targetAngle) * armTargetLength)) {
-            return distance - RobotMap.ARM_BASE_POSITION_ON_ROBOT_CM;
+        double distance = Math.abs(Math.cos(targetAngle) * (armTargetLength)) + Math.abs(Math.cos(clawTargetAngle + targetAngle) * RobotMap.CLAWJOINT_LENGTH);
+        if (distance > Math.abs(Math.cos(targetAngle) * armTargetLength)) {
+            return distance - RobotMap.ARM_BASE_POSITION_ON_ROBOT_METERS;
         } else {
-            return (Math.cos(targetAngle) * armTargetLength) - RobotMap.ARM_BASE_POSITION_ON_ROBOT_CM;
+            return Math.abs(Math.cos(targetAngle) * armTargetLength) - RobotMap.ARM_BASE_POSITION_ON_ROBOT_METERS;
         }
     }
 
@@ -276,7 +270,29 @@ public class Robot extends TimedRobot {
                 angle < RobotMap.ARM_JOINT_MINIMUM_ANGLE ||
                 angle > RobotMap.ARM_JOINT_MAXIMUM_ANGLE ||
                 distance > RobotMap.ROBOT_MAXIMUM_DISTANCE ||
-                getXDistance(angle, length, clawAngle) > RobotMap.ARM_TELESCOPIC_LEGAL_X_LENGTH;
+                getXDistance(angle, length, clawAngle) > RobotMap.ARM_TELESCOPIC_LEGAL_X_LENGTH_METERS;
+    }
+
+    private SequentialCommandGroup movementArmOrder(double targetLength, double targetAngle, double clawJointAngle) {
+        if (targetLength - RobotMap.ARM_BASE_POSITION_ON_ROBOT_METERS > RobotMap.ARM_TELESCOPIC_LEGAL_X_LENGTH_METERS) { // check arm telescopic first part length
+            return new SequentialCommandGroup(
+                    Commands.runOnce(()->  armJointControlCommand.setTargetPosition(targetAngle)),
+                    Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
+                    new ParallelCommandGroup(
+                            new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem,clawJointSystem , targetLength),
+                            new MoveClawJointToPosition(clawJointSystem, clawJointAngle)
+                            )
+            );
+        } else {
+            return new SequentialCommandGroup(
+                    new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem,clawJointSystem , targetLength),
+                    new ParallelCommandGroup(
+                            new MoveClawJointToPosition(clawJointSystem, clawJointAngle),
+                            Commands.runOnce(()->  armJointControlCommand.setTargetPosition(targetAngle)),
+                            Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition())
+                    )
+            );
+        }
     }
 
     private Optional<SelectedStand> getBestStand() {
@@ -351,10 +367,7 @@ public class Robot extends TimedRobot {
 
             return new SequentialCommandGroup(
                     new ParallelCommandGroup(
-                            new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem, clawJointSystem, length),
-                            Commands.runOnce(()->  armJointControlCommand.setTargetPosition(angle)),
-                            Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
-                            new MoveClawJointToPosition(clawJointSystem, crawJointAngle)
+                            movementArmOrder(length, angle, crawJointAngle)
                     ),
                     new ClawGripperOuttake(clawGripperSystem)
             );

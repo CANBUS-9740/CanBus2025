@@ -51,7 +51,7 @@ public class ArmJointControlCommand extends Command {
         }
 
         if (isInTarget) {
-            if (targetPosition == 0 || targetPosition == 180 || (Robot.getXDistance(armJointSystem.getPositionDegrees(), armTelescopicSystem.getLengthMeters(), clawJointSystem.getPositionDegrees()) > RobotMap.ARM_TELESCOPIC_LEGAL_X_LENGTH && armTelescopicSystem.getMotorSpeed() < 0)) {
+            if (targetPosition == 0 || targetPosition == 180) {
                 armJointSystem.stop();
             } else {
                 armJointSystem.moveToPosition(targetPosition);
