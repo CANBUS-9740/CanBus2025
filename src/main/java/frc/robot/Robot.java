@@ -85,27 +85,19 @@ public class Robot extends TimedRobot {
                     double length = armTelescopicSystem.calculateLengthForTarget(targetsDistance, RobotMap.SOURCE_HEIGHT);
                     double angle = armJointSystem.calculateAngleForTarget(targetsDistance, RobotMap.SOURCE_HEIGHT);
 
-                    if (isCommandIsValid(length, angle, targetsDistance)) {
+                    if (isCommandNotValid(length, angle, targetsDistance)) {
                         return Commands.none();
                     }
 
                     return new SequentialCommandGroup(
-                            new ParallelCommandGroup(
-                                    new ArmTelescopicMoveToLength(armTelescopicSystem, length),
-                                    Commands.runOnce(() -> armJointControlCommand.setTargetPosition(angle)),
-                                    Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
-                                    new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE)),
+                            createCommandGroupSimple(length, angle, RobotMap.CLAWJOINT_SOURCE_ANGLE),
                             new ClawGripperIntake(clawGripperSystem)
                     );
                 }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem)
         );
 
         SequentialCommandGroup collectFromFloor = new SequentialCommandGroup(
-                new ParallelCommandGroup(
-                        Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_FLOOR_ANGLE)),
-                        Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
-                        new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_FLOOR_ANGLE)
-                ),
+                createCommandGroupSimple(RobotMap.ARM_LENGTH_FLOOR, RobotMap.ARM_JOINT_FLOOR_ANGLE, RobotMap.CLAWJOINT_FLOOR_ANGLE),
                 new ClawGripperIntake(clawGripperSystem)
         );
 
@@ -128,46 +120,31 @@ public class Robot extends TimedRobot {
                     double length = armTelescopicSystem.calculateLengthForTarget(distance, RobotMap.PROCESSOR_PLACE_HEIGHT);
                     double angle = armJointSystem.calculateAngleForTarget(distance, RobotMap.PROCESSOR_PLACE_HEIGHT);
 
-                    if (isCommandIsValid(length, angle, distance)) {
+                    if (isCommandNotValid(length, angle, distance)) {
                         return Commands.none();
                     }
 
                     return new SequentialCommandGroup(
-                            new ParallelCommandGroup(
-                                    new ArmTelescopicMoveToLength(armTelescopicSystem, length),
-                                    Commands.runOnce(() -> armJointControlCommand.setTargetPosition(angle)),
-                                    Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
-                                    new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)),
+                            createCommandGroupSimple(length, angle, RobotMap.CLAWJOINT_PROCESSOR_ANGLE),
                             new ClawGripperOuttake(clawGripperSystem)
                     );
                 }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem)
         );
 
+        Command collectFromSourceCommandSimple =
+                createCommandGroupSimple(RobotMap.CALCULATION_COLLECT_FROM_SOURCE, RobotMap.ARM_JOINT_ANGLE_SOURCE, RobotMap.CLAWJOINT_SOURCE_ANGLE);
+        Command placeInProcessorCommandSimple =
+                createCommandGroupSimple(RobotMap.CALCULATION_PLACE_IN_PROCESSOR, RobotMap.ANGLE_PROCESSOR, RobotMap.CLAWJOINT_PROCESSOR_ANGLE);
 
-        Command collectFromSourceCommandSimple = new ParallelCommandGroup(
-                new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_SOURCE_ANGLE),
-                new ArmTelescopicMoveToLength(armTelescopicSystem, RobotMap.CALCULATION_COLLECT_FROM_SOURCE),
-                Commands.runOnce(() -> armJointControlCommand.setTargetPosition(Math.atan(RobotMap.SOURCE_HEIGHT - RobotMap.SWERVE_HEIGHT / RobotMap.SWERVE_DISTANCE_FROM_CORAL))),
-                Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition())
-        );
-
-        Command placeInProcessorCommandSimple = new ParallelCommandGroup(
-                new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_PROCESSOR_ANGLE),
-                new ArmTelescopicMoveToLength(armTelescopicSystem, RobotMap.CALCULATION_PLACE_IN_PROCESSOR),
-                Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ANGLE_PROCESSOR)),
-                Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition())
-        );
-
-        new POVButton(xbox, 180).onTrue(placeCoralOnReefCommandSimple(CoralReef.PODIUM_SIMPLE));
+        new POVButton(xbox, 180).onTrue(placeCoralOnReefCommandSimple(CoralReef.PODIUM));
         new POVButton(xbox, 270).onTrue(placeCoralOnReefCommandSimple(CoralReef.FIRST_STAGE));
         new POVButton(xbox, 90).onTrue(placeCoralOnReefCommandSimple(CoralReef.SECOND_STAGE));
-        new POVButton(xbox, 0).onTrue(placeCoralOnReefCommandSimple(CoralReef.THIRD_STAGE_SIMPLE));
+        new POVButton(xbox, 0).onTrue(placeCoralOnReefCommandSimple(CoralReef.THIRD_STAGE));
 
         new JoystickButton(xbox, XboxController.Button.kRightBumper.value).onTrue(placeInProcessorCommandSimple);
         new JoystickButton(xbox, XboxController.Button.kLeftBumper.value).onTrue(collectFromSourceCommandSimple);
         new JoystickButton(xbox, XboxController.Button.kB.value).onTrue(new ClawGripperOuttake(clawGripperSystem));
         new JoystickButton(xbox, XboxController.Button.kX.value).onTrue(new ClawGripperIntake(clawGripperSystem));
-
 
         FollowPathCommand.warmupCommand().schedule();
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -293,7 +270,7 @@ public class Robot extends TimedRobot {
         return allianceOptional.isPresent() && allianceOptional.get() == DriverStation.Alliance.Red;
     }
 
-    private boolean isCommandIsValid(double length, double angle, double distance) {
+    private boolean isCommandNotValid(double length, double angle, double distance) {
         return length > RobotMap.ARM_TELESCOPIC_MAXIMUM_LENGTH ||
                 length < RobotMap.ARM_TELESCOPIC_MINIMUM_LENGTH ||
                 angle < RobotMap.ARM_JOINT_MINIMUM_ANGLE ||
@@ -367,40 +344,52 @@ public class Robot extends TimedRobot {
             double length = armTelescopicSystem.calculateLengthForTarget(distance, reefPoleHeight);
             double angle = armJointSystem.calculateAngleForTarget(distance, reefPoleHeight);
 
-            if (isCommandIsValid(length, angle, distance)) {
+            if (isCommandNotValid(length, angle, distance)) {
                 return Commands.none();
             }
 
             return new SequentialCommandGroup(
-                    new ParallelCommandGroup(
-                            new ArmTelescopicMoveToLength(armTelescopicSystem, length),
-                            Commands.runOnce(() -> armJointControlCommand.setTargetPosition(angle)),
-                            Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
-                            new MoveClawJointToPosition(clawJointSystem, crawJointAngle)),
+                    createCommandGroupSimple(length, angle, crawJointAngle),
                     new ClawGripperOuttake(clawGripperSystem)
             );
         }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem));
     }
 
-
     private Command placeCoralOnReefCommandSimple(CoralReef coralReef) {
+        double armLength;
+        double armAngle;
+        double clawAngle;
         switch (coralReef) {
-            case PODIUM_SIMPLE:
-                return createCommandGroupSimple(RobotMap.ARM_LENGTH_PODIUM,RobotMap.ARM_JOINT_ANGLE_PODIUM,RobotMap.CLAWJOINT_CORAL_PODIUM_POLE_ANGLE);
-            case FIRST_STAGE_SIMPLE:
-                return createCommandGroupSimple(RobotMap.ARM_LENGTH_FIRST, RobotMap.ARM_JOINT_ANGLE_FIRST, RobotMap.CLAWJOINT_CORAL_FIRST_POLE_ANGLE);
-            case SECOND_STAGE_SIMPLE:
-                return createCommandGroupSimple(RobotMap.ARM_LENGTH_SECOND, RobotMap.ARM_JOINT_ANGLE_SECOND, RobotMap.CLAWJOINT_CORAL_SECOND_POLE_ANGLE);
-            case THIRD_STAGE_SIMPLE:
-                return createCommandGroupSimple(RobotMap.ARM_LENGTH_THIRD, RobotMap.ARM_JOINT_ANGLE_THIRD, RobotMap.CLAWJOINT_CORAL_THIRD_POLE_ANGLE);
+            case PODIUM:
+                armLength = RobotMap.ARM_LENGTH_PODIUM;
+                armAngle = RobotMap.ARM_JOINT_ANGLE_PODIUM;
+                clawAngle = RobotMap.CLAWJOINT_CORAL_PODIUM_POLE_ANGLE;
+                break;
+            case FIRST_STAGE:
+                armLength = RobotMap.ARM_LENGTH_FIRST;
+                armAngle = RobotMap.ARM_JOINT_ANGLE_FIRST;
+                clawAngle = RobotMap.CLAWJOINT_CORAL_FIRST_POLE_ANGLE;
+                break;
+            case SECOND_STAGE:
+                armLength = RobotMap.ARM_LENGTH_SECOND;
+                armAngle = RobotMap.ARM_JOINT_ANGLE_SECOND;
+                clawAngle = RobotMap.CLAWJOINT_CORAL_SECOND_POLE_ANGLE;
+                break;
+            case THIRD_STAGE:
+                armLength = RobotMap.ARM_LENGTH_THIRD;
+                armAngle = RobotMap.ARM_JOINT_ANGLE_THIRD;
+                clawAngle = RobotMap.CLAWJOINT_CORAL_THIRD_POLE_ANGLE;
+                break;
             default:
                 return null;
         }
+
+        return createCommandGroupSimple(armLength, armAngle, clawAngle);
     }
 
-    private Command createCommandGroupSimple(double armLength, double armAngle, double clawAngle){
+    private Command createCommandGroupSimple(double armLength, double armAngle, double clawAngle) {
         return new ParallelCommandGroup(
-                new MoveClawJointToPosition(clawJointSystem,clawAngle),
+                new MoveClawJointToPosition(clawJointSystem, clawAngle),
                 new ArmTelescopicMoveToLength(armTelescopicSystem, armLength),
                 Commands.runOnce(() -> armJointControlCommand.setTargetPosition(armAngle)),
                 Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition())
