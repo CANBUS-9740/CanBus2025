@@ -60,6 +60,8 @@ public class RobotMap {
     public static final double ARM_TELESCOPIC_RESET_LENGTH_METERS = 0;
     public static final double ARM_TELESCOPIC_MAXIMUM_LENGTH = 180;
     public static final double ARM_TELESCOPIC_MINIMUM_LENGTH = 0;
+    public static final double ARM_TELESCOPIC_LOWER_REEF_ALGAE_LENGTH = 0;
+    public static final double ARM_TELESCOPIC_HIGH_REEF_ALGAE_LENGTH = 0;
 
     //ARM JOINT
     public static final int ARM_JOINT_MOTOR_ID = 1;
@@ -80,6 +82,9 @@ public class RobotMap {
     public static final double ARM_JOINT_MINIMUM_ANGLE = 0;
     public static final double ARM_JOINT_MAXIMUM_ANGLE = 180;
     public static final double ARM_JOINT_FLOOR_ANGLE = 0;
+    public static final double ARM_JOINT_UNDER_CAGE_ANGLE = 0;
+    public static final double ARM_JOINT_LOWER_REEF_ALGAE_ANGLE = 0;
+    public static final double ARM_JOINT_HIGH_REEF_ALGAE_ANGLE = 0;
 
     //claw
     public static final int CLAW_MOTOR_ID = 2;
@@ -148,4 +153,7 @@ public class RobotMap {
     public static final double CLAWJOINT_CORAL_SECOND_POLE_ANGLE = 0;
     public static final double CLAWJOINT_CORAL_THIRD_POLE_ANGLE = 0;
     public static final double CLAWJOINT_PROCESSOR_ANGLE = 0;
+    public static final double CLAWJOINT_UNDER_CAGE_ANGLE = 0;
+    public static final double CLAWJOINT_LOWER_REEF_ALGAE_ANGLE = 0;
+    public static final double CLAWJOINT_HIGH_REEF_ALGAE_ANGLE = 0;
 }

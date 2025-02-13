@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ArmJointControlCommand;
 import frc.robot.commands.ArmTelescopicHold;
 import frc.robot.commands.ArmTelescopicMoveToLength;
@@ -131,6 +132,27 @@ public class Robot extends TimedRobot {
                 }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem)
         );
 
+        ParallelCommandGroup underCage = new ParallelCommandGroup(
+                new ArmTelescopicReset(armTelescopicSystem),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_UNDER_CAGE_ANGLE)),
+                new MoveClawJointToPosition(clawJointSystem, RobotMap.CLAWJOINT_UNDER_CAGE_ANGLE)
+        );
+
+        ParallelCommandGroup hang = new ParallelCommandGroup(
+                new ArmTelescopicReset(armTelescopicSystem),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_FLOOR_ANGLE))
+        );
+
+        SequentialCommandGroup reefLowerAlgae = new SequentialCommandGroup(
+                createCommandGroupSimple(RobotMap.ARM_TELESCOPIC_LOWER_REEF_ALGAE_LENGTH, RobotMap.ARM_JOINT_LOWER_REEF_ALGAE_ANGLE, RobotMap.CLAWJOINT_LOWER_REEF_ALGAE_ANGLE),
+                new ClawGripperIntake(clawGripperSystem)
+        );
+
+        SequentialCommandGroup reefHighAlgae = new SequentialCommandGroup(
+                createCommandGroupSimple(RobotMap.ARM_TELESCOPIC_HIGH_REEF_ALGAE_LENGTH, RobotMap.ARM_JOINT_HIGH_REEF_ALGAE_ANGLE, RobotMap.CLAWJOINT_HIGH_REEF_ALGAE_ANGLE),
+                new ClawGripperIntake(clawGripperSystem)
+        );
+
         Command collectFromSourceCommandSimple =
                 createCommandGroupSimple(RobotMap.CALCULATION_COLLECT_FROM_SOURCE, RobotMap.ARM_JOINT_ANGLE_SOURCE, RobotMap.CLAWJOINT_SOURCE_ANGLE);
         Command placeInProcessorCommandSimple =
@@ -145,6 +167,10 @@ public class Robot extends TimedRobot {
         new JoystickButton(xbox, XboxController.Button.kLeftBumper.value).onTrue(collectFromSourceCommandSimple);
         new JoystickButton(xbox, XboxController.Button.kB.value).onTrue(new ClawGripperOuttake(clawGripperSystem));
         new JoystickButton(xbox, XboxController.Button.kX.value).onTrue(new ClawGripperIntake(clawGripperSystem));
+        new JoystickButton(xbox, XboxController.Button.kA.value).onTrue(reefHighAlgae);
+        new JoystickButton(xbox, XboxController.Button.kY.value).onTrue(placeInProcessor);
+        new Trigger(() -> xbox.getRightTriggerAxis() > 0.5).onTrue(reefLowerAlgae);
+        new Trigger(() -> xbox.getLeftTriggerAxis() > 0.5).onTrue(hang);
 
         FollowPathCommand.warmupCommand().schedule();
         autoChooser = AutoBuilder.buildAutoChooser();
