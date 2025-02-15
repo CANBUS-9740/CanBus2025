@@ -7,7 +7,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.Units;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -136,21 +136,52 @@ public class Robot extends TimedRobot {
 
         Command alignWithSource = Commands.defer(()->{
             Pose2d sourcePose = getClosestSource().getSecond();
-            return AutoBuilder.followPath(swerve.getFollowPathToTarget(sourcePose, true, 0, 0));//need to check what to add in the field
+            double posRotationDegrees = sourcePose.getRotation().getDegrees();
+            double num;
+            double addY =(Units.metersToInches(RobotMap.SWERVE_LENGTH)/2) / Math.sin(RobotMap.POSE_SOURCE_B_BLUE.getRotation().getDegrees());
+            double addX = Math.tan(RobotMap.POSE_SOURCE_B_BLUE.getRotation().getDegrees()) * addY;;
+
+            if(posRotationDegrees == RobotMap.POSE_SOURCE_A_BLUE.getRotation().getDegrees()){
+                num = addY;
+                addY = addX;
+                addX = num;
+            } else if (posRotationDegrees == RobotMap.POSE_SOURCE_B_RED.getRotation().getDegrees()) {
+                addX*=-1;
+                addY*=-1;
+            } else if (posRotationDegrees == RobotMap.POSE_SOURCE_A_RED.getRotation().getDegrees()) {
+                num = addY;
+                addY = -addX;
+                addX = -num;
+            }   else {
+                addX*=-1;
+            }
+
+            return AutoBuilder.followPath(swerve.getFollowPathToTarget(sourcePose, true, addX, addY));
         }, Set.of(swerve));
 
         Command alignWithProcessor = Commands.defer(()->{
-            Pose2d processorPose = RobotMap.isAllianceRed() ? RobotMap.POSE_PROCESSOR_RED : RobotMap.POSE_PROCESSOR_BLUE;
-            return AutoBuilder.followPath(swerve.getFollowPathToTarget(processorPose, true, 0, 0));//need to check what to add in the field
+            Pose2d processorPose;
+            double addX = RobotMap.SWERVE_LENGTH/2;
+            if(RobotMap.isAllianceRed()){
+                processorPose = RobotMap.POSE_PROCESSOR_RED;
+            } else{
+                processorPose = RobotMap.POSE_PROCESSOR_BLUE;
+                addX*=-1;
+            }
+            return AutoBuilder.followPath(swerve.getFollowPathToTarget(processorPose, true, addX, 0));
         }, Set.of(swerve));
 
         Command alignWithCoralStand = Commands.defer(()->{
+            double addX;
+            double addY;
             Optional<SelectedStand> optionalStand = getClosestStand();
             if (optionalStand.isEmpty()) {
                 return Commands.none();
             }
             Pose2d stand = optionalStand.get().pose;
-            return AutoBuilder.followPath(swerve.getFollowPathToTarget(stand, false, 0, 0));//need to check what to add in the field
+            addX = (RobotMap.SWERVE_LENGTH/2) * Math.cos(stand.getRotation().getDegrees());
+            addY = (RobotMap.SWERVE_LENGTH/2) * Math.sin(stand.getRotation().getDegrees());
+            return AutoBuilder.followPath(swerve.getFollowPathToTarget(stand, false, addX, addY));
         }, Set.of(swerve));
     }
 

@@ -126,6 +126,7 @@ public class RobotMap {
             {new Pose2d(12.227, 4.198, Rotation2d.fromDegrees(180)), new Pose2d(12.227, 3.861, Rotation2d.fromDegrees(180))},
             {new Pose2d(12.561, 3.448, Rotation2d.fromDegrees(240)), new Pose2d(12.725, 2.164, Rotation2d.fromDegrees(240))}
     };
+
     public static final double SOURCE_HEIGHT = 0;
     public static final double CORAL_PODIUM_POLE_HEIGHT = 0;
     public static final double CORAL_LOWER_POLE_HEIGHT = 0;
@@ -133,6 +134,7 @@ public class RobotMap {
     public static final double CORAL_HIGH_POLE_HEIGHT = 0;
     public static final double PROCESSOR_PLACE_HEIGHT = 0;
     public static final double ROBOT_MAXIMUM_DISTANCE = 2;
+
 
     public static boolean isAllianceRed() {
         Optional<DriverStation.Alliance> allianceOptional = DriverStation.getAlliance();
