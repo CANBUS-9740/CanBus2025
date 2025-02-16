@@ -102,28 +102,6 @@ public class RobotMap {
     public static final int CLAWJOINT_ABS_ENCODER_ZERO_OFFSET = 0;
 
     //commandsGroup
-    public static final Pose2d POSE_SOURCE_A_BLUE = new Pose2d(0.851, 0.655, Rotation2d.fromDegrees(54));
-    public static final Pose2d POSE_SOURCE_A_RED = new Pose2d(16.697, 0.655, Rotation2d.fromDegrees(126));
-    public static final Pose2d POSE_SOURCE_B_BLUE = new Pose2d(0.851, 7.396, Rotation2d.fromDegrees(306));
-    public static final Pose2d POSE_SOURCE_B_RED = new Pose2d(16.697, 0.655, Rotation2d.fromDegrees(126));
-    public static final Pose2d POSE_PROCESSOR_BLUE = new Pose2d(5.987, -0.003, Rotation2d.fromDegrees(90));
-    public static final Pose2d POSE_PROCESSOR_RED = new Pose2d(11.560, 8.055, Rotation2d.fromDegrees(270));
-    public static final Pose2d[][] POSE_CORAL_STANDS_BLUE = {
-            {new Pose2d(3.991, 3.448, Rotation2d.fromDegrees(240)), new Pose2d(4.155, 3.164, Rotation2d.fromDegrees(240))},
-            {new Pose2d(3.657, 4.189, Rotation2d.fromDegrees(180)), new Pose2d(3.657, 3.861, Rotation2d.fromDegrees(180))},
-            {new Pose2d(4.155, 4.887, Rotation2d.fromDegrees(120)), new Pose2d(3.991, 4.603, Rotation2d.fromDegrees(120))},
-            {new Pose2d(5.046, 4.603, Rotation2d.fromDegrees(60)), new Pose2d(4.762, 4.887, Rotation2d.fromDegrees(60))},
-            {new Pose2d(5.321, 3.861, Rotation2d.fromDegrees(0)), new Pose2d(5.321, 4.189, Rotation2d.fromDegrees(0))},
-            {new Pose2d(4.822, 3.164, Rotation2d.fromDegrees(300)), new Pose2d(4.986, 3.448, Rotation2d.fromDegrees(300))}
-    };
-    public static final Pose2d[][] POSE_CORAL_STANDS_RED = {
-            {new Pose2d(13.392, 3.142, Rotation2d.fromDegrees(300)), new Pose2d(13.556, 3.47, Rotation2d.fromDegrees(300))},
-            {new Pose2d(13.890, 3.861, Rotation2d.fromDegrees(0)), new Pose2d(13.890, 4.190, Rotation2d.fromDegrees(0))},
-            {new Pose2d(13.556, 4.603, Rotation2d.fromDegrees(60)), new Pose2d(13.392, 4.887, Rotation2d.fromDegrees(60))},
-            {new Pose2d(12.725, 4.887, Rotation2d.fromDegrees(120)), new Pose2d(12.561, 4.603, Rotation2d.fromDegrees(120))},
-            {new Pose2d(12.227, 4.198, Rotation2d.fromDegrees(180)), new Pose2d(12.227, 3.861, Rotation2d.fromDegrees(180))},
-            {new Pose2d(12.561, 3.448, Rotation2d.fromDegrees(240)), new Pose2d(12.725, 2.164, Rotation2d.fromDegrees(240))}
-    };
     public static final double SOURCE_HEIGHT = 1.35;
     public static final double CORAL_PODIUM_POLE_HEIGHT = 0.46;
     public static final double CORAL_LOWER_POLE_HEIGHT = 0.81;
