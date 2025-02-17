@@ -72,14 +72,12 @@ public class Robot extends TimedRobot {
                     double length = armTelescopicSystem.calculateLengthForTarget(targetsDistance, RobotMap.SOURCE_HEIGHT);
                     double angle = armJointSystem.calculateAngleForTarget(targetsDistance, RobotMap.SOURCE_HEIGHT);
 
-                    if (isCommandIsValid(length, angle, targetsDistance, RobotMap.CLAWJOINT_SOURCE_ANGLE)) {
+                    if (isCommandNotValid(length, angle, targetsDistance, RobotMap.CLAWJOINT_SOURCE_ANGLE)) {
                         return Commands.none();
                     }
 
                     return new SequentialCommandGroup(
-                            new ParallelCommandGroup(
-                                    movementArmOrder(length, angle, RobotMap.CLAWJOINT_SOURCE_ANGLE)
-                            ),
+                            movementArmOrder(length, angle, RobotMap.CLAWJOINT_SOURCE_ANGLE),
                             new ClawGripperIntake(clawGripperSystem)
                     );
                 }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem)
@@ -113,16 +111,12 @@ public class Robot extends TimedRobot {
                     double length = armTelescopicSystem.calculateLengthForTarget(distance, RobotMap.PROCESSOR_PLACE_HEIGHT);
                     double angle = armJointSystem.calculateAngleForTarget(distance, RobotMap.PROCESSOR_PLACE_HEIGHT);
 
-                    if (isCommandIsValid(length, angle, distance, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)) {
+                    if (isCommandNotValid(length, angle, distance, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)) {
                         return Commands.none();
                     }
 
-                    double finalDistance = distance;
-
                     return new SequentialCommandGroup(
-                            new ParallelCommandGroup(
-                                    movementArmOrder(length, angle, RobotMap.CLAWJOINT_PROCESSOR_ANGLE)
-                            ),
+                            movementArmOrder(length, angle, RobotMap.CLAWJOINT_PROCESSOR_ANGLE),
                             new ClawGripperOuttake(clawGripperSystem)
                     );
                 }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem)
@@ -131,6 +125,8 @@ public class Robot extends TimedRobot {
         FollowPathCommand.warmupCommand().schedule();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
+
+        SmartDashboard.putNumber("CALC", getXDistance(120, 1.5, 90));
     }
 
     @Override
@@ -256,15 +252,17 @@ public class Robot extends TimedRobot {
         targetAngle = Math.toRadians(targetAngle);
         clawTargetAngle = Math.toRadians(clawTargetAngle);
 
-        double distance = Math.abs(Math.cos(targetAngle) * (armTargetLength)) + Math.abs(Math.cos(clawTargetAngle + targetAngle) * RobotMap.CLAWJOINT_LENGTH);
-        if (distance > Math.abs(Math.cos(targetAngle) * armTargetLength)) {
+        double d1 = Math.abs(Math.cos(targetAngle) * (armTargetLength));
+        double d2 = Math.abs(Math.cos(clawTargetAngle + targetAngle) * RobotMap.CLAWJOINT_LENGTH);
+        double distance = d1 + d2;
+        if (distance > d1) {
             return distance - RobotMap.ARM_BASE_POSITION_ON_ROBOT_METERS;
         } else {
-            return Math.abs(Math.cos(targetAngle) * armTargetLength) - RobotMap.ARM_BASE_POSITION_ON_ROBOT_METERS;
+            return d1 - RobotMap.ARM_BASE_POSITION_ON_ROBOT_METERS;
         }
     }
 
-    public static boolean isCommandIsValid(double length, double angle, double distance, double clawAngle) {
+    public static boolean isCommandNotValid(double length, double angle, double distance, double clawAngle) {
         return length > RobotMap.ARM_TELESCOPIC_MAXIMUM_LENGTH ||
                 length < RobotMap.ARM_TELESCOPIC_MINIMUM_LENGTH ||
                 angle < RobotMap.ARM_JOINT_MINIMUM_ANGLE ||
@@ -274,25 +272,15 @@ public class Robot extends TimedRobot {
     }
 
     private SequentialCommandGroup movementArmOrder(double targetLength, double targetAngle, double clawJointAngle) {
-        if (targetLength - RobotMap.ARM_BASE_POSITION_ON_ROBOT_METERS > RobotMap.ARM_TELESCOPIC_LEGAL_X_LENGTH_METERS) { // check arm telescopic first part length
-            return new SequentialCommandGroup(
-                    Commands.runOnce(()->  armJointControlCommand.setTargetPosition(targetAngle)),
-                    Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
-                    new ParallelCommandGroup(
-                            new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem,clawJointSystem , targetLength),
-                            new MoveClawJointToPosition(clawJointSystem, clawJointAngle)
-                            )
-            );
-        } else {
-            return new SequentialCommandGroup(
-                    new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem,clawJointSystem , targetLength),
-                    new ParallelCommandGroup(
-                            new MoveClawJointToPosition(clawJointSystem, clawJointAngle),
-                            Commands.runOnce(()->  armJointControlCommand.setTargetPosition(targetAngle)),
-                            Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition())
-                    )
-            );
-        }
+        return new SequentialCommandGroup(
+                new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem,clawJointSystem , 0),
+                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(targetAngle)),
+                Commands.waitUntil(()->  armJointControlCommand.isAtTargetPosition()),
+                new ParallelCommandGroup(
+                        new ArmTelescopicMoveToLength(armTelescopicSystem, armJointSystem,clawJointSystem , targetLength),
+                        new MoveClawJointToPosition(clawJointSystem, clawJointAngle)
+                )
+        );
     }
 
     private Optional<SelectedStand> getBestStand() {
@@ -361,14 +349,12 @@ public class Robot extends TimedRobot {
             double length = armTelescopicSystem.calculateLengthForTarget(distance, reefPoleHeight);
             double angle = armJointSystem.calculateAngleForTarget(distance, reefPoleHeight);
 
-            if (isCommandIsValid(length, angle, distance, crawJointAngle)) {
+            if (isCommandNotValid(length, angle, distance, crawJointAngle)) {
                 return Commands.none();
             }
 
             return new SequentialCommandGroup(
-                    new ParallelCommandGroup(
-                            movementArmOrder(length, angle, crawJointAngle)
-                    ),
+                    movementArmOrder(length, angle, crawJointAngle),
                     new ClawGripperOuttake(clawGripperSystem)
             );
         }, Set.of(armTelescopicSystem, clawJointSystem, clawGripperSystem));
