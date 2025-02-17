@@ -6,3 +6,4 @@ public enum CoralReef {
     SECOND_STAGE,
     THIRD_STAGE
 }
+

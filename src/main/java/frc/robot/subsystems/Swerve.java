@@ -258,41 +258,6 @@ public class Swerve extends SubsystemBase {
         return Math.sqrt(Math.pow(robotPose.getX() - pos.getX(), 2) + Math.pow(robotPose.getY() - pos.getY(), 2));
     }
 
-    public double getAngleToDegrees(Pose2d robotPose, Pose2d targetPose) {
-        return AngleUtils.translateAngle(Math.toDegrees(Math.atan2(targetPose.getY() - robotPose.getY(), targetPose.getX() - robotPose.getX())));
-    }
-
-    public Optional<SelectedStand> findBestStand(Pose2d robotPose, Pose2d[][] stands, boolean considerAngle) {
-        double robotHeading = AngleUtils.translateAngle(robotPose.getRotation().getDegrees());
-        Pose2d bestStand = null;
-        int bestStandIndex = -1;
-        int bestStandRow = -1;
-        double bestDistance = -1;
-
-        for (int i = 0; i < stands.length; i++) {
-            for (int j = 0; j < stands[i].length; j++) {
-                Pose2d stand = stands[i][j];
-                double distance = getDistanceToMeters(robotPose, stand);
-                double angleTo = getAngleToDegrees(robotPose, stand);
-
-                if ((bestDistance < 0 || distance < bestDistance) &&
-                        (!considerAngle || (MathUtil.isNear(angleTo, robotHeading, RobotMap.STAND_SELECTION_HEADING_MARGIN) &&
-                                MathUtil.isNear(AngleUtils.translateAngle(stand.getRotation().getDegrees() + 180), robotHeading, RobotMap.STAND_SELECTION_GENERAL_ORIENTATION_MARGIN)))) {
-                    bestDistance = distance;
-                    bestStand = stand;
-                    bestStandIndex = i;
-                    bestStandRow = j;
-                }
-            }
-        }
-
-        if (bestStand != null) {
-            return Optional.of(new SelectedStand(bestStandIndex, bestStandRow, bestStand));
-        }
-
-        return Optional.empty();
-    }
-
     public Command drive(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX) {
         return runEnd(() -> {
                     Translation2d translation2d = SwerveMath.scaleTranslation(new Translation2d(
