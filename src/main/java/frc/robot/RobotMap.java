@@ -1,15 +1,13 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DriverStation;
 import swervelib.parser.PIDFConfig;
 
-import java.util.Optional;
-
 public class RobotMap {
+
+    public static final PathConstraints CONSTRAINTS = new PathConstraints(1, 12, Math.PI / 2.0, Math.PI);
 
     private RobotMap() {
     }
@@ -137,19 +135,4 @@ public class RobotMap {
     public static final double CLAWJOINT_UNDER_CAGE_ANGLE = 0;
     public static final double CLAWJOINT_LOWER_REEF_ALGAE_ANGLE = 0;
     public static final double CLAWJOINT_HIGH_REEF_ALGAE_ANGLE = 0;
-
-    public static final Pose2d POSE_SOURCE_A_BLUE = new Pose2d(0.851, 0.655, Rotation2d.fromDegrees(54));
-    public static final Pose2d POSE_SOURCE_A_RED = new Pose2d(16.697, 0.655, Rotation2d.fromDegrees(126));
-    public static final Pose2d POSE_SOURCE_B_BLUE = new Pose2d(0.851, 7.396, Rotation2d.fromDegrees(306));
-    public static final Pose2d POSE_SOURCE_B_RED = new Pose2d(16.697, 0.655, Rotation2d.fromDegrees(126));
-    public static final Pose2d POSE_PROCESSOR_BLUE = new Pose2d(5.987, -0.003, Rotation2d.fromDegrees(90));
-    public static final Pose2d POSE_PROCESSOR_RED = new Pose2d(11.560, 8.055, Rotation2d.fromDegrees(270));
-
-    public static final double SOURCE_HEIGHT = 0;
-    public static final double CORAL_PODIUM_POLE_HEIGHT = 0;
-    public static final double CORAL_LOWER_POLE_HEIGHT = 0;
-    public static final double CORAL_MEDIUM_POLE_HEIGHT = 0;
-    public static final double CORAL_HIGH_POLE_HEIGHT = 0;
-    public static final double PROCESSOR_PLACE_HEIGHT = 0;
-    public static final double ROBOT_MAXIMUM_DISTANCE = 2;
 }

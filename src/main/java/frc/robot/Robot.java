@@ -2,45 +2,23 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
-import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.ArmJointControlCommand;
-import frc.robot.commands.ArmTelescopicHold;
-import frc.robot.commands.ArmTelescopicMoveToLength;
-import frc.robot.commands.ArmTelescopicReset;
-import frc.robot.commands.ClawGripperIntake;
-import frc.robot.commands.ClawGripperOuttake;
-import frc.robot.commands.HoldItemInClawGripper;
-import frc.robot.commands.MoveClawJointToPosition;
-import frc.robot.subsystems.ArmJointSystem;
-import frc.robot.subsystems.ArmTelescopicSystem;
-import frc.robot.subsystems.ClawGripperSystem;
-import frc.robot.subsystems.ClawJointSystem;
-import frc.robot.subsystems.Swerve;
-import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-
-import static frc.robot.RobotMap.isAllianceRed;
 
 public class Robot extends TimedRobot {
 
@@ -180,56 +158,6 @@ public class Robot extends TimedRobot {
         FollowPathCommand.warmupCommand().schedule();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
-
-        Command alignWithSource = Commands.defer(()->{
-            Pose2d sourcePose = getClosestSource().getSecond();
-            double posRotationDegrees = sourcePose.getRotation().getDegrees();
-            double num;
-            double addY =(Units.metersToInches(RobotMap.SWERVE_LENGTH)/2) / Math.sin(RobotMap.POSE_SOURCE_B_BLUE.getRotation().getDegrees());
-            double addX = Math.tan(RobotMap.POSE_SOURCE_B_BLUE.getRotation().getDegrees()) * addY;;
-
-            if(posRotationDegrees == RobotMap.POSE_SOURCE_A_BLUE.getRotation().getDegrees()){
-                num = addY;
-                addY = addX;
-                addX = num;
-            } else if (posRotationDegrees == RobotMap.POSE_SOURCE_B_RED.getRotation().getDegrees()) {
-                addX*=-1;
-                addY*=-1;
-            } else if (posRotationDegrees == RobotMap.POSE_SOURCE_A_RED.getRotation().getDegrees()) {
-                num = addY;
-                addY = -addX;
-                addX = -num;
-            }   else {
-                addX*=-1;
-            }
-
-            return AutoBuilder.followPath(swerve.getFollowPathToTarget(sourcePose, true, addX, addY));
-        }, Set.of(swerve));
-
-        Command alignWithProcessor = Commands.defer(()->{
-            Pose2d processorPose;
-            double addX = RobotMap.SWERVE_LENGTH/2;
-            if(RobotMap.isAllianceRed()){
-                processorPose = RobotMap.POSE_PROCESSOR_RED;
-            } else{
-                processorPose = RobotMap.POSE_PROCESSOR_BLUE;
-                addX*=-1;
-            }
-            return AutoBuilder.followPath(swerve.getFollowPathToTarget(processorPose, true, addX, 0));
-        }, Set.of(swerve));
-
-        Command alignWithCoralStand = Commands.defer(()->{
-            double addX;
-            double addY;
-            Optional<SelectedStand> optionalStand = getClosestStand();
-            if (optionalStand.isEmpty()) {
-                return Commands.none();
-            }
-            Pose2d stand = optionalStand.get().pose;
-            addX = (RobotMap.SWERVE_LENGTH/2) * Math.cos(stand.getRotation().getDegrees());
-            addY = (RobotMap.SWERVE_LENGTH/2) * Math.sin(stand.getRotation().getDegrees());
-            return AutoBuilder.followPath(swerve.getFollowPathToTarget(stand, false, addX, addY));
-        }, Set.of(swerve));
     }
 
     @Override
@@ -348,12 +276,7 @@ public class Robot extends TimedRobot {
 
     }
 
-    private boolean isAllianceRed() {
-        Optional<DriverStation.Alliance> allianceOptional = DriverStation.getAlliance();
-        return allianceOptional.isPresent() && allianceOptional.get() == DriverStation.Alliance.Red;
-    }
-
-    private boolean isCommandIsValid(double length, double angle, double distance) {
+    private boolean isCommandNotValid(double length, double angle, double distance) {
         return length > RobotMap.ARM_TELESCOPIC_MAXIMUM_LENGTH ||
                 length < RobotMap.ARM_TELESCOPIC_MINIMUM_LENGTH ||
                 angle < RobotMap.ARM_JOINT_MINIMUM_ANGLE ||
@@ -465,5 +388,44 @@ public class Robot extends TimedRobot {
                 Commands.runOnce(() -> armJointControlCommand.setTargetPosition(armAngle)),
                 Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition())
         );
+    }
+
+    private Command goToClosestReef() {
+        return Commands.defer(()-> {
+            Optional<GameField.SelectedReefStand> standOptional = getClosestStand();
+            if (standOptional.isEmpty()) {
+                return Commands.none();
+            }
+
+            GameField.SelectedReefStand stand = standOptional.get();
+            return goToReef(stand.stand, stand.side);
+        }, Set.of(swerve));
+    }
+
+    private Command goToReef(GameField.ReefStand stand, GameField.ReefStandSide side) {
+        Pose2d targetPose = gameField.getPoseForReefStand(stand, side);
+        return AutoBuilder.pathfindToPose(targetPose, RobotMap.CONSTRAINTS);
+    }
+
+    private Command goToClosestSource() {
+        return Commands.defer(()-> {
+            Optional<GameField.SelectedSourceStand> sourceOptional = getClosestSource();
+            if (sourceOptional.isEmpty()) {
+                return Commands.none();
+            }
+
+            GameField.SelectedSourceStand sourceStand = sourceOptional.get();
+            return goToSource(sourceStand.stand, sourceStand.side);
+        }, Set.of(swerve));
+    }
+
+    private Command goToSource(GameField.SourceStand stand, GameField.SourceStandSide side) {
+        Pose2d targetPose = gameField.getPoseForSource(stand, side);
+        return AutoBuilder.pathfindToPose(targetPose, RobotMap.CONSTRAINTS);
+    }
+
+    private Command goToProcessor() {
+        Pose2d targetPose = gameField.getPoseToProcessor();
+        return AutoBuilder.pathfindToPose(targetPose, RobotMap.CONSTRAINTS);
     }
 }
