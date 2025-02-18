@@ -47,14 +47,14 @@ public class RobotMap {
 
     // arm telescopic
     public static final int ARM_TELESCOPIC_MOTOR_ID = 37;
-    public static final double ARM_TELESCOPIC_GEAR_RATIO = 1;
+    public static final double ARM_TELESCOPIC_GEAR_RATIO = 75;
     public static final double ARM_TELESCOPIC_P = 0;
     public static final double ARM_TELESCOPIC_I = 0;
     public static final double ARM_TELESCOPIC_D = 0;
     public static final double ARM_TELESCOPIC_I_ZONE = 0;
     public static final double ARM_TELESCOPIC_FORWARD_SOFT_LIMIT = 0;
     public static final double ARM_TELESCOPIC_REVERSE_SOFT_LIMIT = 0;
-    public static final double ARM_TELESCOPIC_DRUM_CIRCUMFERENSE = 1;
+    public static final double ARM_TELESCOPIC_DRUM_CIRCUMFERENSE = 0.017 * Math.PI;
     public static final double ARM_TELESCOPIC_RESET_LENGTH_METERS = 0;
     public static final double ARM_TELESCOPIC_MAXIMUM_LENGTH = 180;
     public static final double ARM_TELESCOPIC_MINIMUM_LENGTH = 0;
@@ -77,7 +77,7 @@ public class RobotMap {
     public static final double ARM_JOINT_VELOCITY_TOLERANCE = 5;
     public static final double ARM_JOINT_KF = 0.1;
     public static final double ARM_JOINT_DEFAULT_POSITION = 90;
-    public static final double ARM_JOINT_GEAR_RATIO = 1;
+    public static final double ARM_JOINT_GEAR_RATIO = 144;
     public static final double ARM_JOINT_MINIMUM_ANGLE = 0;
     public static final double ARM_JOINT_MAXIMUM_ANGLE = 180;
     public static final double ARM_JOINT_FLOOR_ANGLE = 0;
@@ -87,12 +87,14 @@ public class RobotMap {
 
     //claw
     public static final int CLAW_MOTOR_ID = 38;
+    public static final double CLAW_GEAR_RATIO = 9;
     public static final int CLAW_SWITCH_PORT = 1;
     public static final int CLAW_SENSOR_MIN_DISTANCE = 70;
     public static final int CLAW_SENSOR_MAX_DISTANCE = 90;
 
     //clawJoint
     public static final int CLAWJOINT_MOTOR_ID = 39;
+    public static final double CLAWJOINT_GEAR_RATIO = 125;
     public static final double P_CLAWJOINT = 0;
     public static final double I_CLAWJOINT = 0;
     public static final double D_CLAWJOINT = 0;
@@ -108,8 +110,6 @@ public class RobotMap {
     public static final double CORAL_HIGH_POLE_HEIGHT = 1.83;
     public static final double PROCESSOR_PLACE_HEIGHT = 1.35;
     public static final double ROBOT_MAXIMUM_DISTANCE = 2;
-
-    // command groups
     public static final double CALCULATION_COLLECT_FROM_SOURCE = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_SOURCE,2) + Math.pow(RobotMap.SOURCE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
     public static final double ARM_LENGTH_PODIUM = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_PODIUM_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
     public static final double ARM_LENGTH_FIRST = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_CORAL,2) + Math.pow(RobotMap.CORAL_LOWER_POLE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
