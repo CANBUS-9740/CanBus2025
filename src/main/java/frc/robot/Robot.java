@@ -183,6 +183,7 @@ public class Robot extends TimedRobot {
                         ()-> armTelescopicSystem.stop(),
                         armTelescopicSystem
                 ));
+
         new JoystickButton(xbox, XboxController.Button.kX.value).onTrue(
                 Commands.runOnce(()-> armTelescopicSystem.setEncoderValue(0))
         );
