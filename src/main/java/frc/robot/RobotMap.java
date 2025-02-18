@@ -1,7 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import swervelib.parser.PIDFConfig;
@@ -25,18 +23,18 @@ public class RobotMap {
     public static final PIDFConfig SWERVE_DRIVE_PIDF = new PIDFConfig(2, 0, 0, 0, 0);
     public static final PIDFConfig SWERVE_STEER_PIDF = new PIDFConfig(0.01, 0, 0, 0, 0);
     public static final PIDFConfig SWERVE_HEADING_PIDF = new PIDFConfig(0.007448, 0, 0.00758, 0, 0);//new PIDFConfig(0.4, 0, 0.01,0);
-    public static final int SWERVE_DRIVE_FRONT_LEFT_MOTOR_ID = 12;
-    public static final int SWERVE_DRIVE_FRONT_RIGHT_MOTOR_ID = 10;
-    public static final int SWERVE_DRIVE_BACK_LEFT_MOTOR_ID = 13;
-    public static final int SWERVE_DRIVE_BACK_RIGHT_MOTOR_ID = 11;
-    public static final int SWERVE_STEER_FRONT_LEFT_MOTOR_ID = 17;
-    public static final int SWERVE_STEER_FRONT_RIGHT_MOTOR_ID = 16;
-    public static final int SWERVE_STEER_BACK_LEFT_MOTOR_ID = 15;
+    public static final int SWERVE_DRIVE_FRONT_LEFT_MOTOR_ID = 11;
+    public static final int SWERVE_DRIVE_FRONT_RIGHT_MOTOR_ID = 12;
+    public static final int SWERVE_DRIVE_BACK_LEFT_MOTOR_ID = 10;
+    public static final int SWERVE_DRIVE_BACK_RIGHT_MOTOR_ID = 13;
+    public static final int SWERVE_STEER_FRONT_LEFT_MOTOR_ID = 16;
+    public static final int SWERVE_STEER_FRONT_RIGHT_MOTOR_ID = 15;
+    public static final int SWERVE_STEER_BACK_LEFT_MOTOR_ID = 17;
     public static final int SWERVE_STEER_BACK_RIGHT_MOTOR_ID = 14;
-    public static final int SWERVE_ENCODER_FRONT_LEFT_ID = 4;
-    public static final int SWERVE_ENCODER_FRONT_RIGHT_ID = 6;
-    public static final int SWERVE_ENCODER_BACK_LEFT_ID = 5;
-    public static final int SWERVE_ENCODER_BACK_RIGHT_ID = 3;
+    public static final int SWERVE_ENCODER_FRONT_LEFT_ID = 3;
+    public static final int SWERVE_ENCODER_FRONT_RIGHT_ID = 4;
+    public static final int SWERVE_ENCODER_BACK_LEFT_ID = 6;
+    public static final int SWERVE_ENCODER_BACK_RIGHT_ID = 5;
     public static final int SWERVE_PIGEON_ID = 7;
     public static final double SWERVE_FRONT_RIGHT_ZERO_ANGLE = 79.541016;
     public static final double SWERVE_FRONT_LEFT_ZERO_ANGLE = 68.291016;
@@ -48,7 +46,7 @@ public class RobotMap {
     public static final double SWERVE_DISTANCE_FROM_PROCESSOR = 0;
 
     // arm telescopic
-    public static final int ARM_TELESCOPIC_MOTOR_ID = 0;
+    public static final int ARM_TELESCOPIC_MOTOR_ID = 37;
     public static final double ARM_TELESCOPIC_GEAR_RATIO = 1;
     public static final double ARM_TELESCOPIC_P = 0;
     public static final double ARM_TELESCOPIC_I = 0;
@@ -64,7 +62,8 @@ public class RobotMap {
     public static final double ARM_TELESCOPIC_HIGH_REEF_ALGAE_LENGTH = 0;
 
     //ARM JOINT
-    public static final int ARM_JOINT_MOTOR_ID = 1;
+    public static final int ARM_JOINT_MOTOR_ID_MASTER = 39;
+    public static final int ARM_JOINT_MOTOR_ID_FOLLOWER = 40;
     public static final double P_ARM_JOINT = 0;
     public static final double I_ARM_JOINT = 0;
     public static final double D_ARM_JOINT = 0;
@@ -87,13 +86,13 @@ public class RobotMap {
     public static final double ARM_JOINT_HIGH_REEF_ALGAE_ANGLE = 0;
 
     //claw
-    public static final int CLAW_MOTOR_ID = 2;
+    public static final int CLAW_MOTOR_ID = 38;
     public static final int CLAW_SWITCH_PORT = 1;
     public static final int CLAW_SENSOR_MIN_DISTANCE = 70;
     public static final int CLAW_SENSOR_MAX_DISTANCE = 90;
 
     //clawJoint
-    public static final int CLAWJOINT_MOTOR_ID = 3;
+    public static final int CLAWJOINT_MOTOR_ID = 39;
     public static final double P_CLAWJOINT = 0;
     public static final double I_CLAWJOINT = 0;
     public static final double D_CLAWJOINT = 0;

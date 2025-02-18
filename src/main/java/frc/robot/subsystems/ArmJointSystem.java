@@ -14,13 +14,17 @@ import frc.robot.RobotMap;
 
 public class ArmJointSystem extends SubsystemBase {
 
-    private final SparkMax motor;
+    private final SparkMax masterMotor;
+    private final SparkMax followerMotor;
     private final AbsoluteEncoder absoluteEncoder;
     private final RelativeEncoder relativeEncoder;
     private final SparkClosedLoopController pidController;
 
+
     public ArmJointSystem() {
-        motor = new SparkMax(RobotMap.ARM_JOINT_MOTOR_ID, SparkLowLevel.MotorType.kBrushless);
+        masterMotor = new SparkMax(RobotMap.ARM_JOINT_MOTOR_ID_MASTER, SparkLowLevel.MotorType.kBrushless);
+        followerMotor = new SparkMax(RobotMap.ARM_JOINT_MOTOR_ID_FOLLOWER, SparkLowLevel.MotorType.kBrushless);
+
         SparkMaxConfig config = new SparkMaxConfig();
         config.idleMode(SparkBaseConfig.IdleMode.kBrake);
 
@@ -50,13 +54,17 @@ public class ArmJointSystem extends SubsystemBase {
                 .reverseSoftLimitEnabled(true)
                 .reverseSoftLimit(0);
 
-        motor.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+        masterMotor.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
 
-        absoluteEncoder = motor.getAbsoluteEncoder();
-        relativeEncoder = motor.getEncoder();
-        pidController = motor.getClosedLoopController();
+        absoluteEncoder = masterMotor.getAbsoluteEncoder();
+        relativeEncoder = masterMotor.getEncoder();
+        pidController = masterMotor.getClosedLoopController();
 
         relativeEncoder.setPosition(absoluteEncoder.getPosition());
+
+        config = new SparkMaxConfig();
+        config.follow(masterMotor, true);
+        followerMotor.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
     }
 
     public double getPositionDegrees(){
@@ -69,19 +77,19 @@ public class ArmJointSystem extends SubsystemBase {
     }
 
     public void raise(){
-        motor.set(0.8);
+        masterMotor.set(0.8);
     }
 
     public void lower(){
-        motor.set(-0.5);
+        masterMotor.set(-0.5);
     }
 
     public void hold(){
-        motor.set(0.2);
+        masterMotor.set(0.2);
     }
 
     public void stop(){
-        motor.stopMotor();
+        masterMotor.stopMotor();
     }
 
     public boolean reachedPosition(double targetPosition) {
@@ -96,7 +104,7 @@ public class ArmJointSystem extends SubsystemBase {
     @Override
     public void periodic(){
         SmartDashboard.putNumber("ArmJointPosition", getPositionDegrees());
-        SmartDashboard.putBoolean("ArmJointForwardLimit", motor.getForwardLimitSwitch().isPressed());
-        SmartDashboard.putBoolean("ArmJointReverseLimit", motor.getReverseLimitSwitch().isPressed());
+        SmartDashboard.putBoolean("ArmJointForwardLimit", masterMotor.getForwardLimitSwitch().isPressed());
+        SmartDashboard.putBoolean("ArmJointReverseLimit", masterMotor.getReverseLimitSwitch().isPressed());
     }
 }
