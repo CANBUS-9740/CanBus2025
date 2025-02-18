@@ -4,6 +4,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -46,6 +47,8 @@ public class Robot extends TimedRobot {
     private ArmJointSystem armJointSystem;
     private ArmTelescopicSystem armTelescopicSystem;
 
+    private AnalogInput input;
+
     private ArmJointControlCommand armJointControlCommand;
 
     private XboxController xbox;
@@ -59,12 +62,13 @@ public class Robot extends TimedRobot {
         armJointSystem = new ArmJointSystem();
         clawJointSystem = new ClawJointSystem();
         armTelescopicSystem = new ArmTelescopicSystem();
+        input = new AnalogInput(0);
 
         xbox = new XboxController(0);
 
         armJointControlCommand = new ArmJointControlCommand(armJointSystem);
-        armJointSystem.setDefaultCommand(armJointControlCommand);
-
+        //armJointSystem.setDefaultCommand(armJointControlCommand);
+/*
         armTelescopicSystem.setDefaultCommand(
                 new SequentialCommandGroup(
                         new ArmTelescopicReset(armTelescopicSystem),
@@ -79,7 +83,7 @@ public class Robot extends TimedRobot {
                     return Commands.idle(clawGripperSystem);
                 }, Set.of(clawGripperSystem))
         );
-
+*/
         Command collectFromSource = Commands.defer(() -> {
             Pose2d robotPose = swerve.getPose();
             Optional<GameField.SelectedSourceStand> standOptional = getClosestSource();
@@ -163,10 +167,27 @@ public class Robot extends TimedRobot {
 
         new JoystickButton(xbox, XboxController.Button.kRightBumper.value).onTrue(placeInProcessorCommandSimple);
         new JoystickButton(xbox, XboxController.Button.kLeftBumper.value).onTrue(collectFromSourceCommandSimple);
-        new JoystickButton(xbox, XboxController.Button.kB.value).onTrue(new ClawGripperOuttake(clawGripperSystem));
-        new JoystickButton(xbox, XboxController.Button.kX.value).onTrue(new ClawGripperIntake(clawGripperSystem));
-        new JoystickButton(xbox, XboxController.Button.kA.value).onTrue(reefHighAlgae);
-        new JoystickButton(xbox, XboxController.Button.kY.value).onTrue(placeInProcessor);
+        //new JoystickButton(xbox, XboxController.Button.kB.value).onTrue(new ClawGripperOuttake(clawGripperSystem));
+        //new JoystickButton(xbox, XboxController.Button.kX.value).onTrue(new ClawGripperIntake(clawGripperSystem));
+        //new JoystickButton(xbox, XboxController.Button.kA.value).onTrue(reefHighAlgae);
+        //new JoystickButton(xbox, XboxController.Button.kY.value).onTrue(placeInProcessor);
+        new JoystickButton(xbox, XboxController.Button.kY.value)
+                .whileTrue(Commands.runEnd(
+                        ()-> armTelescopicSystem.move(0.3),
+                        ()-> armTelescopicSystem.stop(),
+                        armTelescopicSystem
+                ));
+        new JoystickButton(xbox, XboxController.Button.kA.value)
+                .whileTrue(Commands.runEnd(
+                        ()-> armTelescopicSystem.move(-0.3),
+                        ()-> armTelescopicSystem.stop(),
+                        armTelescopicSystem
+                ));
+        new JoystickButton(xbox, XboxController.Button.kX.value).onTrue(
+                Commands.runOnce(()-> armTelescopicSystem.setEncoderValue(0))
+        );
+        new JoystickButton(xbox, XboxController.Button.kB.value).onTrue(new ArmTelescopicReset(armTelescopicSystem));
+
         new Trigger(() -> xbox.getRightTriggerAxis() > 0.5).onTrue(reefLowerAlgae);
         new Trigger(() -> xbox.getLeftTriggerAxis() > 0.5).onTrue(hang);
 
@@ -178,6 +199,8 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
+
+        SmartDashboard.putNumber("analogInput", input.getValue());
 
         Optional<GameField.SelectedReefStand> standOptional = getBestStand();
         if (standOptional.isPresent()) {

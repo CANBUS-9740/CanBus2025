@@ -47,6 +47,7 @@ public class RobotMap {
 
     // arm telescopic
     public static final int ARM_TELESCOPIC_MOTOR_ID = 37;
+    public static final int ARM_TELESCOPIC_LIMIT_SWITCH = 0;
     public static final double ARM_TELESCOPIC_GEAR_RATIO = 75;
     public static final double ARM_TELESCOPIC_P = 0;
     public static final double ARM_TELESCOPIC_I = 0;
@@ -62,7 +63,7 @@ public class RobotMap {
     public static final double ARM_TELESCOPIC_HIGH_REEF_ALGAE_LENGTH = 0;
 
     //ARM JOINT
-    public static final int ARM_JOINT_MOTOR_ID_MASTER = 39;
+    public static final int ARM_JOINT_MOTOR_ID_MASTER = 35;
     public static final int ARM_JOINT_MOTOR_ID_FOLLOWER = 40;
     public static final double P_ARM_JOINT = 0;
     public static final double I_ARM_JOINT = 0;

@@ -20,7 +20,7 @@ public class ArmTelescopicReset extends Command {
 
     @Override
     public void execute() {
-        sub.extend();
+        sub.retract();
     }
 
     @Override
