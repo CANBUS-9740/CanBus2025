@@ -37,6 +37,7 @@ public class ArmTelescopicSystem extends SubsystemBase {
                         .i(RobotMap.ARM_TELESCOPIC_I)
                         .d(RobotMap.ARM_TELESCOPIC_D)
                         .iZone(RobotMap.ARM_TELESCOPIC_I_ZONE);
+        config.encoder.positionConversionFactor(1 / RobotMap.ARM_TELESCOPIC_GEAR_RATIO).velocityConversionFactor(1 / RobotMap.ARM_TELESCOPIC_GEAR_RATIO);
 
         motor.configure(config, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
 
@@ -45,11 +46,15 @@ public class ArmTelescopicSystem extends SubsystemBase {
     }
 
     public double getLengthMeters() {
-        return encoder.getPosition() / RobotMap.ARM_TELESCOPIC_GEAR_RATIO * RobotMap.ARM_TELESCOPIC_DRUM_CIRCUMFERENSE;
+        return (encoder.getPosition() * RobotMap.ARM_TELESCOPIC_DRUM_CIRCUMFERENSE) + RobotMap.ARM_TELESCOPIC_BASE_LENGTH;
+    }
+
+    public double getMeasuredLengthMeters() {
+        return (encoder.getPosition() * RobotMap.ARM_TELESCOPIC_DRUM_CIRCUMFERENSE);
     }
 
     public void moveToLength(double lengthMeters) {
-        double position = lengthMeters * RobotMap.ARM_TELESCOPIC_GEAR_RATIO / RobotMap.ARM_TELESCOPIC_DRUM_CIRCUMFERENSE;
+        double position = (lengthMeters - RobotMap.ARM_TELESCOPIC_BASE_LENGTH) / RobotMap.ARM_TELESCOPIC_DRUM_CIRCUMFERENSE;
         pid.setReference(position, SparkBase.ControlType.kPosition);
     }
 
@@ -91,6 +96,7 @@ public class ArmTelescopicSystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("ArmTelescopicLengthEncoder", getMeasuredLengthMeters());
         SmartDashboard.putNumber("ArmTelescopicLength", getLengthMeters());
         SmartDashboard.putBoolean("ArmTelescopicLimitSwitch", getResetLimitSwitch());
     }

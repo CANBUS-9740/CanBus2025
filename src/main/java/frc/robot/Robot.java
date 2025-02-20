@@ -67,7 +67,7 @@ public class Robot extends TimedRobot {
         xbox = new XboxController(0);
 
         armJointControlCommand = new ArmJointControlCommand(armJointSystem);
-        //armJointSystem.setDefaultCommand(armJointControlCommand);
+        armJointSystem.setDefaultCommand(armJointControlCommand);
 /*
         armTelescopicSystem.setDefaultCommand(
                 new SequentialCommandGroup(
@@ -171,23 +171,21 @@ public class Robot extends TimedRobot {
         //new JoystickButton(xbox, XboxController.Button.kX.value).onTrue(new ClawGripperIntake(clawGripperSystem));
         //new JoystickButton(xbox, XboxController.Button.kA.value).onTrue(reefHighAlgae);
         //new JoystickButton(xbox, XboxController.Button.kY.value).onTrue(placeInProcessor);
-        new JoystickButton(xbox, XboxController.Button.kY.value)
-                .whileTrue(Commands.runEnd(
-                        ()-> armTelescopicSystem.move(0.3),
-                        ()-> armTelescopicSystem.stop(),
-                        armTelescopicSystem
-                ));
-        new JoystickButton(xbox, XboxController.Button.kA.value)
-                .whileTrue(Commands.runEnd(
-                        ()-> armTelescopicSystem.move(-0.3),
-                        ()-> armTelescopicSystem.stop(),
-                        armTelescopicSystem
-                ));
+        new JoystickButton(xbox, XboxController.Button.kY.value).onTrue(
+                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(200))        );
+
+        new JoystickButton(xbox, XboxController.Button.kA.value).onTrue(
+                Commands.runOnce(()-> armJointControlCommand.stopHolding())
+        );
 
         new JoystickButton(xbox, XboxController.Button.kX.value).onTrue(
-                Commands.runOnce(()-> armTelescopicSystem.setEncoderValue(0))
+                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(30))
         );
-        new JoystickButton(xbox, XboxController.Button.kB.value).onTrue(new ArmTelescopicReset(armTelescopicSystem));
+
+        new JoystickButton(xbox,XboxController.Button.kB.value).onTrue(
+                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(90))
+        );
+
 
         new Trigger(() -> xbox.getRightTriggerAxis() > 0.5).onTrue(reefLowerAlgae);
         new Trigger(() -> xbox.getLeftTriggerAxis() > 0.5).onTrue(hang);
