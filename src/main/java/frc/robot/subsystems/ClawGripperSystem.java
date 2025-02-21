@@ -31,8 +31,9 @@ public class ClawGripperSystem extends SubsystemBase {
     public void releaseItem(){
         motor.set(-0.5);
     }
+
     public void holdItem(){
-        motor.set(0.2);
+        motor.set(0.4);
     }
 
 
@@ -48,6 +49,7 @@ public class ClawGripperSystem extends SubsystemBase {
     public void periodic(){
         SmartDashboard.putNumber("DistanceSensorRange", distMXP.getRange());
         SmartDashboard.putBoolean("ItemInClaw", hasItem());
+        SmartDashboard.putNumber("outputAmper", motor.getOutputCurrent());
     }
 }
 

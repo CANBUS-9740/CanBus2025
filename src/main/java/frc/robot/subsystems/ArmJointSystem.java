@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.*;
@@ -72,8 +73,16 @@ public class ArmJointSystem extends SubsystemBase {
         return relativeEncoder.getVelocity();
     }
 
-    public void moveToPosition(double positionDegrees){
-        double ff = Math.cos(Math.toRadians(getPositionDegrees() - 26.64)) * RobotMap.ARM_JOINT_KF;
+    public void move(double speed){
+        masterMotor.set(speed);
+    }
+
+    public void moveToPosition(double positionDegrees, double armLength) {
+        double kf = MathUtil.interpolate(0.035, 0.045, armLength / 0.65);
+        double ff = Math.cos(Math.toRadians(getPositionDegrees() - 26.64)) * kf;
+        SmartDashboard.putNumber("ArmJointKf", kf);
+        SmartDashboard.putNumber("ArmJointff", ff);
+
         pidController.setReference(positionDegrees / 360.0, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, SparkClosedLoopController.ArbFFUnits.kPercentOut);
     }
 
