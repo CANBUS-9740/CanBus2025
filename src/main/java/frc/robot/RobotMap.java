@@ -66,40 +66,44 @@ public class RobotMap {
     //ARM JOINT
     public static final int ARM_JOINT_MOTOR_ID_MASTER = 35;
     public static final int ARM_JOINT_MOTOR_ID_FOLLOWER = 40;
-    public static final double P_ARM_JOINT = 3.1;
+    public static final double ARM_JOINT_ZERO_ANGLE = 26.64;
+    public static final double P_ARM_JOINT = 3.6;
     public static final double I_ARM_JOINT = 0;
     public static final double D_ARM_JOINT = 0;
     public static final double ARM_JOINT_ENCODER_ZERO_OFFSET = 0.5345518;
-    public static final TrapezoidProfile.Constraints MOTION_PROFILE_CONSTRAINTS = new TrapezoidProfile.Constraints(RobotMap.MAX_VELOCITY, RobotMap.MAX_ACCELERATION);
-    public static final double MAX_VELOCITY = 100;
-    public static final double MAX_ACCELERATION = 100;
+    public static final TrapezoidProfile.Constraints ARM_JOINT_MOTION_PROFILE_CONSTRAINTS = new TrapezoidProfile.Constraints(400, 100);
     public static final double ARM_JOINT_POSITION_TOLERANCE = 1;
     public static final double ARM_JOINT_VELOCITY_TOLERANCE = 5;
     public static final double ARM_JOINT_KF = 0.0;
     public static final double ARM_JOINT_GEAR_RATIO = 144;
     public static final double ARM_JOINT_MINIMUM_ANGLE = 1;
-    public static final double ARM_JOINT_MAXIMUM_ANGLE = 232;
+    public static final double ARM_JOINT_MAXIMUM_ANGLE = 120;
     public static final double ARM_JOINT_FLOOR_ANGLE = 0;
     public static final double ARM_JOINT_UNDER_CAGE_ANGLE = 0;
     public static final double ARM_JOINT_LOWER_REEF_ALGAE_ANGLE = 0;
     public static final double ARM_JOINT_HIGH_REEF_ALGAE_ANGLE = 0;
 
     //claw
-    public static final int CLAW_MOTOR_ID = 38;
+    public static final int CLAW_MOTOR_ID = 39;
     public static final double CLAW_GEAR_RATIO = 9;
-    public static final int CLAW_SWITCH_PORT = 1;
     public static final int CLAW_SENSOR_MIN_DISTANCE = 70;
     public static final int CLAW_SENSOR_MAX_DISTANCE = 90;
 
     //clawJoint
-    public static final int CLAWJOINT_MOTOR_ID = 39;
+    public static final int CLAWJOINT_MOTOR_ID = 38;
     public static final double CLAWJOINT_GEAR_RATIO = 125;
-    public static final double P_CLAWJOINT = 0;
+    public static final double P_CLAWJOINT = 2.5;
     public static final double I_CLAWJOINT = 0;
     public static final double D_CLAWJOINT = 0;
-    public static final int CLAWJOINT_ABS_ENCODER_START_PULSE_US = 1;
-    public static final int CLAWJOINT_ABS_ENCODER_END_PULSE_US = 1024;
-    public static final int CLAWJOINT_ABS_ENCODER_ZERO_OFFSET = 0;
+    public static final double CLAWJOINT_ABS_ENCODER_ZERO_OFFSET = 0.27;
+    public static final double CLAWJOINT_VELOCITY_TOLERANCE = 5;
+    public static final double CLAWJOINT_POSITION_TOLERANCE = 3;
+    public static final double CLAWJOINT_MAXIMUM_ANGLE = 165.24;
+    public static final double CLAWJOINT_MINIMUM_ANGLE = 3;
+    public static final double CLAWJOINT_ZERO_ANGLE = 100;
+    public static final double CLAWJOINT_KF = 0.01;
+    public static final TrapezoidProfile.Constraints CLAWJOINT_MOTION_PROFILE_CONSTRAINTS = new TrapezoidProfile.Constraints(300, 200);
+
 
     //commandsGroup
     public static final double SOURCE_HEIGHT = 1.35;
@@ -117,15 +121,15 @@ public class RobotMap {
     public static final double ARM_LENGTH_FLOOR = 0;
     public static final double CALCULATION_PLACE_IN_PROCESSOR = Math.sqrt(Math.pow(RobotMap.SWERVE_DISTANCE_FROM_PROCESSOR,2) + Math.pow(RobotMap.PROCESSOR_PLACE_HEIGHT-RobotMap.SWERVE_HEIGHT,2));
     public static final double ANGLE_PROCESSOR = Math.atan(RobotMap.PROCESSOR_PLACE_HEIGHT-RobotMap.SWERVE_HEIGHT/RobotMap.SWERVE_DISTANCE_FROM_CORAL);
-    public static final double ARM_JOINT_ANGLE_PODIUM = 0;
-    public static final double ARM_JOINT_ANGLE_FIRST = 0;
+    public static final double ARM_JOINT_ANGLE_PODIUM = 77;
+    public static final double ARM_JOINT_ANGLE_FIRST = 95.2;
     public static final double ARM_JOINT_ANGLE_SECOND = 0;
     public static final double ARM_JOINT_ANGLE_THIRD = 0;
-    public static final double ARM_JOINT_ANGLE_SOURCE = 0;
-    public static final double CLAWJOINT_SOURCE_ANGLE = 0;
+    public static final double ARM_JOINT_ANGLE_SOURCE = 70;
+    public static final double CLAWJOINT_SOURCE_ANGLE = 71;
     public static final double CLAWJOINT_FLOOR_ANGLE = 0;
-    public static final double CLAWJOINT_CORAL_PODIUM_POLE_ANGLE = 0;
-    public static final double CLAWJOINT_CORAL_FIRST_POLE_ANGLE = 0;
+    public static final double CLAWJOINT_CORAL_PODIUM_POLE_ANGLE = 6;
+    public static final double CLAWJOINT_CORAL_FIRST_POLE_ANGLE = 12;
     public static final double CLAWJOINT_CORAL_SECOND_POLE_ANGLE = 0;
     public static final double CLAWJOINT_CORAL_THIRD_POLE_ANGLE = 0;
     public static final double CLAWJOINT_PROCESSOR_ANGLE = 0;

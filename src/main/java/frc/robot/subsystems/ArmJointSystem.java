@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.*;
@@ -28,25 +27,21 @@ public class ArmJointSystem extends SubsystemBase {
 
         SparkMaxConfig config = new SparkMaxConfig();
         config.idleMode(SparkBaseConfig.IdleMode.kBrake);
-
         config.encoder
                 .positionConversionFactor(1 / RobotMap.ARM_JOINT_GEAR_RATIO)
                 .velocityConversionFactor(1 / RobotMap.ARM_JOINT_GEAR_RATIO);
         config.absoluteEncoder
                 .zeroOffset(RobotMap.ARM_JOINT_ENCODER_ZERO_OFFSET);
-
         config.closedLoop
                 .p(RobotMap.P_ARM_JOINT)
                 .i(RobotMap.I_ARM_JOINT)
                 .d(RobotMap.D_ARM_JOINT)
                 .feedbackSensor(ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder);
-
         config.limitSwitch
                 .forwardLimitSwitchEnabled(false)
                 .forwardLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen)
                 .reverseLimitSwitchEnabled(false)
                 .reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen);
-
         config.softLimit
                 .forwardSoftLimitEnabled(false)
                 .forwardSoftLimit(0)
@@ -62,11 +57,16 @@ public class ArmJointSystem extends SubsystemBase {
 
         config = new SparkMaxConfig();
         config.follow(masterMotor, true);
+        config.idleMode(SparkBaseConfig.IdleMode.kBrake);
         followerMotor.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
     }
 
-    public double getPositionDegrees(){
+    public double getRawPositionDegrees(){
         return absoluteEncoder.getPosition() * 360;
+    }
+
+    public double getLogicalPositionDegrees() {
+        return getRawPositionDegrees() - RobotMap.ARM_JOINT_ZERO_ANGLE;
     }
 
     public double getVelocityRpm() {
@@ -79,7 +79,7 @@ public class ArmJointSystem extends SubsystemBase {
 
     public void moveToPosition(double positionDegrees, double armLength) {
         double kf = MathUtil.interpolate(0.035, 0.045, armLength / 0.65);
-        double ff = Math.cos(Math.toRadians(getPositionDegrees() - 26.64)) * kf;
+        double ff = Math.cos(Math.toRadians(getLogicalPositionDegrees())) * kf;
         SmartDashboard.putNumber("ArmJointKf", kf);
         SmartDashboard.putNumber("ArmJointff", ff);
 
@@ -103,7 +103,7 @@ public class ArmJointSystem extends SubsystemBase {
     }
 
     public boolean reachedPosition(double targetPosition) {
-        return MathUtil.isNear(targetPosition, getPositionDegrees(), RobotMap.ARM_JOINT_POSITION_TOLERANCE) &&
+        return MathUtil.isNear(targetPosition, getRawPositionDegrees(), RobotMap.ARM_JOINT_POSITION_TOLERANCE) &&
                 Math.abs(getVelocityRpm()) <= RobotMap.ARM_JOINT_VELOCITY_TOLERANCE;
     }
 
@@ -113,7 +113,8 @@ public class ArmJointSystem extends SubsystemBase {
 
     @Override
     public void periodic(){
-        SmartDashboard.putNumber("ArmJointPosition", getPositionDegrees());
+        SmartDashboard.putNumber("ArmJointRawPosition", getRawPositionDegrees());
+        SmartDashboard.putNumber("ArmJointLogicalPosition", getLogicalPositionDegrees());
         SmartDashboard.putBoolean("ArmJointForwardLimit", masterMotor.getForwardLimitSwitch().isPressed());
         SmartDashboard.putBoolean("ArmJointReverseLimit", masterMotor.getReverseLimitSwitch().isPressed());
         SmartDashboard.putNumber("ArmJointVelocity", getVelocityRpm());
