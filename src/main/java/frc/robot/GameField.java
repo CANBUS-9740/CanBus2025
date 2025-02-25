@@ -287,7 +287,7 @@ public class GameField {
         return new Pose2d(result.x, result.y, pose.getRotation());
     }
 
-    private DriverStation.Alliance getCurrentAlliance() {
+    public DriverStation.Alliance getCurrentAlliance() {
         return DriverStation.getAlliance().orElse(DriverStation.Alliance.Red);
     }
 

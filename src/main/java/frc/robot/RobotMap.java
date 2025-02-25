@@ -1,10 +1,19 @@
 package frc.robot;
 
+import com.pathplanner.lib.path.PathConstraints;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import org.opencv.core.Mat;
 import swervelib.parser.PIDFConfig;
 
 public class RobotMap {
+
+    public static final PathConstraints CONSTRAINTS = new PathConstraints(1, 12, Math.PI / 2.0, Math.PI);
+    private GameField gameField;
 
     private RobotMap() {
     }
@@ -138,4 +147,8 @@ public class RobotMap {
     public static final double CLAWJOINT_UNDER_CAGE_ANGLE = 0;
     public static final double CLAWJOINT_LOWER_REEF_ALGAE_ANGLE = 0;
     public static final double CLAWJOINT_HIGH_REEF_ALGAE_ANGLE = 0;
+
+    public static final Pose2d middlePoseBlue = new Pose2d(8, 4,Rotation2d.fromDegrees(0));
+    public static final Pose2d middlePoseRed = new Pose2d(9.5, 4, Rotation2d.fromDegrees(-180.210));
+
 }

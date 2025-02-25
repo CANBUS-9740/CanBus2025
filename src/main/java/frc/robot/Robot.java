@@ -1,17 +1,15 @@
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.*;
@@ -20,6 +18,8 @@ import frc.robot.subsystems.ArmTelescopicSystem;
 import frc.robot.subsystems.ClawGripperSystem;
 import frc.robot.subsystems.ClawJointSystem;
 import frc.robot.subsystems.Swerve;
+import frc.robot.commands.*;
+import frc.robot.subsystems.*;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -42,6 +42,10 @@ public class Robot extends TimedRobot {
     private XboxController controllerXbox;
     private XboxController driverXbox;
     private SendableChooser<Command> autoChooser;
+    private SequentialCommandGroup autoCommandOnTheFly;
+    private ParallelDeadlineGroup autoCommandTimerCrossLine;
+    private SequentialCommandGroup autoCommandTimerPodium;
+
 
     @Override
     public void robotInit() {
@@ -67,6 +71,33 @@ public class Robot extends TimedRobot {
                 () -> MathUtil.applyDeadband(-driverXbox.getLeftX(), 0.15)
         ));
 
+        autoCommandOnTheFly = new SequentialCommandGroup(
+                goToReef(GameField.ReefStand.STAND_1, GameField.ReefStandSide.LEFT), //need to update before match
+                placeCoralOnReefCommandSimple(CoralReef.PODIUM),
+                new ParallelDeadlineGroup(
+                        Commands.waitSeconds(2),
+                        new ClawGripperOuttakeSlow(clawGripperSystem)
+                )
+        );
+
+        autoCommandTimerCrossLine = new ParallelDeadlineGroup(
+                Commands.waitSeconds(3),
+                Commands.runOnce(() -> swerve.drive(new ChassisSpeeds(0.3, 0, 0)))
+        );
+
+        autoCommandTimerPodium = new SequentialCommandGroup(
+                new ParallelDeadlineGroup(
+                    Commands.waitSeconds(4),
+                    Commands.runOnce( () -> swerve.fieldDrive(() -> 0.3, () -> 0, () -> 0))
+                    ),
+                placeCoralOnReefCommand(CoralReef.PODIUM),
+                new ParallelDeadlineGroup(
+                        Commands.waitSeconds(2),
+                        new ClawGripperOuttakeSlow(clawGripperSystem)
+                )
+        );
+
+
         /*armTelescopicSystem.setDefaultCommand(
                 Commands.defer(()-> {
                     if (armTelescopicSystem.getResetLimitSwitch()) {
@@ -85,7 +116,7 @@ public class Robot extends TimedRobot {
                 }, Set.of(clawGripperSystem))
         );*/
 
-        SequentialCommandGroup collectFromFloor = new SequentialCommandGroup(
+        /* SequentialCommandGroup collectFromFloor = new SequentialCommandGroup(
                 createCommandGroupSimple(RobotMap.ARM_LENGTH_FLOOR, RobotMap.ARM_JOINT_FLOOR_ANGLE, RobotMap.CLAWJOINT_FLOOR_ANGLE),
                 new ClawGripperIntake(clawGripperSystem)
         );
@@ -110,6 +141,7 @@ public class Robot extends TimedRobot {
                 createCommandGroupSimple(RobotMap.ARM_TELESCOPIC_HIGH_REEF_ALGAE_LENGTH, RobotMap.ARM_JOINT_HIGH_REEF_ALGAE_ANGLE, RobotMap.CLAWJOINT_HIGH_REEF_ALGAE_ANGLE),
                 new ClawGripperIntake(clawGripperSystem)
         );
+        */
 
         Command collectFromSourceCommandSimple =
                 createCommandGroupSimple(0.5, RobotMap.ARM_JOINT_ANGLE_SOURCE, RobotMap.CLAWJOINT_SOURCE_ANGLE);
@@ -193,7 +225,7 @@ public class Robot extends TimedRobot {
         /* new JoystickButton(xbox, XboxController.Button.kRightBumper.value).onTrue(
                 new ArmTelescopicMoveToLength(armTelescopicSystem, 0.7)
         );
-        when we csn extend our arl return it
+        when we csn extend our arm return it
         */
 
 
@@ -237,8 +269,10 @@ public class Robot extends TimedRobot {
         );
 
         FollowPathCommand.warmupCommand().schedule();
+        /*
         autoChooser = new SendableChooser<>();
         SmartDashboard.putData("Auto Chooser", autoChooser);
+         */
     }
 
     @Override
@@ -320,10 +354,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        auto = autoChooser.getSelected();
-        if (auto != null) {
-            auto.schedule();
-        }
+        autoCommandTimerCrossLine.schedule();
     }
 
     @Override
@@ -332,10 +363,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousExit() {
-        if (auto != null) {
-            auto.cancel();
-            auto = null;
-        }
+        autoCommandTimerCrossLine.cancel();
     }
 
     @Override
@@ -514,5 +542,44 @@ public class Robot extends TimedRobot {
                 ),
                 new ArmTelescopicMoveToLength(armTelescopicSystem, 0.5)
         );
+    }
+
+    private Command goToClosestReef() {
+        return Commands.defer(()-> {
+            Optional<GameField.SelectedReefStand> standOptional = getClosestStand();
+            if (standOptional.isEmpty()) {
+                return Commands.none();
+            }
+
+            GameField.SelectedReefStand stand = standOptional.get();
+            return goToReef(stand.stand, stand.side);
+        }, Set.of(swerve));
+    }
+
+    private Command goToReef(GameField.ReefStand stand, GameField.ReefStandSide side) {
+        Pose2d targetPose = gameField.getPoseForReefStand(stand, side);
+        return AutoBuilder.pathfindToPose(targetPose, RobotMap.CONSTRAINTS);
+    }
+
+    private Command goToClosestSource() {
+        return Commands.defer(()-> {
+            Optional<GameField.SelectedSourceStand> sourceOptional = getClosestSource();
+            if (sourceOptional.isEmpty()) {
+                return Commands.none();
+            }
+
+            GameField.SelectedSourceStand sourceStand = sourceOptional.get();
+            return goToSource(sourceStand.stand, sourceStand.side);
+        }, Set.of(swerve));
+    }
+
+    private Command goToSource(GameField.SourceStand stand, GameField.SourceStandSide side) {
+        Pose2d targetPose = gameField.getPoseForSource(stand, side);
+        return AutoBuilder.pathfindToPose(targetPose, RobotMap.CONSTRAINTS);
+    }
+
+    private Command goToProcessor() {
+        Pose2d targetPose = gameField.getPoseToProcessor();
+        return AutoBuilder.pathfindToPose(targetPose, RobotMap.CONSTRAINTS);
     }
 }
