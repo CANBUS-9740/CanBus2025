@@ -4,15 +4,12 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.*;
@@ -46,7 +43,8 @@ public class Robot extends TimedRobot {
     private XboxController driverXbox;
     private SendableChooser<Command> autoChooser;
     private SequentialCommandGroup autoCommandOnTheFly;
-    private ParallelDeadlineGroup autoCommandTimer;
+    private ParallelDeadlineGroup autoCommandTimerCrossLine;
+    private SequentialCommandGroup autoCommandTimerPodium;
 
 
     @Override
@@ -83,9 +81,21 @@ public class Robot extends TimedRobot {
                 )
         );
 
-        autoCommandTimer = new ParallelDeadlineGroup(
+        autoCommandTimerCrossLine = new ParallelDeadlineGroup(
                 Commands.waitSeconds(3),
                 Commands.runOnce(() -> swerve.drive(new ChassisSpeeds(0.3, 0, 0)))
+        );
+
+        autoCommandTimerPodium = new SequentialCommandGroup(
+                new ParallelDeadlineGroup(
+                    Commands.waitSeconds(4),
+                    Commands.runOnce( () -> swerve.fieldDrive(() -> 0.3, () -> 0, () -> 0))
+                    ),
+                placeCoralOnReefCommand(CoralReef.PODIUM),
+                new ParallelDeadlineGroup(
+                        Commands.waitSeconds(2),
+                        new ClawGripperOuttakeSlow(clawGripperSystem)
+                )
         );
 
 
@@ -213,18 +223,10 @@ public class Robot extends TimedRobot {
 //                new ArmTelescopicReset(armTelescopicSystem)
 //        );
 
-        new JoystickButton(xbox, XboxController.Button.kLeftBumper.value).onTrue(
-                placeCoralOnReefCommandSimple(CoralReef.FIRST_STAGE)
-        );
-
-        new JoystickButton(xbox, XboxController.Button.kRightBumper.value).onTrue(
-                collectFromSourceCommandSimple
-        );
-
         /* new JoystickButton(xbox, XboxController.Button.kRightBumper.value).onTrue(
                 new ArmTelescopicMoveToLength(armTelescopicSystem, 0.7)
         );
-        when we csn extend our arl return it
+        when we csn extend our arm return it
         */
 
 
@@ -353,12 +355,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        auto = autoChooser.getSelected();
-        if (auto != null) {
-            auto.schedule();
-        }
-
-        autoCommandOnTheFly.schedule();
+        autoCommandTimerCrossLine.schedule();
     }
 
     @Override
@@ -367,10 +364,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousExit() {
-        if (auto != null) {
-            auto.cancel();
-            auto = null;
-        }
+        autoCommandTimerCrossLine.cancel();
     }
 
     @Override
