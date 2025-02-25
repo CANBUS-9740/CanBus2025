@@ -4,11 +4,9 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
@@ -44,6 +42,9 @@ public class Robot extends TimedRobot {
 
     private XboxController xbox;
     private SendableChooser<Command> autoChooser;
+    private SequentialCommandGroup autoCommandOnTheFly;
+    private ParallelDeadlineGroup autoCommandTimer;
+
 
     @Override
     public void robotInit() {
@@ -68,6 +69,21 @@ public class Robot extends TimedRobot {
                 () -> MathUtil.applyDeadband(xbox.getLeftX(), 0.15)
         ));
 
+        autoCommandOnTheFly = new SequentialCommandGroup(
+                goToReef(GameField.ReefStand.STAND_1, GameField.ReefStandSide.LEFT), //need to update before match
+                placeCoralOnReefCommandSimple(CoralReef.PODIUM),
+                new ParallelDeadlineGroup(
+                        Commands.waitSeconds(2),
+                        new ClawGripperOuttakeSlow(clawGripperSystem)
+                )
+        );
+
+        autoCommandTimer = new ParallelDeadlineGroup(
+                Commands.waitSeconds(3),
+                Commands.runOnce(() -> swerve.drive(new ChassisSpeeds(0.3, 0, 0)))
+        );
+
+
         /*armTelescopicSystem.setDefaultCommand(
                 Commands.defer(()-> {
                     if (armTelescopicSystem.getResetLimitSwitch()) {
@@ -86,7 +102,7 @@ public class Robot extends TimedRobot {
                 }, Set.of(clawGripperSystem))
         );*/
 
-        SequentialCommandGroup collectFromFloor = new SequentialCommandGroup(
+        /* SequentialCommandGroup collectFromFloor = new SequentialCommandGroup(
                 createCommandGroupSimple(RobotMap.ARM_LENGTH_FLOOR, RobotMap.ARM_JOINT_FLOOR_ANGLE, RobotMap.CLAWJOINT_FLOOR_ANGLE),
                 new ClawGripperIntake(clawGripperSystem)
         );
@@ -111,6 +127,7 @@ public class Robot extends TimedRobot {
                 createCommandGroupSimple(RobotMap.ARM_TELESCOPIC_HIGH_REEF_ALGAE_LENGTH, RobotMap.ARM_JOINT_HIGH_REEF_ALGAE_ANGLE, RobotMap.CLAWJOINT_HIGH_REEF_ALGAE_ANGLE),
                 new ClawGripperIntake(clawGripperSystem)
         );
+        */
 
         Command collectFromSourceCommandSimple =
                 createCommandGroupSimple(0.5, RobotMap.ARM_JOINT_ANGLE_SOURCE, RobotMap.CLAWJOINT_SOURCE_ANGLE);
@@ -216,8 +233,10 @@ public class Robot extends TimedRobot {
         );
 
         FollowPathCommand.warmupCommand().schedule();
+        /*
         autoChooser = new SendableChooser<>();
         SmartDashboard.putData("Auto Chooser", autoChooser);
+         */
     }
 
     @Override
@@ -303,6 +322,8 @@ public class Robot extends TimedRobot {
         if (auto != null) {
             auto.schedule();
         }
+
+        autoCommandOnTheFly.schedule();
     }
 
     @Override
