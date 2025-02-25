@@ -3,10 +3,10 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ClawGripperSystem;
 
-public class ClawGripperOuttake extends Command {
+public class ClawGripperOuttakeSlow extends Command {
     private final ClawGripperSystem clawGripperSystem;
 
-    public ClawGripperOuttake(ClawGripperSystem clawGripperSystem) {
+    public ClawGripperOuttakeSlow(ClawGripperSystem clawGripperSystem) {
         this.clawGripperSystem = clawGripperSystem;
 
         addRequirements(clawGripperSystem);
@@ -14,7 +14,7 @@ public class ClawGripperOuttake extends Command {
 
     @Override
     public void initialize() {
-        clawGripperSystem.releaseItem();
+        clawGripperSystem.releaseItemSlow();
     }
 
     @Override
@@ -24,7 +24,7 @@ public class ClawGripperOuttake extends Command {
 
     @Override
     public boolean isFinished() {
-        return false;//!clawGripperSystem.hasItem();
+        return false;
     }
 
     @Override

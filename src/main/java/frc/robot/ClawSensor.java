@@ -1,6 +1,7 @@
 package frc.robot;
 
 import com.revrobotics.Rev2mDistanceSensor;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ClawSensor {
     private Rev2mDistanceSensor distMXP;
@@ -20,6 +21,6 @@ public class ClawSensor {
 
     public void periodic() {
         SmartDashboard.putNumber("DistanceSensorRange", distMXP.getRange());
-        SmartDashboard.putBoolean("IsItInRange", IsIn();
+        SmartDashboard.putBoolean("IsItInRange", IsIn());
     }
 }

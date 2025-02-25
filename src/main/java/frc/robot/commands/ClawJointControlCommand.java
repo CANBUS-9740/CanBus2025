@@ -6,11 +6,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotMap;
 import frc.robot.subsystems.ArmJointSystem;
-import frc.robot.subsystems.ArmTelescopicSystem;
+import frc.robot.subsystems.ClawJointSystem;
 
-public class ArmJointControlCommand extends Command {
+public class ClawJointControlCommand extends Command {
     private final ArmJointSystem armJointSystem;
-    private final ArmTelescopicSystem armTelescopicSystem;
+    private final ClawJointSystem clawJointSystem;
     private double targetPosition;
     private boolean isInTarget;
     private boolean hasNewPosition;
@@ -19,11 +19,11 @@ public class ArmJointControlCommand extends Command {
     private TrapezoidProfile.State motionProfileGoal;
     private TrapezoidProfile.State motionProfileSetPoint;
 
-    public ArmJointControlCommand(ArmJointSystem armJointSystem, ArmTelescopicSystem armTelescopicSystem) {
+    public ClawJointControlCommand(ArmJointSystem armJointSystem, ClawJointSystem clawJointSystem) {
         this.armJointSystem = armJointSystem;
-        this.armTelescopicSystem = armTelescopicSystem;
+        this.clawJointSystem = clawJointSystem;
 
-        addRequirements(armJointSystem);
+        addRequirements(clawJointSystem);
     }
 
     @Override
@@ -40,42 +40,38 @@ public class ArmJointControlCommand extends Command {
         }
 
         if (hasNewPosition) {
-           isInTarget = false;
-           hasNewPosition = false;
+            isInTarget = false;
+            hasNewPosition = false;
 
-            SmartDashboard.putNumber("ArmJointCommandTarget", targetPosition);
-            SmartDashboard.putBoolean("ArmJointCommandHolding", isHolding);
-            SmartDashboard.putBoolean("ArmJointCommandInTarget", false);
+            SmartDashboard.putNumber("ClawJointCommandTarget", targetPosition);
+            SmartDashboard.putBoolean("ClawJointCommandHolding", isHolding);
+            SmartDashboard.putBoolean("ClawJointCommandInTarget", false);
 
-           if(isHolding) {
-               motionProfile = new TrapezoidProfile(RobotMap.ARM_JOINT_MOTION_PROFILE_CONSTRAINTS);
-               motionProfileGoal = new TrapezoidProfile.State(targetPosition, 0);
-               motionProfileSetPoint = new TrapezoidProfile.State(armJointSystem.getRawPositionDegrees(), 0);
-           } else {
-               SmartDashboard.putBoolean("ArmJointCommandInTarget", true);
-               isInTarget = true;
-               armJointSystem.stop();
-           }
+            if(isHolding) {
+                motionProfile = new TrapezoidProfile(RobotMap.CLAWJOINT_MOTION_PROFILE_CONSTRAINTS);
+                motionProfileGoal = new TrapezoidProfile.State(targetPosition, 0);
+                motionProfileSetPoint = new TrapezoidProfile.State(clawJointSystem.getRawPositionDegrees(), 0);
+            } else {
+                SmartDashboard.putBoolean("ClawJointCommandInTarget", true);
+                isInTarget = true;
+                clawJointSystem.stop();
+            }
         }
 
         if (!isHolding) {
             return;
         }
 
-        if (!isInTarget && armJointSystem.reachedPosition(targetPosition)) {
-            SmartDashboard.putBoolean("ArmJointCommandInTarget", true);
+        if (!isInTarget && clawJointSystem.didReachPosition(targetPosition)) {
+            SmartDashboard.putBoolean("ClawJointCommandInTarget", true);
             isInTarget = true;
         }
 
         if (isInTarget) {
-            if (targetPosition <= RobotMap.ARM_JOINT_MINIMUM_ANGLE) {
-                stopHolding();
-            } else {
-                armJointSystem.moveToPosition(targetPosition, armTelescopicSystem.getMeasuredLengthMeters());
-            }
+            clawJointSystem.moveToPosition(targetPosition, armJointSystem.getLogicalPositionDegrees());
         } else {
             motionProfileSetPoint = motionProfile.calculate(0.02, motionProfileSetPoint, motionProfileGoal);
-            armJointSystem.moveToPosition(motionProfileSetPoint.position, armTelescopicSystem.getMeasuredLengthMeters());
+            clawJointSystem.moveToPosition(motionProfileSetPoint.position, armJointSystem.getLogicalPositionDegrees());
         }
     }
 
@@ -86,7 +82,7 @@ public class ArmJointControlCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        armJointSystem.stop();
+        clawJointSystem.stop();
     }
 
     @Override
@@ -103,7 +99,7 @@ public class ArmJointControlCommand extends Command {
     }
 
     public void setTargetPosition(double newPosition) {
-        if (newPosition < RobotMap.ARM_JOINT_MINIMUM_ANGLE || newPosition > RobotMap.ARM_JOINT_MAXIMUM_ANGLE) {
+        if (newPosition < RobotMap.CLAWJOINT_MINIMUM_ANGLE || newPosition > RobotMap.CLAWJOINT_MAXIMUM_ANGLE) {
             return;
         }
 

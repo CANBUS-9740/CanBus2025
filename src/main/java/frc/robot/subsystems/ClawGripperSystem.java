@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import com.revrobotics.Rev2mDistanceSensor;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
@@ -29,12 +28,16 @@ public class ClawGripperSystem extends SubsystemBase {
     }
 
     public void releaseItem(){
-        motor.set(-0.5);
-    }
-    public void holdItem(){
-        motor.set(0.2);
+        motor.set(-0.25);
     }
 
+    public void releaseItemSlow() {
+        motor.set(-0.15);
+    }
+
+    public void holdItem(){
+        motor.set(0.1);
+    }
 
     public void stop() {
         motor.stopMotor();
@@ -43,11 +46,11 @@ public class ClawGripperSystem extends SubsystemBase {
     public boolean hasItem() {
         double distance = distMXP.getRange();
         return distance >=RobotMap.CLAW_SENSOR_MIN_DISTANCE && distance <= RobotMap.CLAW_SENSOR_MAX_DISTANCE;
-
     }
     public void periodic(){
         SmartDashboard.putNumber("DistanceSensorRange", distMXP.getRange());
         SmartDashboard.putBoolean("ItemInClaw", hasItem());
+        SmartDashboard.putNumber("outputAmper", motor.getOutputCurrent());
     }
 }
 
