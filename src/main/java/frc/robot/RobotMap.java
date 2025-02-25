@@ -27,7 +27,7 @@ public class RobotMap {
     public static final double SWERVE_DRIVE_GEAR_RATIO = 6.12;
     public static final double SWERVE_STEER_GEAR_RATIO = 150.0 / 7;
     public static final double SWERVE_MAX_SPEED = DCMotor.getKrakenX60(1).freeSpeedRadPerSec / Math.PI / SWERVE_DRIVE_GEAR_RATIO * (2 * Math.PI * SWERVE_DRIVE_WHEEL_RADIUS);
-    public static final double SWERVE_DRIVE_RAMP_RATE = 0.25;
+    public static final double SWERVE_DRIVE_RAMP_RATE = 0.35;
     public static final double SWERVE_STEER_RAMP_RATE = 0.25;
     public static final PIDFConfig SWERVE_DRIVE_PIDF = new PIDFConfig(2, 0, 0, 0, 0);
     public static final PIDFConfig SWERVE_STEER_PIDF = new PIDFConfig(0.01, 0, 0, 0, 0);
@@ -80,17 +80,18 @@ public class RobotMap {
     public static final double I_ARM_JOINT = 0;
     public static final double D_ARM_JOINT = 0;
     public static final double ARM_JOINT_ENCODER_ZERO_OFFSET = 0.5345518;
-    public static final TrapezoidProfile.Constraints ARM_JOINT_MOTION_PROFILE_CONSTRAINTS = new TrapezoidProfile.Constraints(400, 100);
+    public static final TrapezoidProfile.Constraints ARM_JOINT_MOTION_PROFILE_CONSTRAINTS = new TrapezoidProfile.Constraints(200, 200);
     public static final double ARM_JOINT_POSITION_TOLERANCE = 1;
     public static final double ARM_JOINT_VELOCITY_TOLERANCE = 5;
     public static final double ARM_JOINT_KF = 0.0;
     public static final double ARM_JOINT_GEAR_RATIO = 144;
     public static final double ARM_JOINT_MINIMUM_ANGLE = 1;
-    public static final double ARM_JOINT_MAXIMUM_ANGLE = 120;
+    public static final double ARM_JOINT_MAXIMUM_ANGLE = 140;
     public static final double ARM_JOINT_FLOOR_ANGLE = 0;
     public static final double ARM_JOINT_UNDER_CAGE_ANGLE = 0;
     public static final double ARM_JOINT_LOWER_REEF_ALGAE_ANGLE = 0;
     public static final double ARM_JOINT_HIGH_REEF_ALGAE_ANGLE = 0;
+    public static final double ARM_JOINT_DEFAULT_ANGLE = 95;
 
     //claw
     public static final int CLAW_MOTOR_ID = 39;
@@ -111,6 +112,7 @@ public class RobotMap {
     public static final double CLAWJOINT_MINIMUM_ANGLE = 3;
     public static final double CLAWJOINT_ZERO_ANGLE = 100;
     public static final double CLAWJOINT_KF = 0.01;
+    public static final double CLAWJOINT_DEFAULT_ANGLE = 3;
     public static final TrapezoidProfile.Constraints CLAWJOINT_MOTION_PROFILE_CONSTRAINTS = new TrapezoidProfile.Constraints(300, 200);
 
 
