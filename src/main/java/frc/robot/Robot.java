@@ -186,6 +186,7 @@ public class Robot extends TimedRobot {
                     armJointControlCommand.setTargetPosition(oldAngle + 5);
                 })
         );
+
         new POVButton(xbox, 180).onTrue(
                 Commands.runOnce(()-> {
                     double oldAngle = armJointControlCommand.getTargetPosition();
