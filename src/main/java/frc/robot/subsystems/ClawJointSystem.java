@@ -1,12 +1,11 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.spark.SparkBase;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkLowLevel;
-import com.revrobotics.spark.SparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.*;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig;
+import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,36 +16,41 @@ public class ClawJointSystem extends SubsystemBase {
 
     private final SparkMax motor;
     private final AbsoluteEncoder absoluteEncoder;
+    private final RelativeEncoder relativeEncoder;
     private final SparkClosedLoopController controller;
 
     public ClawJointSystem(){
         motor = new SparkMax(RobotMap.CLAWJOINT_MOTOR_ID, SparkLowLevel.MotorType.kBrushless);
 
         SparkMaxConfig config = new SparkMaxConfig();
+        config.idleMode(SparkBaseConfig.IdleMode.kBrake);
+        config.encoder
+                .positionConversionFactor(1 / RobotMap.CLAWJOINT_GEAR_RATIO)
+                .velocityConversionFactor(1 / RobotMap.CLAWJOINT_GEAR_RATIO);
         config.closedLoop
                 .p(RobotMap.P_CLAWJOINT)
                 .i(RobotMap.I_CLAWJOINT)
                 .d(RobotMap.D_CLAWJOINT)
                 .feedbackSensor(ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder);
         config.absoluteEncoder
-                .startPulseUs(RobotMap.CLAWJOINT_ABS_ENCODER_START_PULSE_US)
-                .endPulseUs(RobotMap.CLAWJOINT_ABS_ENCODER_END_PULSE_US)
+                .inverted(true)
                 .zeroOffset(RobotMap.CLAWJOINT_ABS_ENCODER_ZERO_OFFSET);
         config.limitSwitch
-                .forwardLimitSwitchEnabled(true)
+                .forwardLimitSwitchEnabled(false)
                 .forwardLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen)
-                .reverseLimitSwitchEnabled(true)
+                .reverseLimitSwitchEnabled(false)
                 .reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen);
         config.softLimit
-                .forwardSoftLimitEnabled(true)
+                .forwardSoftLimitEnabled(false)
                 .forwardSoftLimit(0)
-                .reverseSoftLimitEnabled(true)
+                .reverseSoftLimitEnabled(false)
                 .reverseSoftLimit(0);
 
         motor.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
         controller = motor.getClosedLoopController();
         absoluteEncoder = motor.getAbsoluteEncoder();
+        relativeEncoder = motor.getEncoder();
     }
 
     public boolean isPressedForward(){
@@ -57,13 +61,22 @@ public class ClawJointSystem extends SubsystemBase {
         return motor.getReverseLimitSwitch().isPressed();
     }
 
-    public double getPositionDegrees(){
+    public double getRawPositionDegrees(){
        return absoluteEncoder.getPosition() * 360;
     }
 
-    public void moveToPosition(double positionDegrees) {
+    public double getLogicalPositionDegrees(){
+        return getRawPositionDegrees() - RobotMap.CLAWJOINT_ZERO_ANGLE;
+    }
+
+    public double getVelocityRPM() {
+        return relativeEncoder.getVelocity();
+    }
+
+    public void moveToPosition(double positionDegrees, double armAngle) {
         double targetPosition = positionDegrees / 360.0;
-        controller.setReference(targetPosition, SparkBase.ControlType.kPosition);
+        double ff = Math.cos(Math.toRadians(getLogicalPositionDegrees() + armAngle)) * RobotMap.CLAWJOINT_KF;
+        controller.setReference(targetPosition, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, SparkClosedLoopController.ArbFFUnits.kPercentOut);
     }
 
     public void move(double speed){
@@ -87,12 +100,14 @@ public class ClawJointSystem extends SubsystemBase {
     }
 
     public boolean didReachPosition(double targetAngle) {
-        return MathUtil.isNear(targetAngle, getPositionDegrees(), 3) && Math.abs(absoluteEncoder.getVelocity()) < 5;
+        return MathUtil.isNear(targetAngle, getRawPositionDegrees(), RobotMap.CLAWJOINT_POSITION_TOLERANCE) &&
+                Math.abs(getVelocityRPM()) < RobotMap.CLAWJOINT_VELOCITY_TOLERANCE;
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("PositionDegrees", getPositionDegrees());
+        SmartDashboard.putNumber("ClawJointRawPosition", getRawPositionDegrees());
+        SmartDashboard.putNumber("ClawJointLogicalPosition", getLogicalPositionDegrees());
         SmartDashboard.putBoolean("ForwardLimitSwitch", isPressedForward());
         SmartDashboard.putBoolean("ReverseLimitSwitch", isPressedReverse());
     }
