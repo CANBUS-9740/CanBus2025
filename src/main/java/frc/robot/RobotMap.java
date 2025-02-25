@@ -17,7 +17,7 @@ public class RobotMap {
     public static final double SWERVE_DRIVE_WHEEL_RADIUS = 0.0508;
     public static final double SWERVE_DRIVE_GEAR_RATIO = 6.12;
     public static final double SWERVE_STEER_GEAR_RATIO = 150.0 / 7;
-    public static final double SWERVE_MAX_SPEED = DCMotor.getKrakenX60(1).freeSpeedRadPerSec / Math.PI / SWERVE_DRIVE_GEAR_RATIO * (2 * Math.PI * SWERVE_DRIVE_WHEEL_RADIUS);
+    public static final double SWERVE_MAX_SPEED = DCMotor.getKrakenX60(1).freeSpeedRadPerSec / Math.PI / SWERVE_DRIVE_GEAR_RATIO * (2 * Math.PI * SWERVE_DRIVE_WHEEL_RADIUS) * 0.5;
     public static final double SWERVE_DRIVE_RAMP_RATE = 0.35;
     public static final double SWERVE_STEER_RAMP_RATE = 0.25;
     public static final PIDFConfig SWERVE_DRIVE_PIDF = new PIDFConfig(2, 0, 0, 0, 0);

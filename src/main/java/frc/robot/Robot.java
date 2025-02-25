@@ -61,11 +61,10 @@ public class Robot extends TimedRobot {
         clawJointControlCommand = new ClawJointControlCommand(armJointSystem, clawJointSystem);
         clawJointSystem.setDefaultCommand(clawJointControlCommand);
 
-        swerve.setDefaultCommand(swerve.fieldDrive(
-                () -> -MathUtil.applyDeadband(Math.pow(controllerXbox.getRightY(), 3), 0.05),
-                () -> MathUtil.applyDeadband(Math.pow(-controllerXbox.getRightX(), 3), 0.05),
-                () -> MathUtil.applyDeadband(-
-                        controllerXbox.getLeftX(), 0.15)
+        swerve.setDefaultCommand(swerve.drive(
+                () -> -MathUtil.applyDeadband(Math.pow(driverXbox.getRightY(), 3), 0.05),
+                () -> MathUtil.applyDeadband(Math.pow(-driverXbox.getRightX(), 3), 0.05),
+                () -> MathUtil.applyDeadband(-driverXbox.getLeftX(), 0.15)
         ));
 
         /*armTelescopicSystem.setDefaultCommand(
