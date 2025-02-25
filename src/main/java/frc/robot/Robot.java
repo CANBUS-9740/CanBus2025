@@ -1,11 +1,8 @@
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -17,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.*;
 import frc.robot.subsystems.ArmJointSystem;
 import frc.robot.subsystems.ArmTelescopicSystem;
@@ -43,7 +39,8 @@ public class Robot extends TimedRobot {
     private ArmJointControlCommand armJointControlCommand;
     private ClawJointControlCommand clawJointControlCommand;
 
-    private XboxController xbox;
+    private XboxController controllerXbox;
+    private XboxController driverXbox;
     private SendableChooser<Command> autoChooser;
 
     @Override
@@ -55,7 +52,8 @@ public class Robot extends TimedRobot {
         clawJointSystem = new ClawJointSystem();
         armTelescopicSystem = new ArmTelescopicSystem();
 
-        xbox = new XboxController(0);
+        driverXbox = new XboxController(0);
+        controllerXbox = new XboxController(1);
 
         armJointControlCommand = new ArmJointControlCommand(armJointSystem, armTelescopicSystem);
         armJointSystem.setDefaultCommand(armJointControlCommand);
@@ -63,10 +61,11 @@ public class Robot extends TimedRobot {
         clawJointControlCommand = new ClawJointControlCommand(armJointSystem, clawJointSystem);
         clawJointSystem.setDefaultCommand(clawJointControlCommand);
 
-        swerve.setDefaultCommand(swerve.drive(
-                () -> -MathUtil.applyDeadband(Math.pow(xbox.getRightY(), 3), 0.05),
-                () -> MathUtil.applyDeadband(Math.pow(xbox.getRightX(), 3), 0.05),
-                () -> MathUtil.applyDeadband(xbox.getLeftX(), 0.15)
+        swerve.setDefaultCommand(swerve.fieldDrive(
+                () -> -MathUtil.applyDeadband(Math.pow(controllerXbox.getRightY(), 3), 0.05),
+                () -> MathUtil.applyDeadband(Math.pow(-controllerXbox.getRightX(), 3), 0.05),
+                () -> MathUtil.applyDeadband(-
+                        controllerXbox.getLeftX(), 0.15)
         ));
 
         /*armTelescopicSystem.setDefaultCommand(
@@ -142,33 +141,55 @@ public class Robot extends TimedRobot {
 //                }, Set.of(armTelescopicSystem))
 //        );
 
-        new JoystickButton(xbox, XboxController.Button.kA.value).whileTrue(
+
+//        new JoystickButton(xbox, XboxController.Button.kY.value).whileTrue(
+//                new ClawGripperOuttakeSlow(clawGripperSystem)
+//        );
+
+        new JoystickButton(controllerXbox, XboxController.Button.kA.value).whileTrue(
                 placeCoralOnReefCommandSimple(CoralReef.PODIUM)
         );
 
-        new JoystickButton(xbox, XboxController.Button.kY.value).whileTrue(
-                new ClawGripperOuttakeSlow(clawGripperSystem)
+        new JoystickButton(controllerXbox, XboxController.Button.kY.value).whileTrue(
+                new ParallelCommandGroup(
+                        Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE)),
+                        Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
+                        Commands.runOnce(()-> clawJointControlCommand.setTargetPosition(RobotMap.CLAWJOINT_DEFAULT_ANGLE)),
+                        Commands.waitUntil(()-> clawJointControlCommand.isAtTargetPosition()),
+                        Commands.runOnce(()-> System.out.println("going to default"))
+                )
         );
 
-        new JoystickButton(xbox, XboxController.Button.kB.value).whileTrue(
+        new JoystickButton(controllerXbox, XboxController.Button.kStart.value).whileTrue(
+                new ParallelCommandGroup(
+                        Commands.runOnce(()-> armJointControlCommand.setTargetPosition(40)),
+                        Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
+                        Commands.runOnce(()-> clawJointControlCommand.setTargetPosition(31)),
+                        Commands.waitUntil(()-> clawJointControlCommand.isAtTargetPosition()),
+                        Commands.runOnce(()-> System.out.println("going to floor"))
+                )
+        );
+
+        new JoystickButton(controllerXbox, XboxController.Button.kB.value).whileTrue(
                 new ClawGripperOuttake(clawGripperSystem)
         );
 
-        new JoystickButton(xbox, XboxController.Button.kX.value).whileTrue(
+        new JoystickButton(controllerXbox, XboxController.Button.kX.value).whileTrue(
                 new ClawGripperIntake(clawGripperSystem)
+        );
+
+
+        new JoystickButton(controllerXbox, XboxController.Button.kLeftBumper.value).whileTrue(
+                placeCoralOnReefCommandSimple(CoralReef.FIRST_STAGE)
+        );
+
+        new JoystickButton(controllerXbox, XboxController.Button.kRightBumper.value).whileTrue(
+                collectFromSourceCommandSimple
         );
 
 //        new JoystickButton(xbox, XboxController.Button.kLeftBumper.value).onTrue(
 //                new ArmTelescopicReset(armTelescopicSystem)
 //        );
-
-        new JoystickButton(xbox, XboxController.Button.kLeftBumper.value).onTrue(
-                placeCoralOnReefCommandSimple(CoralReef.FIRST_STAGE)
-        );
-
-        new JoystickButton(xbox, XboxController.Button.kRightBumper.value).onTrue(
-                collectFromSourceCommandSimple
-        );
 
         /* new JoystickButton(xbox, XboxController.Button.kRightBumper.value).onTrue(
                 new ArmTelescopicMoveToLength(armTelescopicSystem, 0.7)
@@ -177,7 +198,7 @@ public class Robot extends TimedRobot {
         */
 
 
-        new POVButton(xbox, 0).onTrue(
+        new POVButton(controllerXbox, 0).onTrue(
                 Commands.runOnce(()-> {
                     double oldAngle = armJointControlCommand.getTargetPosition();
                     if (oldAngle < 0) {
@@ -186,7 +207,8 @@ public class Robot extends TimedRobot {
                     armJointControlCommand.setTargetPosition(oldAngle + 5);
                 })
         );
-        new POVButton(xbox, 180).onTrue(
+
+        new POVButton(controllerXbox, 180).onTrue(
                 Commands.runOnce(()-> {
                     double oldAngle = armJointControlCommand.getTargetPosition();
                     if (oldAngle < 0) {
@@ -196,7 +218,7 @@ public class Robot extends TimedRobot {
                 })
         );
 
-        new POVButton(xbox, 90).onTrue(
+        new POVButton(controllerXbox, 90).onTrue(
                 Commands.runOnce(()-> {
                     double oldAngle = clawJointControlCommand.getTargetPosition();
                     if (oldAngle < 0) {
@@ -205,7 +227,7 @@ public class Robot extends TimedRobot {
                     clawJointControlCommand.setTargetPosition(oldAngle + 5);
                 })
         );
-        new POVButton(xbox, 270).onTrue(
+        new POVButton(controllerXbox, 270).onTrue(
                 Commands.runOnce(()-> {
                     double oldAngle = clawJointControlCommand.getTargetPosition();
                     if (oldAngle < 0) {

@@ -115,6 +115,7 @@ public class ArmJointSystem extends SubsystemBase {
     public void periodic(){
         SmartDashboard.putNumber("ArmJointRawPosition", getRawPositionDegrees());
         SmartDashboard.putNumber("ArmJointLogicalPosition", getLogicalPositionDegrees());
+        SmartDashboard.putNumber("ArmJointAmper", masterMotor.getOutputCurrent());
         SmartDashboard.putBoolean("ArmJointForwardLimit", masterMotor.getForwardLimitSwitch().isPressed());
         SmartDashboard.putBoolean("ArmJointReverseLimit", masterMotor.getReverseLimitSwitch().isPressed());
         SmartDashboard.putNumber("ArmJointVelocity", getVelocityRpm());
