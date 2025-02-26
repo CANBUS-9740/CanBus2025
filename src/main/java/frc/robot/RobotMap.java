@@ -17,7 +17,7 @@ public class RobotMap {
     public static final double SWERVE_DRIVE_WHEEL_RADIUS = 0.0508;
     public static final double SWERVE_DRIVE_GEAR_RATIO = 6.12;
     public static final double SWERVE_STEER_GEAR_RATIO = 150.0 / 7;
-    public static final double SWERVE_MAX_SPEED = DCMotor.getKrakenX60(1).freeSpeedRadPerSec / Math.PI / SWERVE_DRIVE_GEAR_RATIO * (2 * Math.PI * SWERVE_DRIVE_WHEEL_RADIUS) * 0.5;
+    public static final double SWERVE_MAX_SPEED = DCMotor.getKrakenX60(1).freeSpeedRadPerSec / Math.PI / SWERVE_DRIVE_GEAR_RATIO * (2 * Math.PI * SWERVE_DRIVE_WHEEL_RADIUS);
     public static final double SWERVE_DRIVE_RAMP_RATE = 0.35;
     public static final double SWERVE_STEER_RAMP_RATE = 0.25;
     public static final PIDFConfig SWERVE_DRIVE_PIDF = new PIDFConfig(2, 0, 0, 0, 0);
@@ -127,8 +127,8 @@ public class RobotMap {
     public static final double ARM_JOINT_ANGLE_FIRST = 95.2;
     public static final double ARM_JOINT_ANGLE_SECOND = 0;
     public static final double ARM_JOINT_ANGLE_THIRD = 0;
-    public static final double ARM_JOINT_ANGLE_SOURCE = 70;
-    public static final double CLAWJOINT_SOURCE_ANGLE = 71;
+    public static final double ARM_JOINT_ANGLE_SOURCE = 84;
+    public static final double CLAWJOINT_SOURCE_ANGLE = 36;
     public static final double CLAWJOINT_FLOOR_ANGLE = 0;
     public static final double CLAWJOINT_CORAL_PODIUM_POLE_ANGLE = 6;
     public static final double CLAWJOINT_CORAL_FIRST_POLE_ANGLE = 12;
