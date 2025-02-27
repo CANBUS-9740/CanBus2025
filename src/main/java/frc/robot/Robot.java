@@ -178,12 +178,16 @@ public class Robot extends TimedRobot {
                 )
         );*/
 
-        new JoystickButton(controllerXbox, XboxController.Button.kB.value).whileTrue(
+        new JoystickButton(controllerXbox, XboxController.Button.kB.value).onTrue(
                 new ClawGripperOuttake(clawGripperSystem)
         );
 
-        new JoystickButton(controllerXbox, XboxController.Button.kX.value).whileTrue(
+        new JoystickButton(controllerXbox, XboxController.Button.kX.value).onTrue(
                 new ClawGripperIntake(clawGripperSystem)
+        );
+
+        new JoystickButton(controllerXbox, XboxController.Button.kY.value).whileTrue(
+                new ClawGripperOuttakeSlow(clawGripperSystem)
         );
 
 
@@ -247,20 +251,22 @@ public class Robot extends TimedRobot {
 
         FollowPathCommand.warmupCommand().schedule();
         autoChooser = new SendableChooser<>();
+
+        autoChooser.setDefaultOption("default", Commands.none());
+
         autoChooser.addOption("drive", swerve.drive(
                 ()-> 0.1,
                 ()-> 0,
                 ()-> 0
         ).withTimeout(2));
 
-        autoChooser.setDefaultOption("default", Commands.none());
         autoChooser.addOption("drive and output", new SequentialCommandGroup(
                 swerve.drive(
                         ()-> 0.272,
                         ()-> 0,
                         ()-> 0
                 ).withTimeout(5),
-                new ClawGripperOuttake(clawGripperSystem).withTimeout(2)
+                new ClawGripperOuttake(clawGripperSystem)
         ));
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }

@@ -47,7 +47,7 @@ public class RobotMap {
 
     // arm telescopic
     public static final int ARM_TELESCOPIC_MOTOR_ID = 37;
-    public static final int ARM_TELESCOPIC_LIMIT_SWITCH = 0;
+    public static final int ARM_TELESCOPIC_LIMIT_SWITCH = 9;
     public static final double ARM_TELESCOPIC_GEAR_RATIO = 25;
     public static final double ARM_TELESCOPIC_P = 1;
     public static final double ARM_TELESCOPIC_I = 0;
