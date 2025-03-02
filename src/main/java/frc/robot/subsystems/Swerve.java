@@ -58,6 +58,7 @@ public class Swerve extends SubsystemBase {
         conversionFactorsJson.angle.calculate();
         limeLight = new LimeLight(RobotMap.APRIL_TAG_LIMELIGHT_NAME);
 
+
         SwerveModulePhysicalCharacteristics characteristics = new SwerveModulePhysicalCharacteristics(
                 conversionFactorsJson, RobotMap.SWERVE_DRIVE_RAMP_RATE, RobotMap.SWERVE_STEER_RAMP_RATE);
 
@@ -253,9 +254,6 @@ public class Swerve extends SubsystemBase {
             moduleMechanisms[i].setAngle(modulePositions[i].angle.getDegrees() + 90);
             SmartDashboard.putNumber("ModuleHeading " + i, modulePositions[i].angle.getDegrees());
         }
-
-
-
     }
 
     public void drive(ChassisSpeeds speeds) {
@@ -313,8 +311,13 @@ public class Swerve extends SubsystemBase {
                 mechanismBottomRight
         };
     }
-    private void odometryUpdate(){
-        if(limeLight.isGoodDetection(swerveDrive.getPose())){
+    public void odometryGameUpdate(){
+        if(limeLight.isGoodGameDetection(swerveDrive.getPose())){
+            swerveDrive.addVisionMeasurement(swerveDrive.getPose(), edu.wpi.first.wpilibj.Timer.getTimestamp());
+        }
+    }
+    public void odometryInitUpdate(){
+        if(limeLight.isGoodGameDetection(swerveDrive.getPose())){
             swerveDrive.addVisionMeasurement(swerveDrive.getPose(), edu.wpi.first.wpilibj.Timer.getTimestamp());
         }
     }
