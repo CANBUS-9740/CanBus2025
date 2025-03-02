@@ -1,11 +1,13 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ClawGripperSystem;
 
 public class ClawGripperIntake extends Command {
 
     private final ClawGripperSystem clawGripperSystem;
+
 
     public ClawGripperIntake(ClawGripperSystem clawGripperSystem) {
         this.clawGripperSystem = clawGripperSystem;
@@ -20,12 +22,11 @@ public class ClawGripperIntake extends Command {
 
     @Override
     public void execute() {
-
     }
 
     @Override
     public boolean isFinished() {
-        return false;//clawGripperSystem.hasItem();
+        return clawGripperSystem.hasItem();
     }
 
     @Override

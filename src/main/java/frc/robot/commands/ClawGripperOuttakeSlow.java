@@ -14,7 +14,7 @@ public class ClawGripperOuttakeSlow extends Command {
 
     @Override
     public void initialize() {
-        clawGripperSystem.releaseItemSlow();
+        clawGripperSystem.holdItem();
     }
 
     @Override
