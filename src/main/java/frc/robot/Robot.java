@@ -96,11 +96,11 @@ public class Robot extends TimedRobot {
 //                new ClawGripperOuttakeSlow(clawGripperSystem)
 //        );
 
-        new JoystickButton(controllerXbox, XboxController.Button.kB.value).whileTrue(
+        new JoystickButton(controllerXbox, XboxController.Button.kB.value).onTrue(
                 new OuttakeCommand(intakeSystem)
         );
 
-        new JoystickButton(controllerXbox, XboxController.Button.kX.value).whileTrue(
+        new JoystickButton(controllerXbox, XboxController.Button.kX.value).onTrue(
                 new IntakeCommand(intakeSystem)
         );
 
@@ -232,16 +232,6 @@ public class Robot extends TimedRobot {
 
     }
 
-    private boolean isCommandNotValid(double armLength, double armAngle, double clawAngle, double distanceToTarget) {
-        return armLength > RobotMap.ARM_TELESCOPIC_MAXIMUM_LENGTH ||
-                armLength < RobotMap.ARM_TELESCOPIC_MINIMUM_LENGTH ||
-                armAngle < RobotMap.ARM_JOINT_MINIMUM_ANGLE ||
-                armAngle > RobotMap.ARM_JOINT_MAXIMUM_ANGLE ||
-                clawAngle < RobotMap.CLAWJOINT_MINIMUM_ANGLE ||
-                clawAngle > RobotMap.CLAWJOINT_MAXIMUM_ANGLE ||
-                distanceToTarget > RobotMap.ROBOT_MAXIMUM_DISTANCE;
-    }
-
     private Optional<GameField.SelectedReefStand> getBestStand() {
         Pose2d pose = swerve.getPose();
         return gameField.findBestReefStandTo(pose, true);
@@ -256,24 +246,4 @@ public class Robot extends TimedRobot {
         Pose2d robotPose = swerve.getPose();
         return gameField.getClosestSourceTo(robotPose);
     }
-
-    private Command placeCoralOnPodiumCommand() {
-        return Commands.defer(() -> {
-            Optional<GameField.SelectedReefStand> standOptional = getBestStand();
-            if (standOptional.isEmpty()) {
-                return Commands.none();
-            }
-            Pose2d stand = standOptional.get().pose;
-            Pose2d robotPose = swerve.getPose();
-
-            double distance = swerve.getDistanceToMeters(robotPose, stand);
-
-
-            return new SequentialCommandGroup(
-                    new OuttakeCommand(intakeSystem)
-            );
-        }, Set.of(intakeSystem));
-    }
-
-
 }

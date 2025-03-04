@@ -10,12 +10,12 @@ import frc.robot.RobotMap;
 public class IntakeSystem extends SubsystemBase {
 
     private final SparkMax motor;
-    private final DigitalInput limitswitch;
+    private final DigitalInput limitSwitch;
 
 
     public IntakeSystem() {
-        motor = new SparkMax(RobotMap.CLAW_MOTOR_ID, SparkLowLevel.MotorType.kBrushless);
-        limitswitch = new DigitalInput(0);
+        motor = new SparkMax(RobotMap.INTAKE_MOTOR, SparkLowLevel.MotorType.kBrushless);
+        limitSwitch = new DigitalInput(RobotMap.INTAKE_SWITCH);
 
 
     }
@@ -41,11 +41,11 @@ public class IntakeSystem extends SubsystemBase {
     }
 
     public boolean hasItem() {
-        return !limitswitch.get();
+        return !limitSwitch.get();
         }
     public void periodic(){
-        SmartDashboard.putBoolean("ItemInClaw", hasItem());
-        SmartDashboard.putNumber("outputAmper", motor.getOutputCurrent());
+        SmartDashboard.putBoolean("InIntake", hasItem());
+        SmartDashboard.putNumber("outputIntake", motor.getOutputCurrent());
     }
 }
 
