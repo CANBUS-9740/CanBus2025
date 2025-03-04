@@ -47,6 +47,8 @@ public class Robot extends TimedRobot {
                 () -> MathUtil.applyDeadband(-driverXbox.getLeftX(), 0.15)
         ));
 
+        intakeSystem.setDefaultCommand(new HoldCommand(intakeSystem));
+
         /*armTelescopicSystem.setDefaultCommand(
                 Commands.defer(()-> {
                     if (armTelescopicSystem.getResetLimitSwitch()) {
