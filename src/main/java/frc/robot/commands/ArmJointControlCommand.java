@@ -10,7 +10,6 @@ import frc.robot.subsystems.ArmTelescopicSystem;
 
 public class ArmJointControlCommand extends Command {
     private final ArmJointSystem armJointSystem;
-    private final ArmTelescopicSystem armTelescopicSystem;
     private double targetPosition;
     private boolean isInTarget;
     private boolean hasNewPosition;
@@ -19,9 +18,8 @@ public class ArmJointControlCommand extends Command {
     private TrapezoidProfile.State motionProfileGoal;
     private TrapezoidProfile.State motionProfileSetPoint;
 
-    public ArmJointControlCommand(ArmJointSystem armJointSystem, ArmTelescopicSystem armTelescopicSystem) {
+    public ArmJointControlCommand(ArmJointSystem armJointSystem) {
         this.armJointSystem = armJointSystem;
-        this.armTelescopicSystem = armTelescopicSystem;
 
         addRequirements(armJointSystem);
     }
@@ -68,14 +66,14 @@ public class ArmJointControlCommand extends Command {
         }
 
         if (isInTarget) {
-            if (targetPosition <= RobotMap.ARM_JOINT_MINIMUM_ANGLE) {
+            if (armJointSystem.reachedPosition(0)) {
                 stopHolding();
             } else {
-                armJointSystem.moveToPosition(targetPosition, armTelescopicSystem.getMeasuredLengthMeters());
+                armJointSystem.moveToPosition(targetPosition);
             }
         } else {
             motionProfileSetPoint = motionProfile.calculate(0.02, motionProfileSetPoint, motionProfileGoal);
-            armJointSystem.moveToPosition(motionProfileSetPoint.position, armTelescopicSystem.getMeasuredLengthMeters());
+            armJointSystem.moveToPosition(motionProfileSetPoint.position);
         }
     }
 
