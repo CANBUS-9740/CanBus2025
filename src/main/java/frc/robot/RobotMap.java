@@ -76,13 +76,15 @@ public class RobotMap {
     public static final double ARM_JOINT_VELOCITY_TOLERANCE = 5;
     public static final double ARM_JOINT_KF = 0.0;
     public static final double ARM_JOINT_GEAR_RATIO = 144;
-    public static final double ARM_JOINT_MINIMUM_ANGLE = 1;
-    public static final double ARM_JOINT_MAXIMUM_ANGLE = 140;
+    public static final double ARM_JOINT_MINIMUM_ANGLE = -170;
+    public static final double ARM_JOINT_MAXIMUM_ANGLE = 170;
     public static final double ARM_JOINT_FLOOR_ANGLE = 0;
     public static final double ARM_JOINT_UNDER_CAGE_ANGLE = 0;
     public static final double ARM_JOINT_LOWER_REEF_ALGAE_ANGLE = 0;
     public static final double ARM_JOINT_HIGH_REEF_ALGAE_ANGLE = 0;
-    public static final double ARM_JOINT_DEFAULT_ANGLE = 95;
+    public static final double ARM_JOINT_DEFAULT_ANGLE = 0;
+    public static final double ARM_JOINT_COMPUTATIONAL_ANGLE = 90;
+
 
     //claw
     public static final int CLAW_MOTOR_ID = 39;
