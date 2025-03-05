@@ -7,11 +7,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.*;
 import frc.robot.subsystems.ArmJointSystem;
 import frc.robot.subsystems.ClawGripperSystem;
@@ -57,6 +55,18 @@ public class Robot extends TimedRobot {
 
         new JoystickButton(controllerXbox, XboxController.Button.kX.value).whileTrue(
                 new ClawGripperIntake(clawGripperSystem)
+        );
+
+        new POVButton(controllerXbox, 270).onTrue(
+                outtakeReef(CoralReef.FIRST_STAGE)
+        );
+
+        new POVButton(controllerXbox, 180).onTrue(
+                outtakeReef(CoralReef.SECOND_STAGE)
+        );
+
+        new POVButton(controllerXbox, 0).onTrue(
+                outtakeReef(CoralReef.THIRD_STAGE)
         );
 
         FollowPathCommand.warmupCommand().schedule();
@@ -300,6 +310,14 @@ public class Robot extends TimedRobot {
         }
 
         return createCommandGroupSimple(armAngle);
+    }
+
+    private SequentialCommandGroup outtakeReef(CoralReef coralReef){
+        return new SequentialCommandGroup(
+                placeCoralOnReefCommandSimple(coralReef),
+                new ClawGripperOuttake(clawGripperSystem),
+                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE))
+        );
     }
 
     private Command collectFromSourceCommandSimple() {

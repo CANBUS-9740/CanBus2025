@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotMap;
 import frc.robot.subsystems.ArmJointSystem;
-import frc.robot.subsystems.ArmTelescopicSystem;
 
 public class ArmJointControlCommand extends Command {
     private final ArmJointSystem armJointSystem;
