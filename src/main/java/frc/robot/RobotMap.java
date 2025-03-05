@@ -81,4 +81,5 @@ public class RobotMap {
     public static final double ARM_JOINT_ANGLE_SECOND = 0;
     public static final double ARM_JOINT_ANGLE_THIRD = 0;
     public static final double ARM_JOINT_ANGLE_SOURCE = 84;
+    public static final double ARM_TELESCOPIC_BASE_LENGTH = 0;
 }
