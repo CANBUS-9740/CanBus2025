@@ -10,16 +10,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.*;
 import frc.robot.subsystems.ArmJointSystem;
-import frc.robot.subsystems.ArmTelescopicSystem;
 import frc.robot.subsystems.ClawGripperSystem;
-import frc.robot.subsystems.ClawJointSystem;
 import frc.robot.subsystems.Swerve;
 
 import java.util.Locale;
@@ -33,12 +28,9 @@ public class Robot extends TimedRobot {
     private Command auto;
 
     private ClawGripperSystem clawGripperSystem;
-    private ClawJointSystem clawJointSystem;
     private ArmJointSystem armJointSystem;
-    private ArmTelescopicSystem armTelescopicSystem;
 
     private ArmJointControlCommand armJointControlCommand;
-    private ClawJointControlCommand clawJointControlCommand;
 
     private XboxController controllerXbox;
     private XboxController driverXbox;
@@ -49,134 +41,15 @@ public class Robot extends TimedRobot {
         gameField = new GameField();
         swerve = new Swerve();
         clawGripperSystem = new ClawGripperSystem();
-        //armJointSystem = new ArmJointSystem();
-        //clawJointSystem = new ClawJointSystem();
-        //armTelescopicSystem = new ArmTelescopicSystem();
 
         driverXbox = new XboxController(0);
         controllerXbox = new XboxController(1);
-
-        //armJointControlCommand = new ArmJointControlCommand(armJointSystem, armTelescopicSystem);
-        //armJointSystem.setDefaultCommand(armJointControlCommand);
-
-        //clawJointControlCommand = new ClawJointControlCommand(armJointSystem, clawJointSystem);
-        //clawJointSystem.setDefaultCommand(clawJointControlCommand);
 
         swerve.setDefaultCommand(swerve.fieldDrive(
                 () -> MathUtil.applyDeadband(Math.pow(driverXbox.getRightY(), 3), 0.05),
                 () -> MathUtil.applyDeadband(Math.pow(driverXbox.getRightX(), 3), 0.05),
                 () -> -MathUtil.applyDeadband(driverXbox.getLeftX(), 0.15)
         ));
-
-        /*armTelescopicSystem.setDefaultCommand(
-                Commands.defer(()-> {
-                    if (armTelescopicSystem.getResetLimitSwitch()) {
-                        return Commands.idle(armTelescopicSystem);
-                    }
-
-                    return new ArmTelescopicReset(armTelescopicSystem);
-                }, Set.of(armTelescopicSystem))
-        );
-        clawGripperSystem.setDefaultCommand(
-                Commands.defer(() -> {
-                    if (clawGripperSystem.hasItem()) {
-                        return new HoldItemInClawGripper(clawGripperSystem);
-                    }
-                    return Commands.idle(clawGripperSystem);
-                }, Set.of(clawGripperSystem))
-        );*/
-
-//        SequentialCommandGroup collectFromFloor = new SequentialCommandGroup(
-//                createCommandGroupSimple(RobotMap.ARM_LENGTH_FLOOR, RobotMap.ARM_JOINT_FLOOR_ANGLE, RobotMap.CLAWJOINT_FLOOR_ANGLE),
-//                new ClawGripperIntake(clawGripperSystem)
-//        );
-//
-//        ParallelCommandGroup underCage = new ParallelCommandGroup(
-//                new ArmTelescopicReset(armTelescopicSystem),
-//                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_UNDER_CAGE_ANGLE)),
-//                Commands.runOnce(()-> clawJointControlCommand.setTargetPosition(RobotMap.CLAWJOINT_UNDER_CAGE_ANGLE))
-//        );
-//
-//        ParallelCommandGroup hang = new ParallelCommandGroup(
-//                new ArmTelescopicReset(armTelescopicSystem),
-//                Commands.runOnce(()->  armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_FLOOR_ANGLE))
-//        );
-//
-//        SequentialCommandGroup reefLowerAlgae = new SequentialCommandGroup(
-//                createCommandGroupSimple(RobotMap.ARM_TELESCOPIC_LOWER_REEF_ALGAE_LENGTH, RobotMap.ARM_JOINT_LOWER_REEF_ALGAE_ANGLE, RobotMap.CLAWJOINT_LOWER_REEF_ALGAE_ANGLE),
-//                new ClawGripperIntake(clawGripperSystem)
-//        );
-//
-//        SequentialCommandGroup reefHighAlgae = new SequentialCommandGroup(
-//                createCommandGroupSimple(RobotMap.ARM_TELESCOPIC_HIGH_REEF_ALGAE_LENGTH, RobotMap.ARM_JOINT_HIGH_REEF_ALGAE_ANGLE, RobotMap.CLAWJOINT_HIGH_REEF_ALGAE_ANGLE),
-//                new ClawGripperIntake(clawGripperSystem)
-//        );
-//
-//        Command collectFromSourceCommandSimple =
-//                createCommandGroupSimple(0.5, RobotMap.ARM_JOINT_ANGLE_SOURCE, RobotMap.CLAWJOINT_SOURCE_ANGLE);
-//        Command placeInProcessorCommandSimple =
-//                createCommandGroupSimple(RobotMap.CALCULATION_PLACE_IN_PROCESSOR, RobotMap.ANGLE_PROCESSOR, RobotMap.CLAWJOINT_PROCESSOR_ANGLE);
-
-        //new POVButton(xbox, 180).onTrue(placeCoralOnReefCommandSimple(CoralReef.PODIUM));
-        //new POVButton(xbox, 270).onTrue(placeCoralOnReefCommandSimple(CoralReef.FIRST_STAGE));
-        //new POVButton(xbox, 90).onTrue(placeCoralOnReefCommandSimple(CoralReef.SECOND_STAGE));
-        //new POVButton(xbox, 0).onTrue(placeCoralOnReefCommandSimple(CoralReef.THIRD_STAGE));
-
-        //new JoystickButton(xbox, XboxController.Button.kRightBumper.value).onTrue(placeInProcessorCommandSimple);
-        //new JoystickButton(xbox, XboxController.Button.kLeftBumper.value).onTrue(collectFromSourceCommandSimple);
-        //new JoystickButton(xbox, XboxController.Button.kB.value).onTrue(new ClawGripperOuttake(clawGripperSystem));
-        //new JoystickButton(xbox, XboxController.Button.kX.value).onTrue(new ClawGripperIntake(clawGripperSystem));
-        //new JoystickButton(xbox, XboxController.Button.kA.value).onTrue(reefHighAlgae);
-        //new JoystickButton(xbox, XboxController.Button.kY.value).onTrue(placeInProcessor);
-//        new JoystickButton(xbox, XboxController.Button.kY.value).onTrue(
-//                Commands.defer(()-> {
-//                    double length = armTelescopicSystem.getLengthMeters();
-//                    return new ArmTelescopicMoveToLength(armTelescopicSystem, length + 0.1);
-//                }, Set.of(armTelescopicSystem))
-//        );
-//        new JoystickButton(xbox, XboxController.Button.kA.value).onTrue(
-//                Commands.defer(()-> {
-//                    double length = armTelescopicSystem.getLengthMeters();
-//                    return new ArmTelescopicMoveToLength(armTelescopicSystem, length - 0.1);
-//                }, Set.of(armTelescopicSystem))
-//        );
-
-
-//        new JoystickButton(xbox, XboxController.Button.kY.value).whileTrue(
-//                new ClawGripperOuttakeSlow(clawGripperSystem)
-//        );
-
-//        new JoystickButton(controllerXbox, XboxController.Button.kA.value).whileTrue(
-//                placeCoralOnReefCommandSimple(CoralReef.PODIUM)
-//        );
-
-//        new JoystickButton(controllerXbox, XboxController.Button.kY.value).whileTrue(
-//                new ParallelCommandGroup(
-//                        Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE)),
-//                        Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
-//                        Commands.runOnce(()-> clawJointControlCommand.setTargetPosition(RobotMap.CLAWJOINT_DEFAULT_ANGLE)),
-//                        Commands.waitUntil(()-> clawJointControlCommand.isAtTargetPosition()),
-//                        Commands.runOnce(()-> System.out.println("going to default"))
-//                )
-//        );
-
-//        new ParallelCommandGroup(
-//                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE)),
-//                Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
-//                Commands.runOnce(()-> clawJointControlCommand.setTargetPosition(RobotMap.CLAWJOINT_DEFAULT_ANGLE)),
-//                Commands.waitUntil(()-> clawJointControlCommand.isAtTargetPosition()),
-//                Commands.runOnce(()-> System.out.println("going to default"))
-//        );
-
-        /*new JoystickButton(controllerXbox, XboxController.Button.kStart.value).whileTrue(
-                new ParallelCommandGroup(
-                        Commands.runOnce(()-> armJointControlCommand.setTargetPosition(40)),
-                        Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition()),
-                        Commands.runOnce(()-> clawJointControlCommand.setTargetPosition(31)),
-                        Commands.waitUntil(()-> clawJointControlCommand.isAtTargetPosition()),
-                        Commands.runOnce(()-> System.out.println("going to floor"))
-                )
-        );*/
 
         new JoystickButton(controllerXbox, XboxController.Button.kB.value).whileTrue(
                 new ClawGripperOuttake(clawGripperSystem)
@@ -185,65 +58,6 @@ public class Robot extends TimedRobot {
         new JoystickButton(controllerXbox, XboxController.Button.kX.value).whileTrue(
                 new ClawGripperIntake(clawGripperSystem)
         );
-
-
-//        new JoystickButton(controllerXbox, XboxController.Button.kLeftBumper.value).whileTrue(
-//                placeCoralOnReefCommandSimple(CoralReef.FIRST_STAGE)
-//        );
-
-//        new JoystickButton(controllerXbox, XboxController.Button.kRightBumper.value).whileTrue(
-//                collectFromSourceCommandSimple
-//        );
-
-//        new JoystickButton(controllerXbox, XboxController.Button.kLeftBumper.value).onTrue(
-//                new ArmTelescopicReset(armTelescopicSystem)
-//                );
-
-        /* new JoystickButton(xbox, XboxController.Button.kRightBumper.value).onTrue(
-                new ArmTelescopicMoveToLength(armTelescopicSystem, 0.7)
-        );
-        when we csn extend our arl return it
-        */
-
-
-//        new POVButton(controllerXbox, 0).onTrue(
-//                Commands.runOnce(()-> {
-//                    double oldAngle = armJointControlCommand.getTargetPosition();
-//                    if (oldAngle < 0) {
-//                        oldAngle = armJointSystem.getRawPositionDegrees();
-//                    }
-//                    armJointControlCommand.setTargetPosition(oldAngle + 5);
-//                })
-//        );
-//
-//        new POVButton(controllerXbox, 180).onTrue(
-//                Commands.runOnce(()-> {
-//                    double oldAngle = armJointControlCommand.getTargetPosition();
-//                    if (oldAngle < 0) {
-//                        oldAngle = armJointSystem.getRawPositionDegrees();
-//                    }
-//                    armJointControlCommand.setTargetPosition(oldAngle - 5);
-//                })
-//        );
-//
-//        new POVButton(controllerXbox, 90).onTrue(
-//                Commands.runOnce(()-> {
-//                    double oldAngle = clawJointControlCommand.getTargetPosition();
-//                    if (oldAngle < 0) {
-//                        oldAngle = clawJointSystem.getRawPositionDegrees();
-//                    }
-//                    clawJointControlCommand.setTargetPosition(oldAngle + 5);
-//                })
-//        );
-//        new POVButton(controllerXbox, 270).onTrue(
-//                Commands.runOnce(()-> {
-//                    double oldAngle = clawJointControlCommand.getTargetPosition();
-//                    if (oldAngle < 0) {
-//                        oldAngle = clawJointSystem.getRawPositionDegrees();
-//                    }
-//                    clawJointControlCommand.setTargetPosition(oldAngle - 5);
-//                })
-//        );
 
         FollowPathCommand.warmupCommand().schedule();
         autoChooser = new SendableChooser<>();
@@ -439,27 +253,7 @@ public class Robot extends TimedRobot {
                     new ClawGripperOuttake(clawGripperSystem),
                     Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE))
             );
-        }, Set.of(armTelescopicSystem, clawGripperSystem));
-    }
-
-    private Command placeInProcessor() {
-        return Commands.defer(() -> {
-            Pose2d robotPose = swerve.getPose();
-            Pose2d processorPose = gameField.getPoseToProcessor();
-            double distance = swerve.getDistanceToMeters(robotPose, processorPose);
-
-            double angle = armJointSystem.calculateAngleForTarget(distance, RobotMap.PROCESSOR_PLACE_HEIGHT);
-
-            if (isCommandNotValid(angle, distance)) {
-                return Commands.none();
-            }
-
-            return new SequentialCommandGroup(
-                    createCommandGroupSimple(angle),
-                    new ClawGripperOuttake(clawGripperSystem),
-                    Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE))
-            );
-        }, Set.of(armTelescopicSystem, clawGripperSystem));
+        }, Set.of(clawGripperSystem));
     }
 
     private Command placeInClosestSource() {
@@ -483,7 +277,7 @@ public class Robot extends TimedRobot {
                     new ClawGripperIntake(clawGripperSystem),
                     Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE))
             );
-        }, Set.of(armTelescopicSystem, clawGripperSystem));
+        }, Set.of(clawGripperSystem));
     }
 
     private Command placeCoralOnReefCommandSimple(CoralReef coralReef) {
