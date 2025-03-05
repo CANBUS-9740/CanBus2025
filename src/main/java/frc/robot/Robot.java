@@ -69,6 +69,9 @@ public class Robot extends TimedRobot {
                 outtakeReef(CoralReef.THIRD_STAGE)
         );
 
+        // we might need to change it to gripper outtake with no automation that's for giving
+        // the driver time to adjust to the reef
+
         FollowPathCommand.warmupCommand().schedule();
         autoChooser = new SendableChooser<>();
         autoChooser.addOption("drive", swerve.drive(
