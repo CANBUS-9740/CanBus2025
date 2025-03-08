@@ -2,11 +2,15 @@ package frc.robot;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.CvSource;
+import edu.wpi.first.cscore.OpenCvLoader;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
@@ -16,6 +20,8 @@ import frc.robot.commands.*;
 import frc.robot.subsystems.ArmJointSystem;
 import frc.robot.subsystems.ClawGripperSystem;
 import frc.robot.subsystems.Swerve;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -36,6 +42,13 @@ public class Robot extends TimedRobot {
     private XboxController driverXbox;
     private SendableChooser<Command> autoChooser;
 
+    private UsbCamera usbCamera;
+    private CvSink cvSink;
+    private CvSource outputStream;
+    private Mat orgMat;
+    private Mat dstMat;
+    private double armAngle;
+
     @Override
     public void robotInit() {
         gameField = new GameField();
@@ -43,7 +56,12 @@ public class Robot extends TimedRobot {
         clawGripperSystem = new ClawGripperSystem();
         armJointSystem = new ArmJointSystem();
         armJointControlCommand = new ArmJointControlCommand(armJointSystem);
-        CameraServer.startAutomaticCapture();
+
+        usbCamera = CameraServer.startAutomaticCapture();
+        cvSink = CameraServer.getVideo();
+        outputStream = CameraServer.putVideo("OutputStream", 640, 480);
+        orgMat = new Mat();
+        dstMat = new Mat();
 
         armJointSystem.setDefaultCommand(armJointControlCommand);
 
@@ -51,9 +69,9 @@ public class Robot extends TimedRobot {
         controllerXbox = new XboxController(1);
 
         swerve.setDefaultCommand(swerve.fieldDrive(
-                () -> -MathUtil.applyDeadband(Math.pow(driverXbox.getRightY(), 3), 0.05),
-                () -> -MathUtil.applyDeadband(Math.pow(driverXbox.getRightX(), 3), 0.05),
-                () -> -MathUtil.applyDeadband(driverXbox.getLeftX(), 0.15)
+                () -> -MathUtil.applyDeadband(Math.pow(controllerXbox.getRightY(), 3), 0.05),
+                () -> -MathUtil.applyDeadband(Math.pow(controllerXbox.getRightX(), 3), 0.05),
+                () -> -MathUtil.applyDeadband(controllerXbox.getLeftX(), 0.15)
         ));
 
         new JoystickButton(controllerXbox, XboxController.Button.kB.value).onTrue(
@@ -61,35 +79,52 @@ public class Robot extends TimedRobot {
                 //Commands.runOnce(()-> armJointControlCommand.setTargetPosition(90))
         );
 
-        new JoystickButton(controllerXbox, XboxController.Button.kX.value).whileTrue(
+        new JoystickButton(controllerXbox, XboxController.Button.kX.value).onTrue(
                 //Commands.runOnce(()-> armJointControlCommand.setTargetPosition(180))
-                new ClawGripperOuttake(clawGripperSystem)
+                new ClawGripperOuttakeSlow(clawGripperSystem)
         );
 
         new JoystickButton(controllerXbox, XboxController.Button.kA.value).onTrue(
-                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(200))
+                //Commands.runOnce(()-> armJointControlCommand.setTargetPosition(200))
+                collectFromSourceCommandSimple()
+        );
+
+        new JoystickButton(controllerXbox, XboxController.Button.kY.value).onTrue(
+                placeCoralOnReefCommandSimple(CoralReef.SECOND_STAGE)
         );
 
         new POVButton(controllerXbox, 270).onTrue(
                 //outtakeReef(CoralReef.FIRST_STAGE)
-                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(10))
-
+                //Commands.runOnce(()-> armJointControlCommand.setTargetPosition(10))
+                placeCoralOnReefCommandSimple(CoralReef.FIRST_STAGE)
         );
 
         new POVButton(controllerXbox, 180).onTrue(
                 //outtakeReef(CoralReef.SECOND_STAGE)
-                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(90))
+                //Commands.runOnce(()-> armJointControlCommand.setTargetPosition(90))
+                Commands.runOnce(()-> {
+                    double oldAngle = armJointControlCommand.getTargetPosition();
+                    if (oldAngle > 0) {
+                        oldAngle = armJointSystem.getRawPositionDegrees();
+                    }
+                    armJointControlCommand.setTargetPosition(oldAngle - 5);
+                })
         );
 
         new POVButton(controllerXbox, 90).onTrue(
-                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(270))
-
+            placeCoralOnReefCommandSimple(CoralReef.PODIUM)
         );
 
         new POVButton(controllerXbox, 0).onTrue(
                 //outtakeReef(CoralReef.THIRD_STAGE)
-                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(180))
-
+                //Commands.runOnce(()-> armJointControlCommand.setTargetPosition(180))
+                Commands.runOnce(()-> {
+                    double oldAngle = armJointControlCommand.getTargetPosition();
+                    if (oldAngle < 0) {
+                        oldAngle = armJointSystem.getRawPositionDegrees();
+                    }
+                    armJointControlCommand.setTargetPosition(oldAngle + 5);
+                })
         );
 
         // we might need to change it to gripper outtake with no automation that's for giving
@@ -118,6 +153,18 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
+
+        armAngle = armJointSystem.getRawPositionDegrees();
+
+        if (cvSink.grabFrame(orgMat) > 0) {
+            if (armAngle > 180) {
+                Core.flip(orgMat, dstMat, 0);
+                Core.flip(orgMat, dstMat, -1);
+            } else {
+                Core.copyTo(orgMat, dstMat, orgMat);
+            }
+            outputStream.putFrame(dstMat);
+        }
 
         Optional<GameField.SelectedReefStand> standOptional = getBestStand();
         if (standOptional.isPresent()) {
