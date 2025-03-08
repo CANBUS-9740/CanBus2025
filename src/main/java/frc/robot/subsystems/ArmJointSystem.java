@@ -10,6 +10,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.CoralReef;
 import frc.robot.RobotMap;
 
 public class ArmJointSystem extends SubsystemBase {
@@ -26,12 +27,13 @@ public class ArmJointSystem extends SubsystemBase {
         followerMotor = new SparkMax(RobotMap.ARM_JOINT_MOTOR_ID_FOLLOWER, SparkLowLevel.MotorType.kBrushless);
 
         SparkMaxConfig config = new SparkMaxConfig();
+        config.inverted(true);
         config.idleMode(SparkBaseConfig.IdleMode.kBrake);
         config.encoder
                 .positionConversionFactor(1 / RobotMap.ARM_JOINT_GEAR_RATIO)
                 .velocityConversionFactor(1 / RobotMap.ARM_JOINT_GEAR_RATIO);
         config.absoluteEncoder
-                .zeroOffset(RobotMap.ARM_JOINT_ENCODER_ZERO_OFFSET);
+                .inverted(true);
         config.closedLoop
                 .p(RobotMap.P_ARM_JOINT)
                 .i(RobotMap.I_ARM_JOINT)
@@ -63,10 +65,6 @@ public class ArmJointSystem extends SubsystemBase {
 
     public double getRawPositionDegrees(){
         return absoluteEncoder.getPosition() * 360;
-    }
-
-    public double getLogicalPositionDegrees() {
-        return getRawPositionDegrees() - RobotMap.ARM_JOINT_ZERO_ANGLE;
     }
 
     public double getVelocityRpm() {
@@ -105,14 +103,30 @@ public class ArmJointSystem extends SubsystemBase {
                 Math.abs(getVelocityRpm()) <= RobotMap.ARM_JOINT_VELOCITY_TOLERANCE;
     }
 
-    public double calculateAngleForTarget(double distance, double height) {
-        return Math.toDegrees(Math.atan((height - RobotMap.ARM_TELESCOPIC_BASE_LENGTH) / distance)) + RobotMap.ARM_JOINT_COMPUTATIONAL_ANGLE;
+    public double calculateAngleForTargetReef(double distance, double height, CoralReef coralReef) {
+        double angle = Math.toDegrees(Math.atan((height - RobotMap.ARM_TELESCOPIC_BASE_LENGTH) / distance));
+        double targetAngle;
+        switch (coralReef) {
+            case PODIUM:
+                targetAngle = angle + RobotMap.ARM_JOINT_FIRST_COMPUTATIONAL_ANGLE;
+                break;
+            case FIRST_STAGE, SECOND_STAGE, THIRD_STAGE:
+                targetAngle = -angle + RobotMap.ARM_JOINT_SECOND_COMPUTATIONAL_ANGLE;
+                break;
+            default:
+                targetAngle = 0;
+                break;
+        }
+        return targetAngle;
+    }
+
+    public double calculateAngleForTargetSource(double distance) {
+        return Math.toDegrees(Math.atan((RobotMap.SOURCE_HEIGHT - RobotMap.ARM_TELESCOPIC_BASE_LENGTH) / distance)) + RobotMap.ARM_JOINT_FIRST_COMPUTATIONAL_ANGLE;
     }
 
     @Override
     public void periodic(){
         SmartDashboard.putNumber("ArmJointRawPosition", getRawPositionDegrees());
-        SmartDashboard.putNumber("ArmJointLogicalPosition", getLogicalPositionDegrees());
         SmartDashboard.putNumber("ArmJointAmper", masterMotor.getOutputCurrent());
         SmartDashboard.putBoolean("ArmJointForwardLimit", masterMotor.getForwardLimitSwitch().isPressed());
         SmartDashboard.putBoolean("ArmJointReverseLimit", masterMotor.getReverseLimitSwitch().isPressed());

@@ -25,7 +25,7 @@ public class ClawGripperIntake extends Command {
 
     @Override
     public boolean isFinished() {
-        return false;//clawGripperSystem.hasItem();
+        return clawGripperSystem.hasItem();
     }
 
     @Override

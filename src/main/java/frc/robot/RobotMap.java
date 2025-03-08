@@ -27,10 +27,10 @@ public class RobotMap {
     public static final int SWERVE_DRIVE_FRONT_RIGHT_MOTOR_ID = 10;
     public static final int SWERVE_DRIVE_BACK_LEFT_MOTOR_ID = 12;
     public static final int SWERVE_DRIVE_BACK_RIGHT_MOTOR_ID = 11;
-    public static final int SWERVE_STEER_FRONT_LEFT_MOTOR_ID = 17;
-    public static final int SWERVE_STEER_FRONT_RIGHT_MOTOR_ID = 16;
-    public static final int SWERVE_STEER_BACK_LEFT_MOTOR_ID = 15;
-    public static final int SWERVE_STEER_BACK_RIGHT_MOTOR_ID = 14;
+    public static final int SWERVE_STEER_FRONT_LEFT_MOTOR_ID = 16;
+    public static final int SWERVE_STEER_FRONT_RIGHT_MOTOR_ID = 14;
+    public static final int SWERVE_STEER_BACK_LEFT_MOTOR_ID = 17;
+    public static final int SWERVE_STEER_BACK_RIGHT_MOTOR_ID = 15;
     public static final int SWERVE_ENCODER_FRONT_LEFT_ID = 5;
     public static final int SWERVE_ENCODER_FRONT_RIGHT_ID = 6;
     public static final int SWERVE_ENCODER_BACK_LEFT_ID = 4;
@@ -48,25 +48,24 @@ public class RobotMap {
     //ARM JOINT
     public static final int ARM_JOINT_MOTOR_ID_MASTER = 35;
     public static final int ARM_JOINT_MOTOR_ID_FOLLOWER = 40;
-    public static final double ARM_JOINT_ZERO_ANGLE = 26.64;
-    public static final double P_ARM_JOINT = 3.6;
+    public static final double P_ARM_JOINT = 5.5;
     public static final double I_ARM_JOINT = 0;
     public static final double D_ARM_JOINT = 0;
-    public static final double ARM_JOINT_ENCODER_ZERO_OFFSET = 0.5345518;
-    public static final TrapezoidProfile.Constraints ARM_JOINT_MOTION_PROFILE_CONSTRAINTS = new TrapezoidProfile.Constraints(200, 200);
+    public static final TrapezoidProfile.Constraints ARM_JOINT_MOTION_PROFILE_CONSTRAINTS = new TrapezoidProfile.Constraints(2000, 2500);
     public static final double ARM_JOINT_POSITION_TOLERANCE = 1;
     public static final double ARM_JOINT_VELOCITY_TOLERANCE = 5;
-    public static final double ARM_JOINT_KF = 0.0;
-    public static final double ARM_JOINT_GEAR_RATIO = 144;
-    public static final double ARM_JOINT_MINIMUM_ANGLE = -170;
-    public static final double ARM_JOINT_MAXIMUM_ANGLE = 170;
+    public static final double ARM_JOINT_KF = 0.01;
+    public static final double ARM_JOINT_GEAR_RATIO = 64;
+    public static final double ARM_JOINT_MINIMUM_ANGLE = 0;
+    public static final double ARM_JOINT_MAXIMUM_ANGLE = 270;
     public static final double ARM_JOINT_DEFAULT_ANGLE = 0;
-    public static final double ARM_JOINT_COMPUTATIONAL_ANGLE = 90;
+    public static final double ARM_JOINT_FIRST_COMPUTATIONAL_ANGLE = 90;
+    public static final double ARM_JOINT_SECOND_COMPUTATIONAL_ANGLE = 180;
 
 
     //claw
-    public static final int GRIPPER_MOTOR_ID = 39;
-    public static final int GRIPPER_SENSOR_ID = 39;
+    public static final int GRIPPER_MOTOR_ID = 38;
+    public static final int GRIPPER_SENSOR_ID = 0;
 
     //commandsGroup
     public static final double SOURCE_HEIGHT = 1.35;

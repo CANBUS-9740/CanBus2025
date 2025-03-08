@@ -1,6 +1,8 @@
 package frc.robot;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -39,34 +41,55 @@ public class Robot extends TimedRobot {
         gameField = new GameField();
         swerve = new Swerve();
         clawGripperSystem = new ClawGripperSystem();
+        armJointSystem = new ArmJointSystem();
+        armJointControlCommand = new ArmJointControlCommand(armJointSystem);
+        CameraServer.startAutomaticCapture();
+
+        armJointSystem.setDefaultCommand(armJointControlCommand);
 
         driverXbox = new XboxController(0);
         controllerXbox = new XboxController(1);
 
         swerve.setDefaultCommand(swerve.fieldDrive(
-                () -> MathUtil.applyDeadband(Math.pow(driverXbox.getRightY(), 3), 0.05),
-                () -> MathUtil.applyDeadband(Math.pow(driverXbox.getRightX(), 3), 0.05),
+                () -> -MathUtil.applyDeadband(Math.pow(driverXbox.getRightY(), 3), 0.05),
+                () -> -MathUtil.applyDeadband(Math.pow(driverXbox.getRightX(), 3), 0.05),
                 () -> -MathUtil.applyDeadband(driverXbox.getLeftX(), 0.15)
         ));
 
-        new JoystickButton(controllerXbox, XboxController.Button.kB.value).whileTrue(
-                new ClawGripperOuttake(clawGripperSystem)
+        new JoystickButton(controllerXbox, XboxController.Button.kB.value).onTrue(
+                new ClawGripperIntake(clawGripperSystem)
+                //Commands.runOnce(()-> armJointControlCommand.setTargetPosition(90))
         );
 
         new JoystickButton(controllerXbox, XboxController.Button.kX.value).whileTrue(
-                new ClawGripperIntake(clawGripperSystem)
+                //Commands.runOnce(()-> armJointControlCommand.setTargetPosition(180))
+                new ClawGripperOuttake(clawGripperSystem)
+        );
+
+        new JoystickButton(controllerXbox, XboxController.Button.kA.value).onTrue(
+                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(200))
         );
 
         new POVButton(controllerXbox, 270).onTrue(
-                outtakeReef(CoralReef.FIRST_STAGE)
+                //outtakeReef(CoralReef.FIRST_STAGE)
+                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(10))
+
         );
 
         new POVButton(controllerXbox, 180).onTrue(
-                outtakeReef(CoralReef.SECOND_STAGE)
+                //outtakeReef(CoralReef.SECOND_STAGE)
+                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(90))
+        );
+
+        new POVButton(controllerXbox, 90).onTrue(
+                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(270))
+
         );
 
         new POVButton(controllerXbox, 0).onTrue(
-                outtakeReef(CoralReef.THIRD_STAGE)
+                //outtakeReef(CoralReef.THIRD_STAGE)
+                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(180))
+
         );
 
         // we might need to change it to gripper outtake with no automation that's for giving
@@ -255,7 +278,7 @@ public class Robot extends TimedRobot {
             Pose2d robotPose = swerve.getPose();
 
             double distance = swerve.getDistanceToMeters(robotPose, stand);
-            double angle = armJointSystem.calculateAngleForTarget(distance, reefPoleHeight);
+            double angle = armJointSystem.calculateAngleForTargetReef(distance, reefPoleHeight, coralReef);
 
             if (isCommandNotValid(angle, distance)) {
                 return Commands.none();
@@ -279,7 +302,7 @@ public class Robot extends TimedRobot {
 
             Pose2d sourcePose = standOptional.get().pose;
             double targetsDistance = swerve.getDistanceToMeters(robotPose, sourcePose);
-            double angle = armJointSystem.calculateAngleForTarget(targetsDistance, RobotMap.SOURCE_HEIGHT);
+            double angle = armJointSystem.calculateAngleForTargetSource(targetsDistance);
 
             if (isCommandNotValid(angle, targetsDistance)) {
                 return Commands.none();
