@@ -36,6 +36,7 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Timer;
 import java.util.function.DoubleSupplier;
 
 public class Swerve extends SubsystemBase {
@@ -44,6 +45,7 @@ public class Swerve extends SubsystemBase {
 
     private final Mechanism2d mechanism;
     private final MechanismLigament2d[] moduleMechanisms;
+    private final LimeLight limeLight;
 
     public Swerve() {
         ConversionFactorsJson conversionFactorsJson = new ConversionFactorsJson();
@@ -52,9 +54,10 @@ public class Swerve extends SubsystemBase {
         conversionFactorsJson.drive.diameter = Units.metersToInches(RobotMap.SWERVE_DRIVE_WHEEL_RADIUS * 2);
         conversionFactorsJson.angle.gearRatio = RobotMap.SWERVE_STEER_GEAR_RATIO;
         conversionFactorsJson.angle.factor = 0;
-
         conversionFactorsJson.drive.calculate();
         conversionFactorsJson.angle.calculate();
+        limeLight = new LimeLight(RobotMap.APRIL_TAG_LIMELIGHT_NAME);
+
 
         SwerveModulePhysicalCharacteristics characteristics = new SwerveModulePhysicalCharacteristics(
                 conversionFactorsJson, RobotMap.SWERVE_DRIVE_RAMP_RATE, RobotMap.SWERVE_STEER_RAMP_RATE);
@@ -315,5 +318,15 @@ public class Swerve extends SubsystemBase {
                 mechanismBottomLeft,
                 mechanismBottomRight
         };
+    }
+    public void odometryGameUpdate(){
+        if(limeLight.isGoodGameDetection(swerveDrive.getPose())){
+            swerveDrive.addVisionMeasurement(swerveDrive.getPose(), edu.wpi.first.wpilibj.Timer.getTimestamp());
+        }
+    }
+    public void odometryInitUpdate(){
+        if(limeLight.isGoodGameDetection(swerveDrive.getPose())){
+            swerveDrive.addVisionMeasurement(swerveDrive.getPose(), edu.wpi.first.wpilibj.Timer.getTimestamp());
+        }
     }
 }
