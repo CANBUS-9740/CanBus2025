@@ -51,7 +51,8 @@ public class RobotMap {
     public static final double P_ARM_JOINT = 5.5;
     public static final double I_ARM_JOINT = 0;
     public static final double D_ARM_JOINT = 0;
-    public static final TrapezoidProfile.Constraints ARM_JOINT_MOTION_PROFILE_CONSTRAINTS = new TrapezoidProfile.Constraints(2000, 2500);
+    public static final double I_ZONE_ARM_JOINT = 1;
+    public static final TrapezoidProfile.Constraints ARM_JOINT_MOTION_PROFILE_CONSTRAINTS = new TrapezoidProfile.Constraints(3000, 2500);
     public static final double ARM_JOINT_POSITION_TOLERANCE = 1;
     public static final double ARM_JOINT_VELOCITY_TOLERANCE = 5;
     public static final double ARM_JOINT_KF = 0.01;
