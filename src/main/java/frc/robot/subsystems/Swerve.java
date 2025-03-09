@@ -50,7 +50,8 @@ public class Swerve extends SubsystemBase {
     private double lastXSpeed = 0;
     private double lastYSpeed = 0;
     private double lastRotation = 0;
-    private static final double MAX_DELTA = 0.5;
+    private static final double MAX_DELTA = 0.2;
+    private static final double MAX_DELTA_START = 0.7;
 
     public Swerve() {
         ConversionFactorsJson conversionFactorsJson = new ConversionFactorsJson();
@@ -252,16 +253,16 @@ public class Swerve extends SubsystemBase {
                     rotation *= swerveDrive.getMaximumChassisAngularVelocity();
 
                     double deltaX = xSpeed - lastXSpeed;
-                    if (Math.abs(deltaX) > MAX_DELTA){
+                    if (Math.abs(deltaX) > MAX_DELTA_START){
                         xSpeed = lastXSpeed + Math.signum(deltaX) * MAX_DELTA;
                     }
                     double deltaY = ySpeed - lastYSpeed;
-                    if (Math.abs(deltaY) > MAX_DELTA){
+                    if (Math.abs(deltaY) > MAX_DELTA_START){
                         ySpeed = lastYSpeed + Math.signum(deltaY) * MAX_DELTA;
                     }
 
                     double deltaRot = rotation - lastRotation;
-                    if (Math.abs(deltaRot) > MAX_DELTA) {
+                    if (Math.abs(deltaRot) > MAX_DELTA_START) {
                         rotation = lastRotation + Math.signum(deltaRot) * MAX_DELTA;
                     }
 
