@@ -36,6 +36,7 @@ public class RobotMap {
     public static final int SWERVE_ENCODER_BACK_LEFT_ID = 4;
     public static final int SWERVE_ENCODER_BACK_RIGHT_ID = 3;
     public static final int SWERVE_PIGEON_ID = 7;
+    public static final String APRIL_TAG_LIMELIGHT_NAME = "limelight";
     public static final double SWERVE_FRONT_RIGHT_ZERO_ANGLE = 79.628906;
     public static final double SWERVE_FRONT_LEFT_ZERO_ANGLE = 315.439453;
     public static final double SWERVE_BACK_RIGHT_ZERO_ANGLE = 278.789062;
