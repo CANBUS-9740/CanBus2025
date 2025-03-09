@@ -5,6 +5,8 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.PathPlannerLogging;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -36,7 +38,6 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Timer;
 import java.util.function.DoubleSupplier;
 
 public class Swerve extends SubsystemBase {
@@ -45,7 +46,11 @@ public class Swerve extends SubsystemBase {
 
     private final Mechanism2d mechanism;
     private final MechanismLigament2d[] moduleMechanisms;
-    private final LimeLight limeLight;
+
+    private double lastXSpeed = 0;
+    private double lastYSpeed = 0;
+    private double lastRotation = 0;
+    private static final double MAX_DELTA = 0.5;
 
     public Swerve() {
         ConversionFactorsJson conversionFactorsJson = new ConversionFactorsJson();
@@ -56,8 +61,6 @@ public class Swerve extends SubsystemBase {
         conversionFactorsJson.angle.factor = 0;
         conversionFactorsJson.drive.calculate();
         conversionFactorsJson.angle.calculate();
-        limeLight = new LimeLight(RobotMap.APRIL_TAG_LIMELIGHT_NAME);
-
 
         SwerveModulePhysicalCharacteristics characteristics = new SwerveModulePhysicalCharacteristics(
                 conversionFactorsJson, RobotMap.SWERVE_DRIVE_RAMP_RATE, RobotMap.SWERVE_STEER_RAMP_RATE);
@@ -131,7 +134,7 @@ public class Swerve extends SubsystemBase {
                 false
         );
         SwerveDriveConfiguration configuration = new SwerveDriveConfiguration(
-                new SwerveModuleConfiguration[] {
+                new SwerveModuleConfiguration[]{
                         frontLeft, frontRight, backLeft, backRight
                 },
                 new Pigeon2Swerve(RobotMap.SWERVE_PIGEON_ID),
@@ -147,7 +150,7 @@ public class Swerve extends SubsystemBase {
         SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.POSE;
 
         swerveDrive = new SwerveDrive(configuration, controllerConfiguration, RobotMap.SWERVE_MAX_SPEED, new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
-        swerveDrive.setHeadingCorrection(true);
+        swerveDrive.setHeadingCorrection(false);
         swerveDrive.setCosineCompensator(false);
         swerveDrive.setAngularVelocityCompensation(false, false, 0);
         swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
@@ -156,17 +159,23 @@ public class Swerve extends SubsystemBase {
 
         swerveDrive.resetOdometry(Pose2d.kZero);
 
+        for (SwerveModule module : swerveDrive.getModules()) {
+            module.getDriveMotor().setMotorBrake(true);
+        }
+
         mechanism = new Mechanism2d(50, 50);
         moduleMechanisms = createMechanismDisplay(mechanism);
         SmartDashboard.putData("SwerveMechanism", mechanism);
         pathPlannerSetUp();
+
+        //swerveDrive.swerveDrivePoseEstimator.setVisionMeasurementStdDevs();
     }
 
     public Field2d getField() {
         return swerveDrive.field;
     }
 
-    public void resetPose(Pose2d pose2d){
+    public void resetPose(Pose2d pose2d) {
         swerveDrive.resetOdometry(pose2d);
     }
 
@@ -198,11 +207,11 @@ public class Swerve extends SubsystemBase {
                 }, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
                 new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
                         new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                        new PIDConstants(10, 0.0, 0.0) // Rotation PID constants
+                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
                 ),
                 config, // The robot configuration
                 () -> {
-                     // Boolean supplier that controls when the path will be mirrored for the red alliance
+                    // Boolean supplier that controls when the path will be mirrored for the red alliance
                     // This will flip the path being followed to the red side of the field.
                     // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
@@ -214,6 +223,10 @@ public class Swerve extends SubsystemBase {
                 },
                 this // Reference to this subsystem to set requirements
         );
+
+        PathPlannerLogging.setLogActivePathCallback((poses)-> {
+            swerveDrive.field.getObject("Trajectory").setPoses(poses);
+        });
     }
 
     private ChassisSpeeds getRobotRelativeSpeeds() {
@@ -228,24 +241,49 @@ public class Swerve extends SubsystemBase {
         return Math.sqrt(Math.pow(robotPose.getX() - pos.getX(), 2) + Math.pow(robotPose.getY() - pos.getY(), 2));
     }
 
-    public Command drive(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX) {
+    public Command drive(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX, boolean fieldDrive) {
         return runEnd(() -> {
-                    Translation2d translation2d = SwerveMath.scaleTranslation(new Translation2d(
-                            translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
-                            translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8);
-                    double rotation = Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity();
-                    drive(new ChassisSpeeds(translation2d.getX(), translation2d.getY(), rotation));
-                },
-                this::stop);
-    }
+                    double xSpeed = MathUtil.applyDeadband(translationX.getAsDouble(),0.05);
+                    double ySpeed = MathUtil.applyDeadband(translationY.getAsDouble(),0.05);
+                    double rotation = MathUtil.applyDeadband(angularRotationX.getAsDouble(),0.05);
 
-    public Command fieldDrive(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX) {
-        return runEnd(() -> {
-                    Translation2d translation2d = SwerveMath.scaleTranslation(new Translation2d(
-                            translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
-                            translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8);
-                    double rotation = Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity();
-                    fieldDrive(new ChassisSpeeds(translation2d.getX(), translation2d.getY(), rotation));
+                    xSpeed *= swerveDrive.getMaximumChassisVelocity();
+                    ySpeed *= swerveDrive.getMaximumChassisVelocity();
+                    rotation *= swerveDrive.getMaximumChassisAngularVelocity();
+
+                    double deltaX = xSpeed - lastXSpeed;
+                    if (Math.abs(deltaX) > MAX_DELTA){
+                        xSpeed = lastXSpeed + Math.signum(deltaX) * MAX_DELTA;
+                    }
+                    double deltaY = ySpeed - lastYSpeed;
+                    if (Math.abs(deltaY) > MAX_DELTA){
+                        ySpeed = lastYSpeed + Math.signum(deltaY) * MAX_DELTA;
+                    }
+
+                    double deltaRot = rotation - lastRotation;
+                    if (Math.abs(deltaRot) > MAX_DELTA) {
+                        rotation = lastRotation + Math.signum(deltaRot) * MAX_DELTA;
+                    }
+
+                    lastXSpeed = xSpeed;
+                    lastYSpeed = ySpeed;
+                    lastRotation = rotation;
+
+                    xSpeed = MathUtil.clamp(xSpeed,-3.5,3.5);
+                    ySpeed = MathUtil.clamp(ySpeed,-3.5,3.5);
+                    rotation = MathUtil.clamp(rotation,-Math.PI,Math.PI);
+
+                    if (Math.abs(xSpeed) < 0.02 && Math.abs(ySpeed) < 0.02 && Math.abs(rotation) < 0.02) {
+                        stop();
+                        return;
+                    }
+
+                    swerveDrive.drive(
+                            SwerveMath.scaleTranslation(new Translation2d(xSpeed, ySpeed),0.8),
+                            rotation,
+                            fieldDrive,
+                            false
+                    );
                 },
                 this::stop);
     }
@@ -253,6 +291,10 @@ public class Swerve extends SubsystemBase {
     public Command centerModules() {
         return run(() -> Arrays.asList(swerveDrive.getModules())
                 .forEach(it -> it.setAngle(0.0)));
+    }
+
+    public void addVisionMeasurement(LimelightHelpers.PoseEstimate poseEstimate) {
+        swerveDrive.addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds);
     }
 
     @Override
@@ -285,6 +327,10 @@ public class Swerve extends SubsystemBase {
             module.getDriveMotor().set(0);
             module.getAngleMotor().set(0);
         }
+
+        lastXSpeed = 0;
+        lastYSpeed = 0;
+        lastRotation = 0;
     }
 
     private MechanismLigament2d[] createMechanismDisplay(Mechanism2d mechanism) {
@@ -312,21 +358,11 @@ public class Swerve extends SubsystemBase {
         MechanismLigament2d mechanismTopLeft = driveBaseMechanismTopLeft.append(new MechanismLigament2d("module-topleft", WHEEL_DIR_LENGTH, 90, WHEEL_DIR_WIDTH, WHEEL_DIR_COLOR));
         MechanismLigament2d mechanismTopRight = driveBaseMechanismTopRight.append(new MechanismLigament2d("module-topright", WHEEL_DIR_LENGTH, 90, WHEEL_DIR_WIDTH, WHEEL_DIR_COLOR));
 
-        return new MechanismLigament2d[] {
+        return new MechanismLigament2d[]{
                 mechanismTopLeft,
                 mechanismTopRight,
                 mechanismBottomLeft,
                 mechanismBottomRight
         };
-    }
-    public void odometryGameUpdate(){
-        if(limeLight.isGoodGameDetection(swerveDrive.getPose())){
-            swerveDrive.addVisionMeasurement(swerveDrive.getPose(), edu.wpi.first.wpilibj.Timer.getTimestamp());
-        }
-    }
-    public void odometryInitUpdate(){
-        if(limeLight.isGoodGameDetection(swerveDrive.getPose())){
-            swerveDrive.addVisionMeasurement(swerveDrive.getPose(), edu.wpi.first.wpilibj.Timer.getTimestamp());
-        }
     }
 }

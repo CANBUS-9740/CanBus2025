@@ -10,7 +10,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.CoralReef;
+import frc.robot.ReefHeight;
 import frc.robot.RobotMap;
 
 public class ArmJointSystem extends SubsystemBase {
@@ -103,10 +103,10 @@ public class ArmJointSystem extends SubsystemBase {
                 Math.abs(getVelocityRpm()) <= RobotMap.ARM_JOINT_VELOCITY_TOLERANCE;
     }
 
-    public double calculateAngleForTargetReef(double distance, double height, CoralReef coralReef) {
+    public double calculateAngleForTargetReef(double distance, double height, ReefHeight reefHeight) {
         double angle = Math.toDegrees(Math.atan((height - RobotMap.ARM_TELESCOPIC_BASE_LENGTH) / distance));
         double targetAngle;
-        switch (coralReef) {
+        switch (reefHeight) {
             case PODIUM:
                 targetAngle = angle + RobotMap.ARM_JOINT_FIRST_COMPUTATIONAL_ANGLE;
                 break;

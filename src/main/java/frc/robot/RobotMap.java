@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import swervelib.parser.PIDFConfig;
@@ -11,6 +12,7 @@ public class RobotMap {
 
     public static final double STAND_SELECTION_HEADING_MARGIN = 5;
     public static final double STAND_SELECTION_GENERAL_ORIENTATION_MARGIN = 45;
+    public static final PathConstraints PATHFIND_CONSTRAINTS = new PathConstraints(1, 1, Math.PI, Math.PI);
 
     public static final double SWERVE_WIDTH = 0.71;
     public static final double SWERVE_LENGTH = 0.71;
@@ -36,7 +38,7 @@ public class RobotMap {
     public static final int SWERVE_ENCODER_BACK_LEFT_ID = 4;
     public static final int SWERVE_ENCODER_BACK_RIGHT_ID = 3;
     public static final int SWERVE_PIGEON_ID = 7;
-    public static final String APRIL_TAG_LIMELIGHT_NAME = "limelight";
+    public static final String APRIL_TAG_LIMELIGHT_NAME = "limelight-canbus";
     public static final double SWERVE_FRONT_RIGHT_ZERO_ANGLE = 79.628906;
     public static final double SWERVE_FRONT_LEFT_ZERO_ANGLE = 315.439453;
     public static final double SWERVE_BACK_RIGHT_ZERO_ANGLE = 278.789062;
@@ -79,7 +81,7 @@ public class RobotMap {
     public static final double ROBOT_MAXIMUM_DISTANCE = 2;
     public static final double ARM_JOINT_ANGLE_PODIUM = 14;
     public static final double ARM_JOINT_ANGLE_FIRST = 232;
-    public static final double ARM_JOINT_ANGLE_SECOND = 193.5;
+    public static final double ARM_JOINT_ANGLE_SECOND = 198.462031;
     public static final double ARM_JOINT_ANGLE_THIRD = 0;
     public static final double ARM_JOINT_ANGLE_SOURCE = 54;
     public static final double ARM_TELESCOPIC_BASE_LENGTH = 0;

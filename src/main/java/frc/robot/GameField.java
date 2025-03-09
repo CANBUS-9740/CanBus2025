@@ -97,7 +97,8 @@ public class GameField {
 
     private static final double OFFSET_ON_STAND_REEF = 0.328676 / 2;
     private static final double OFFSET_ON_STAND_SOURCE = 0.328676 / 2; // TODO
-    private static final double OFFSET_ROBOT = 0; // (robot length + bumpers) / 2
+    private static final double OFFSET_ROBOT = 0.71; // (robot length + bumpers) / 2
+    private static final double OFFSET_SOURCE_CENTER = 0.04;
 
     private final AprilTagFieldLayout layout;
 
@@ -212,7 +213,7 @@ public class GameField {
                         side == SourceStandSide.LEFT);
                 break;
             case CENTER:
-                calculatedPose = calculatePoseInFrontOf(pose, OFFSET_ROBOT);
+                calculatedPose = calculatePoseInFrontOfAndToTheSide(pose, OFFSET_SOURCE_CENTER, OFFSET_ROBOT, true);
                 break;
             default:
                 throw new AssertionError();

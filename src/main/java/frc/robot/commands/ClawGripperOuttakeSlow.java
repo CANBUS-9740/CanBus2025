@@ -29,7 +29,7 @@ public class ClawGripperOuttakeSlow extends Command {
 
     @Override
     public boolean isFinished() {
-        return releaseTime + 1 < Timer.getFPGATimestamp();
+        return releaseTime + 1 < Timer.getFPGATimestamp() && !clawGripperSystem.hasItem();
     }
 
     @Override

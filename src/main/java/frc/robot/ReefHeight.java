@@ -1,6 +1,6 @@
 package frc.robot;
 
-public enum CoralReef {
+public enum ReefHeight {
     PODIUM,
     FIRST_STAGE,
     SECOND_STAGE,

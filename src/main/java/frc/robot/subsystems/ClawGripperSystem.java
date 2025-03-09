@@ -42,7 +42,7 @@ public class ClawGripperSystem extends SubsystemBase {
     }
 
     public void releaseItemSlow() {
-        motor.set(-0.15);
+        motor.set(-0.3);
     }
 
     public void holdItem(){
