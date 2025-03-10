@@ -97,6 +97,9 @@ public class Robot extends TimedRobot {
         driverXbox.pov(180).onTrue(moveArmToAngle(RobotMap.ARM_JOINT_ANGLE_PODIUM));
         driverXbox.x().onTrue(collectFromSource());
         driverXbox.a().onTrue(new ClawGripperOuttake(clawGripperSystem));
+        driverXbox.rightBumper().onTrue(Commands.runOnce(()-> {
+            armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE);
+        }, swerve, clawGripperSystem));
 
         // we might need to change it to gripper outtake with no automation that's for giving
         // the driver time to adjust to the reef
@@ -404,9 +407,9 @@ public class Robot extends TimedRobot {
 
     private Command createSwerveDrive() {
         return swerve.drive(
-                () -> -MathUtil.applyDeadband(controllerXbox.getRightY(), 0.05),
-                () -> -MathUtil.applyDeadband(controllerXbox.getRightX(),0.05),
-                () -> -MathUtil.applyDeadband(controllerXbox.getLeftX(), 0.15),
+                () -> -MathUtil.applyDeadband(Math.pow(driverXbox.getRightY(), 3), 0.05),
+                () -> -MathUtil.applyDeadband(Math.pow(driverXbox.getRightX(), 3),0.05),
+                () -> -MathUtil.applyDeadband(driverXbox.getLeftX(), 0.15),
                 true
         );
     }

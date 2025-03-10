@@ -49,9 +49,7 @@ public class Swerve extends SubsystemBase {
 
     private double lastXSpeed = 0;
     private double lastYSpeed = 0;
-    private double lastRotation = 0;
-    private static final double MAX_DELTA = 0.2;
-    private static final double MAX_DELTA_START = 0.7;
+    private static final double MAX_DELTA = 1;
 
     public Swerve() {
         ConversionFactorsJson conversionFactorsJson = new ConversionFactorsJson();
@@ -248,36 +246,30 @@ public class Swerve extends SubsystemBase {
                     double ySpeed = MathUtil.applyDeadband(translationY.getAsDouble(),0.05);
                     double rotation = MathUtil.applyDeadband(angularRotationX.getAsDouble(),0.05);
 
+                    if (Math.abs(xSpeed) < 0.02 && Math.abs(ySpeed) < 0.02 && Math.abs(rotation) < 0.02){
+                        stop();
+                        return;
+                    }
+
                     xSpeed *= swerveDrive.getMaximumChassisVelocity();
                     ySpeed *= swerveDrive.getMaximumChassisVelocity();
                     rotation *= swerveDrive.getMaximumChassisAngularVelocity();
 
                     double deltaX = xSpeed - lastXSpeed;
-                    if (Math.abs(deltaX) > MAX_DELTA_START){
+                    if (Math.abs(deltaX) > MAX_DELTA){
                         xSpeed = lastXSpeed + Math.signum(deltaX) * MAX_DELTA;
                     }
                     double deltaY = ySpeed - lastYSpeed;
-                    if (Math.abs(deltaY) > MAX_DELTA_START){
+                    if (Math.abs(deltaY) > MAX_DELTA){
                         ySpeed = lastYSpeed + Math.signum(deltaY) * MAX_DELTA;
-                    }
-
-                    double deltaRot = rotation - lastRotation;
-                    if (Math.abs(deltaRot) > MAX_DELTA_START) {
-                        rotation = lastRotation + Math.signum(deltaRot) * MAX_DELTA;
                     }
 
                     lastXSpeed = xSpeed;
                     lastYSpeed = ySpeed;
-                    lastRotation = rotation;
 
                     xSpeed = MathUtil.clamp(xSpeed,-3.5,3.5);
                     ySpeed = MathUtil.clamp(ySpeed,-3.5,3.5);
                     rotation = MathUtil.clamp(rotation,-Math.PI,Math.PI);
-
-                    if (Math.abs(xSpeed) < 0.02 && Math.abs(ySpeed) < 0.02 && Math.abs(rotation) < 0.02) {
-                        stop();
-                        return;
-                    }
 
                     swerveDrive.drive(
                             SwerveMath.scaleTranslation(new Translation2d(xSpeed, ySpeed),0.8),
@@ -322,7 +314,6 @@ public class Swerve extends SubsystemBase {
             swerveDrive.driveFieldOriented(speeds, Translation2d.kZero);
         }
     }
-
     private void stop() {
         for (SwerveModule module : swerveDrive.getModules()) {
             module.getDriveMotor().set(0);
@@ -331,7 +322,6 @@ public class Swerve extends SubsystemBase {
 
         lastXSpeed = 0;
         lastYSpeed = 0;
-        lastRotation = 0;
     }
 
     private MechanismLigament2d[] createMechanismDisplay(Mechanism2d mechanism) {
