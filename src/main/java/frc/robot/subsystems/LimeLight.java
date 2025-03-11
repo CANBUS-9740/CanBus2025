@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public class LimeLight {
 
-    private static final double MAX_DISTANCE_FOR_POSE = 2.5;
+    private static final double MAX_DISTANCE_FOR_POSE = 3;
 
     private final String name;
 
