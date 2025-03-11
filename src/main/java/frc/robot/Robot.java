@@ -111,6 +111,13 @@ public class Robot extends TimedRobot {
         controllerXbox.pov(0).onTrue(
                 new ClawGripperOuttakeSlow(clawGripperSystem)
         );
+        controllerXbox.pov(180).onTrue(
+                new SequentialCommandGroup(
+                        moveArmToAngle(RobotMap.ARM_JOINT_ANGLE_SOURCE),
+                        new ClawGripperIntake(clawGripperSystem),
+                        moveArmToAngle(RobotMap.ARM_JOINT_DEFAULT_ANGLE)
+                )
+        );
         //driverXbox.x().onTrue(collectFromSource());
         driverXbox.rightBumper().onTrue(Commands.runOnce(()-> {
             armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE);
@@ -125,7 +132,7 @@ public class Robot extends TimedRobot {
         autoChooser.setDefaultOption("default", Commands.none());
         autoChooser.addOption("drive", new SequentialCommandGroup(
                 swerve.drive(
-                        ()-> 0.11,
+                        ()-> -0.11,
                         ()-> 0,
                         ()-> 0,
                         false
@@ -137,8 +144,8 @@ public class Robot extends TimedRobot {
                                 ()-> -0.11,
                                 ()-> 0,
                                 ()-> 0,
-                                false
-                        ).withTimeout(2.5),
+                            false
+                        ).withTimeout(3),
                         moveArmToAngle(RobotMap.ARM_JOINT_ANGLE_PODIUM)
                 ),
                 new ClawGripperOuttakeSlow(clawGripperSystem).withTimeout(1)
@@ -332,16 +339,16 @@ public class Robot extends TimedRobot {
     }
 
     private Command goToSourceAndCollectTeleop(GameField.SourceStand stand, GameField.SourceStandSide side) {
-        return new ParallelDeadlineGroup(
-                new SequentialCommandGroup(
+        return new SequentialCommandGroup(
                         new ParallelCommandGroup(
                                 goToSource(stand, side),
                                 moveArmToAngle(RobotMap.ARM_JOINT_ANGLE_SOURCE)
                         ),
-                                new ClawGripperIntake(clawGripperSystem),
+                                new ParallelDeadlineGroup(
+                                        new ClawGripperIntake(clawGripperSystem),
+                                        createSwerveDrive()
+                                ),
                         Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE))
-                ),
-                createSwerveDrive()
         );
 
     }

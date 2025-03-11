@@ -97,8 +97,8 @@ public class GameField {
 
     private static final double OFFSET_ON_STAND_REEF = 0.328676 / 2;
     private static final double OFFSET_ON_STAND_SOURCE = 0.328676 / 2; // TODO
-    private static final double OFFSET_ROBOT = 0.05; // (robot length + bumpers) / 2
-    private static final double OFFSET_SOURCE_CENTER = 0.04;
+    private static final double OFFSET_ROBOT = 0.6; // (robot length + bumpers) / 2
+    private static final double OFFSET_SOURCE_CENTER = 0.2;
 
     private final AprilTagFieldLayout layout;
 
