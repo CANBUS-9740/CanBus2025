@@ -66,12 +66,13 @@ public class Robot extends TimedRobot {
         armJointSystem.setDefaultCommand(armJointControlCommand);
 
         driverXbox = new CommandXboxController(0);
+        driverXbox.leftBumper().onTrue(new InstantCommand(() -> swerve.resetPose(new Pose2d(0, 0, new Rotation2d()))));
         controllerXbox = new CommandXboxController(1);
 
         swerve.setDefaultCommand(createSwerveDrive());
 
         Command
-                goAndCollectFromClosestSource = Commands.defer(()-> {
+                goAndCollectFromClosestSource = Commands.defer(() -> {
             Optional<GameField.SelectedSourceStand> optional = getClosestSource();
             if (optional.isEmpty()) {
                 return Commands.none();
@@ -88,7 +89,7 @@ public class Robot extends TimedRobot {
 //        controllerXbox.pov(0).onTrue(goToReefAndPlaceDefer(GameField.ReefStandSide.LEFT, ReefHeight.SECOND_STAGE));
 //        controllerXbox.pov(270).onTrue(goToReefAndPlaceDefer(GameField.ReefStandSide.LEFT, ReefHeight.FIRST_STAGE));
 //        controllerXbox.pov(180).onTrue(goToReefAndPlaceDefer(GameField.ReefStandSide.LEFT, ReefHeight.PODIUM));
-        controllerXbox.back().onTrue(Commands.runOnce(()-> {
+        controllerXbox.back().onTrue(Commands.runOnce(() -> {
             armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE);
         }, swerve, clawGripperSystem));
 
@@ -119,7 +120,7 @@ public class Robot extends TimedRobot {
                 )
         );
         //driverXbox.x().onTrue(collectFromSource());
-        driverXbox.rightBumper().onTrue(Commands.runOnce(()-> {
+        driverXbox.rightBumper().onTrue(Commands.runOnce(() -> {
             armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE);
         }, swerve, clawGripperSystem));
 
@@ -132,23 +133,30 @@ public class Robot extends TimedRobot {
         autoChooser.setDefaultOption("default", Commands.none());
         autoChooser.addOption("drive", new SequentialCommandGroup(
                 swerve.drive(
-                        ()-> -0.11,
-                        ()-> 0,
-                        ()-> 0,
+                        () -> -0.11,
+                        () -> 0,
+                        () -> 0,
                         false
                 ).withTimeout(1)
         ));
         autoChooser.addOption("drive and output", new SequentialCommandGroup(
                 new ParallelCommandGroup(
                         swerve.drive(
-                                ()-> -0.11,
-                                ()-> 0,
-                                ()-> 0,
-                            false
+                                () -> -0.11,
+                                () -> 0,
+                                () -> 0,
+                                false
                         ).withTimeout(3),
                         moveArmToAngle(RobotMap.ARM_JOINT_ANGLE_PODIUM)
                 ),
-                new ClawGripperOuttakeSlow(clawGripperSystem).withTimeout(1)
+                new ClawGripperOuttakeSlow(clawGripperSystem).withTimeout(1),
+                Commands.waitSeconds(3),
+                swerve.drive(
+                        () -> 0.11,
+                        () -> 0,
+                        () -> 0,
+                        false
+                ).withTimeout(1)
         ));
         autoChooser.addOption("Go To Source Left And Collect", new SequentialCommandGroup(
                 new ParallelCommandGroup(
@@ -171,7 +179,8 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
 
         if (cvSink.grabFrame(orgMat) > 0) {
-            double armAngle = armJointSystem.getRawPositionDegrees();;
+            double armAngle = armJointSystem.getRawPositionDegrees();
+            ;
             if (armAngle > 180) {
                 Core.flip(orgMat, dstMat, -1);
             } else {
@@ -310,7 +319,7 @@ public class Robot extends TimedRobot {
     }
 
     private Command goToReefAndPlaceDefer(GameField.ReefStandSide side, ReefHeight height) {
-        return Commands.defer(()-> {
+        return Commands.defer(() -> {
             Optional<GameField.SelectedReefStand> optional = getClosestStand();
             if (optional.isEmpty()) {
                 return Commands.none();
@@ -329,26 +338,26 @@ public class Robot extends TimedRobot {
                 ),
                 new ParallelDeadlineGroup(
                         new SequentialCommandGroup(
-                                Commands.waitUntil(()-> controllerXbox.x().getAsBoolean()),
+                                Commands.waitUntil(() -> controllerXbox.x().getAsBoolean()),
                                 new ClawGripperOuttake(clawGripperSystem)
                         ),
                         createSwerveDrive()
                 ),
-                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE))
+                Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE))
         );
     }
 
     private Command goToSourceAndCollectTeleop(GameField.SourceStand stand, GameField.SourceStandSide side) {
         return new SequentialCommandGroup(
-                        new ParallelCommandGroup(
-                                goToSource(stand, side),
-                                moveArmToAngle(RobotMap.ARM_JOINT_ANGLE_SOURCE)
-                        ),
-                                new ParallelDeadlineGroup(
-                                        new ClawGripperIntake(clawGripperSystem),
-                                        createSwerveDrive()
-                                ),
-                        Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE))
+                new ParallelCommandGroup(
+                        goToSource(stand, side),
+                        moveArmToAngle(RobotMap.ARM_JOINT_ANGLE_SOURCE)
+                ),
+                new ParallelDeadlineGroup(
+                        new ClawGripperIntake(clawGripperSystem),
+                        createSwerveDrive()
+                ),
+                Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE))
         );
 
     }
@@ -360,7 +369,7 @@ public class Robot extends TimedRobot {
                         moveArmToAngle(getArmAngleForReef(height))
                 ),
                 new ClawGripperOuttake(clawGripperSystem),
-                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE))
+                Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE))
         );
     }
 
@@ -371,7 +380,7 @@ public class Robot extends TimedRobot {
                         moveArmToAngle(RobotMap.ARM_JOINT_ANGLE_SOURCE)
                 ),
                 new ClawGripperIntake(clawGripperSystem),
-                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE))
+                Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE))
         );
     }
 
@@ -399,8 +408,8 @@ public class Robot extends TimedRobot {
 
     private Command moveArmToAngle(double armAngle) {
         return new SequentialCommandGroup(
-                Commands.runOnce(()-> armJointControlCommand.setTargetPosition(armAngle)),
-                Commands.waitUntil(()-> armJointControlCommand.isAtTargetPosition())
+                Commands.runOnce(() -> armJointControlCommand.setTargetPosition(armAngle)),
+                Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition())
         );
     }
 
@@ -429,19 +438,19 @@ public class Robot extends TimedRobot {
 
     private Command goToPose(Pose2d pose) {
         return new SequentialCommandGroup(
-                Commands.runOnce(()-> {
+                Commands.runOnce(() -> {
                     System.out.printf("Going to Pose: %s\n", pose.toString());
                     swerve.getField().getObject("Target").setPose(pose);
                 }),
                 AutoBuilder.pathfindToPose(pose, RobotMap.PATHFIND_CONSTRAINTS),
-                Commands.runOnce(()-> System.out.println("Done going to Pose"))
+                Commands.runOnce(() -> System.out.println("Done going to Pose"))
         );
     }
 
     private Command createSwerveDrive() {
         return swerve.drive(
                 () -> -MathUtil.applyDeadband(Math.pow(driverXbox.getRightY(), 3), 0.05),
-                () -> -MathUtil.applyDeadband(Math.pow(driverXbox.getRightX(), 3),0.05),
+                () -> -MathUtil.applyDeadband(Math.pow(driverXbox.getRightX(), 3), 0.05),
                 () -> -MathUtil.applyDeadband(driverXbox.getLeftX(), 0.15),
                 true
         );
