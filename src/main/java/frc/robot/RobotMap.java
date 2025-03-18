@@ -94,13 +94,22 @@ public class RobotMap {
     public static final int LEDS_RIGHT_START_POINT = 0;
     public static final int LEDS_RIGHT_END_POINT = 0;
 
+
+    //hanging
     public static final int HANGING_MOTOR_ID = 0;
-    public static final int HANGING_LIMIT_SWITCH_BOTTOM = 0;
-    public static final int HANGING_LIMIT_SWITCH_TOP = 0;
     public static final double HANGING_POSITION_TOLERANCE = 1;
     public static final double HANGING_VELOCITY_TOLERANCE = 5;
     public static final double HANGING_KF = 0   ;
     public static final double HANGING_GEAR_RATIO = 64;
+    public static final double SOFT_LIMITS_FORWARD_HANG = 0;
+    public static final double SOFT_LIMITS_REVERSE_HANG = 0;
+    public static final double HANGING_P = 0;
+    public static final double HANGING_I = 0;
+    public static final double HANGING_D = 0;
+    public static final double HANGING_CAGE_ANGLE = 0;
+    public static final double HANGING_ROBOT_ANGLE = 0;
+
+
 
 
 }

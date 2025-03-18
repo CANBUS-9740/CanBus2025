@@ -17,10 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.ArmJointControlCommand;
-import frc.robot.commands.ClawGripperIntake;
-import frc.robot.commands.ClawGripperOuttake;
-import frc.robot.commands.ClawGripperOuttakeSlow;
+import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -35,10 +32,10 @@ public class Robot extends TimedRobot {
     private Swerve swerve;
     private Command auto;
     private LimeLight limeLight;
-    private LedsSystem leds;
 
     private ClawGripperSystem clawGripperSystem;
     private ArmJointSystem armJointSystem;
+    private HangSystem hangSystem;
 
     private ArmJointControlCommand armJointControlCommand;
 
@@ -58,8 +55,9 @@ public class Robot extends TimedRobot {
         swerve = new Swerve();
         clawGripperSystem = new ClawGripperSystem();
         armJointSystem = new ArmJointSystem();
+        hangSystem = new HangSystem();
+
         limeLight = new LimeLight(RobotMap.APRIL_TAG_LIMELIGHT_NAME);
-        leds = new LedsSystem();
 
         armJointControlCommand = new ArmJointControlCommand(armJointSystem);
 
@@ -70,16 +68,6 @@ public class Robot extends TimedRobot {
         dstMat = new Mat();
 
         armJointSystem.setDefaultCommand(armJointControlCommand);
-        leds.setDefaultCommand(Commands.defer(()-> {
-            if (clawGripperSystem.hasItem()) {
-                return new SequentialCommandGroup(
-                        leds.showPattern(LEDPattern.solid(Color.kGreen).blink(Units.Seconds.of(0.5)), true).withTimeout(3),
-                        leds.showPattern(LEDPattern.solid(Color.kGreen), true)
-                );
-            } else {
-                return leds.showDefaultPattern();
-            }
-        }, Set.of(leds)));
 
         driverXbox = new CommandXboxController(0);
 //        driverXbox.leftBumper().onTrue(new InstantCommand(() -> swerve.resetPose(new Pose2d(0, 0, new Rotation2d()))));
@@ -136,6 +124,18 @@ public class Robot extends TimedRobot {
                         moveArmToAngle(RobotMap.ARM_JOINT_DEFAULT_ANGLE)
                 )
         );
+
+        //hanging buttons!!!!!!!!!!!!
+
+        controllerXbox.pov(90).onTrue(
+                intoCage()
+        );
+
+        controllerXbox.pov(270).onTrue(
+                new HangingToRobot(hangSystem)
+        );
+
+
         //driverXbox.x().onTrue(collectFromSource());
         driverXbox.rightBumper().onTrue(Commands.runOnce(() -> {
             armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE);
@@ -320,6 +320,13 @@ public class Robot extends TimedRobot {
 
     }
 
+    private Command intoCage (){
+        return new SequentialCommandGroup(
+                moveArmToAngle(RobotMap.ARM_JOINT_MINIMUM_ANGLE),
+                new HangingToCage(hangSystem)
+        );
+    }
+
     private Optional<GameField.SelectedReefStand> getBestStand() {
         Pose2d pose = swerve.getPose();
         return gameField.findBestReefStandTo(pose, true);
@@ -463,8 +470,7 @@ public class Robot extends TimedRobot {
                         }),
                         AutoBuilder.pathfindToPose(pose, RobotMap.PATHFIND_CONSTRAINTS),
                         Commands.runOnce(() -> System.out.println("Done going to Pose"))
-                ),
-                leds.showPattern(LEDPattern.solid(Color.kMidnightBlue), false)
+                )
         );
     }
 
