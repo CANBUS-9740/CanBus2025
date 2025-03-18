@@ -95,9 +95,9 @@ public class GameField {
             .mapToInt((stand)-> stand.aprilTagIdRed)
             .toArray();
 
-    private static final double OFFSET_ON_STAND_REEF = 0.328676 / 2;
+    private static final double OFFSET_ON_STAND_REEF = 0.25; //0.328676 / 2; TODO
     private static final double OFFSET_ON_STAND_SOURCE = 0.328676 / 2; // TODO
-    private static final double OFFSET_ROBOT = 0.6; // (robot length + bumpers) / 2
+    private static final double OFFSET_ROBOT = 0.53; // (robot length + bumpers) / 2
     private static final double OFFSET_SOURCE_CENTER = 0.2;
 
     private final AprilTagFieldLayout layout;
@@ -213,7 +213,7 @@ public class GameField {
                         side == SourceStandSide.LEFT);
                 break;
             case CENTER:
-                calculatedPose = calculatePoseInFrontOfAndToTheSide(pose, OFFSET_SOURCE_CENTER, OFFSET_ROBOT, true);
+                calculatedPose = calculatePoseInFrontOf(pose, OFFSET_ROBOT);
                 break;
             default:
                 throw new AssertionError();
@@ -267,7 +267,7 @@ public class GameField {
         return new Pose2d(result.x, result.y, pose.getRotation());
     }
 
-    private Pose2d calculatePoseToTheSide(Pose2d pose, double d1, boolean isLeft) {
+    public static Pose2d calculatePoseToTheSide(Pose2d pose, double d1, boolean isLeft) {
         double alpha = pose.getRotation().getDegrees();
         double beta = isLeft ? alpha - 90 : alpha + 90;
 
@@ -278,7 +278,7 @@ public class GameField {
         return new Pose2d(result.x, result.y, pose.getRotation());
     }
 
-    private Pose2d calculatePoseInFrontOf(Pose2d pose, double d) {
+    public static Pose2d calculatePoseInFrontOf(Pose2d pose, double d) {
         double alpha = pose.getRotation().getDegrees();
 
         Vector2 start = new Vector2(pose.getX(), pose.getY());

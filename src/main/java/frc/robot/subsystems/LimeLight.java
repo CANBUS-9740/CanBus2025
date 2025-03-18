@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public class LimeLight {
 
-    private static final double MAX_DISTANCE_FOR_POSE = 3;
+    private static final double MAX_DISTANCE_FOR_POSE = 2.5;
 
     private final String name;
 
@@ -35,10 +35,14 @@ public class LimeLight {
             SmartDashboard.putString("HasAprilTagReason", "No Fiducial");
             return Optional.empty();
         }
-        if (poseEstimate.rawFiducials[0].distToRobot >= MAX_DISTANCE_FOR_POSE) {
+
+        // doesn't work well, not really horizontal
+        double horizontalDistance = poseEstimate.rawFiducials[0].distToRobot *
+                Math.cos(Math.toRadians(poseEstimate.rawFiducials[0].tync)) * Math.cos(Math.toRadians(poseEstimate.rawFiducials[0].txnc));
+        if (horizontalDistance >= MAX_DISTANCE_FOR_POSE) {
             SmartDashboard.putBoolean("HasAprilTag", false);
             SmartDashboard.putString("HasAprilTagReason", "Distance");
-            SmartDashboard.putNumber("Distance: ", poseEstimate.rawFiducials[0].distToRobot);
+            SmartDashboard.putNumber("AprilTagDistance", horizontalDistance);
 
             return Optional.empty();
         }

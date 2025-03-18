@@ -7,6 +7,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -146,7 +147,7 @@ public class Swerve extends SubsystemBase {
                 RobotMap.SWERVE_MAX_SPEED
         );
 
-        SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.POSE;
+        SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
 
         swerveDrive = new SwerveDrive(configuration, controllerConfiguration, RobotMap.SWERVE_MAX_SPEED, new Pose2d(0, 0, Rotation2d.fromDegrees(90)));
         swerveDrive.setHeadingCorrection(false);
@@ -167,7 +168,7 @@ public class Swerve extends SubsystemBase {
         SmartDashboard.putData("SwerveMechanism", mechanism);
         pathPlannerSetUp();
 
-        //swerveDrive.swerveDrivePoseEstimator.setVisionMeasurementStdDevs();
+        //swerveDrive.swerveDrivePoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.066, 0.05, 2));
     }
 
     public Field2d getField() {

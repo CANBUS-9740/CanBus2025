@@ -33,11 +33,13 @@ public class ArmJointSystem extends SubsystemBase {
                 .positionConversionFactor(1 / RobotMap.ARM_JOINT_GEAR_RATIO)
                 .velocityConversionFactor(1 / RobotMap.ARM_JOINT_GEAR_RATIO);
         config.absoluteEncoder
-                .inverted(true);
+                .inverted(false)
+                .zeroOffset(RobotMap.ARM_JOINT_ZERO_OFFSET);
         config.closedLoop
                 .p(RobotMap.P_ARM_JOINT)
                 .i(RobotMap.I_ARM_JOINT)
                 .d(RobotMap.D_ARM_JOINT)
+                .iZone(0)
                 .feedbackSensor(ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder);
         config.limitSwitch
                 .forwardLimitSwitchEnabled(false)
