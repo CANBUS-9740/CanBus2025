@@ -33,6 +33,9 @@ import java.util.Set;
 public class Robot extends TimedRobot {
 
     private GameField gameField;
+
+    private boolean isInAutoMovemeant;
+
     private Swerve swerve;
     private Command auto;
     private LimeLight limeLight;
@@ -55,6 +58,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
+        isInAutoMovemeant = false;
         gameField = new GameField();
         swerve = new Swerve();
         clawGripperSystem = new ClawGripperSystem();
@@ -72,14 +76,16 @@ public class Robot extends TimedRobot {
 
         armJointSystem.setDefaultCommand(armJointControlCommand);
         leds.setDefaultCommand(Commands.defer(()-> {
-            if (clawGripperSystem.hasItem()) {
-                return new SequentialCommandGroup(
-                        leds.showBlinkLights(0, -0.5, 0.5).withTimeout(3),
-                        leds.showColor(-0.5)
-                );
-            } else {
-                return leds.showColor(0.5);
+            if ( isInAutoMovemeant) {
+                return new InstantCommand(()-> leds.showColor(RobotMap.BEAT_AUTO));
             }
+            else if(clawGripperSystem.hasItem()) {
+                return new InstantCommand(()-> leds.showColor(RobotMap.BEAT_CORAL));
+            }
+            else if (isInAutoMovemeant && isInAutoMovemeant) {
+                return new InstantCommand(()-> leds.showColor(RobotMap.BEAT_CORAL_AND_AUTO));
+            }
+            return new InstantCommand(()-> leds.showColor(0));
         }, Set.of(leds)));
 
         driverXbox = new CommandXboxController(0);
@@ -216,6 +222,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
+        SmartDashboard.putBoolean("IsInAutoMove: ", isInAutoMovemeant);
         CommandScheduler.getInstance().run();
 
         if (cvSink.grabFrame(orgMat) > 0) {
@@ -486,11 +493,15 @@ public class Robot extends TimedRobot {
                         Commands.runOnce(() -> {
                             System.out.printf("Going to Pose: %s\n", pose.toString());
                             swerve.getField().getObject("Target").setPose(pose);
+                            isInAutoMovemeant = true;
                         }),
                         AutoBuilder.pathfindToPose(pose, RobotMap.PATHFIND_CONSTRAINTS),
-                        Commands.runOnce(() -> System.out.println("Done going to Pose"))
+                        Commands.runOnce(() -> {
+                            isInAutoMovemeant = false;
+                            System.out.println("Done going to Pose") ;
+                        })
                 )
-//                ,leds.showColor(0.9)
+//
         );
     }
 
