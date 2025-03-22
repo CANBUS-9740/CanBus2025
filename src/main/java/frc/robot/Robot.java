@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -73,11 +74,11 @@ public class Robot extends TimedRobot {
         leds.setDefaultCommand(Commands.defer(()-> {
             if (clawGripperSystem.hasItem()) {
                 return new SequentialCommandGroup(
-                        leds.showPattern(LEDPattern.solid(Color.kGreen).blink(Units.Seconds.of(0.5)), true).withTimeout(3),
-                        leds.showPattern(LEDPattern.solid(Color.kGreen), true)
+                        leds.showBlinkLights(0, -0.5, 0.5).withTimeout(3),
+                        leds.showColor(-0.5)
                 );
             } else {
-                return leds.showDefaultPattern();
+                return leds.showColor(0.5);
             }
         }, Set.of(leds)));
 
@@ -98,6 +99,8 @@ public class Robot extends TimedRobot {
             return goToSourceAndCollectTeleop(stand.stand, GameField.SourceStandSide.CENTER);
         }, Set.of(swerve, clawGripperSystem));
 
+
+
         controllerXbox.y().onTrue(goToReefAndPlaceDefer(GameField.ReefStandSide.RIGHT, ReefHeight.SECOND_STAGE));
         controllerXbox.b().onTrue(goToReefAndPlaceDefer(GameField.ReefStandSide.RIGHT, ReefHeight.FIRST_STAGE));
 //        controllerXbox.a().onTrue(goToReefAndPlaceDefer(GameField.ReefStandSide.RIGHT, ReefHeight.PODIUM));
@@ -108,8 +111,11 @@ public class Robot extends TimedRobot {
             armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE);
         }, swerve, clawGripperSystem));
 
-        //controllerXbox.x().onTrue(goAndCollectFromClosestSource);
-        //controllerXbox.y().onTrue(moveArmToAngle(RobotMap.ARM_JOINT_ANGLE_SECOND));
+        controllerXbox.pov(90).onTrue(goAndCollectFromClosestSource);
+
+        controllerXbox.pov(0).onTrue(Commands.runOnce(() -> {
+            armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_ANGLE_SECOND);
+        },   clawGripperSystem));
         //controllerXbox.b().onTrue(moveArmToAngle(RobotMap.ARM_JOINT_ANGLE_FIRST));
         controllerXbox.a().onTrue(moveArmToAngle(RobotMap.ARM_JOINT_ANGLE_PODIUM));
         controllerXbox.rightBumper().onTrue(
@@ -126,9 +132,9 @@ public class Robot extends TimedRobot {
                         moveArmToAngle(RobotMap.ARM_JOINT_DEFAULT_ANGLE)
                 )
         );
-        controllerXbox.pov(0).onTrue(
-                new ClawGripperOuttakeSlow(clawGripperSystem)
-        );
+//        controllerXbox.pov(0).onTrue(
+//                new ClawGripperOuttakeSlow(clawGripperSystem)
+//        );
         controllerXbox.pov(180).onTrue(
                 new SequentialCommandGroup(
                         moveArmToAngle(RobotMap.ARM_JOINT_ANGLE_SOURCE),
@@ -137,9 +143,15 @@ public class Robot extends TimedRobot {
                 )
         );
         //driverXbox.x().onTrue(collectFromSource());
-        driverXbox.rightBumper().onTrue(Commands.runOnce(() -> {
-            armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE);
-        }, swerve, clawGripperSystem));
+        driverXbox.rightBumper().onTrue(
+            new ParallelDeadlineGroup(
+                    Commands.runOnce(()-> {
+                                armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE);
+                                }, swerve, clawGripperSystem)
+
+//                    ,leds.showBlinkLights(0, 0.4, 0.5)
+            )
+        );
 
         // we might need to change it to gripper outtake with no automation that's for giving
         // the driver time to adjust to the reef
@@ -182,6 +194,17 @@ public class Robot extends TimedRobot {
                 ),
                 new ClawGripperIntake(clawGripperSystem)
         ));
+        autoChooser.addOption("AUTOO",
+                new SequentialCommandGroup(
+                        goToReefAndPlaceAuto(GameField.ReefStand.STAND_3, GameField.ReefStandSide.RIGHT, ReefHeight.SECOND_STAGE),
+                        goToSourceAndCollectAuto(GameField.SourceStand.LEFT, GameField.SourceStandSide.CENTER),
+                        goToReefAndPlaceAuto(GameField.ReefStand.STAND_2, GameField.ReefStandSide.RIGHT, ReefHeight.SECOND_STAGE),
+                        goToSourceAndCollectAuto(GameField.SourceStand.LEFT, GameField.SourceStandSide.CENTER),
+                        goToReefAndPlaceAuto(GameField.ReefStand.STAND_2, GameField.ReefStandSide.LEFT, ReefHeight.SECOND_STAGE),
+                        goToSourceAndCollectAuto(GameField.SourceStand.LEFT, GameField.SourceStandSide.CENTER),
+                        goToReefAndPlaceAuto(GameField.ReefStand.STAND_2, GameField.ReefStandSide.LEFT, ReefHeight.FIRST_STAGE)
+                        )
+                );
         autoChooser.addOption("Go To Reef 3_L3, Source Left, Reef 2_L2",
                 new SequentialCommandGroup(
                         goToReefAndPlaceAuto(GameField.ReefStand.STAND_3, GameField.ReefStandSide.RIGHT, ReefHeight.SECOND_STAGE),
@@ -307,6 +330,9 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testInit() {
+        new ParallelCommandGroup(
+                Commands.runOnce(()->armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_ANGLE_SECOND))
+        ).schedule();
 
     }
 
@@ -384,8 +410,10 @@ public class Robot extends TimedRobot {
         return new SequentialCommandGroup(
                 new ParallelCommandGroup(
                         goToReef(stand, side, height),
-                        moveArmToAngle(getArmAngleForReef(height))
+                        Commands.runOnce(()->armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_ANGLE_SECOND))
                 ),
+                Commands.waitUntil(()->armJointControlCommand.isAtTargetPosition()),
+                goToReef(stand, side, height),
                 new ClawGripperOuttake(clawGripperSystem),
                 Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE))
         );
@@ -414,9 +442,6 @@ public class Robot extends TimedRobot {
             case SECOND_STAGE:
                 armAngle = RobotMap.ARM_JOINT_ANGLE_SECOND;
                 break;
-            case THIRD_STAGE:
-                armAngle = RobotMap.ARM_JOINT_ANGLE_THIRD;
-                break;
             default:
                 return RobotMap.ARM_JOINT_DEFAULT_ANGLE;
         }
@@ -425,6 +450,7 @@ public class Robot extends TimedRobot {
     }
 
     private Command moveArmToAngle(double armAngle) {
+        System.out.println("1");
         return new SequentialCommandGroup(
                 Commands.runOnce(() -> armJointControlCommand.setTargetPosition(armAngle)),
                 Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition())
@@ -463,8 +489,8 @@ public class Robot extends TimedRobot {
                         }),
                         AutoBuilder.pathfindToPose(pose, RobotMap.PATHFIND_CONSTRAINTS),
                         Commands.runOnce(() -> System.out.println("Done going to Pose"))
-                ),
-                leds.showPattern(LEDPattern.solid(Color.kMidnightBlue), false)
+                )
+//                ,leds.showColor(0.9)
         );
     }
 
@@ -473,7 +499,7 @@ public class Robot extends TimedRobot {
                 () -> -MathUtil.applyDeadband(driverXbox.getRightY(), 0.05),
                 () -> -MathUtil.applyDeadband(driverXbox.getRightX(), 0.05),
                 () -> -MathUtil.applyDeadband(driverXbox.getLeftX(), 0.15),
-                false
+                true
         );
     }
 }

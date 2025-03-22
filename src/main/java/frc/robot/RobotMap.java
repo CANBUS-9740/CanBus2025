@@ -51,14 +51,14 @@ public class RobotMap {
     //ARM JOINT
     public static final int ARM_JOINT_MOTOR_ID_MASTER = 35;
     public static final int ARM_JOINT_MOTOR_ID_FOLLOWER = 40;
-    public static final double P_ARM_JOINT = 3;
-    public static final double I_ARM_JOINT = 0.0003000000142492354;
-    public static final double D_ARM_JOINT = 00.10000000149011612;
-    public static final double I_ZONE_ARM_JOINT = 1;
-    public static final TrapezoidProfile.Constraints ARM_JOINT_MOTION_PROFILE_CONSTRAINTS = new TrapezoidProfile.Constraints(3000, 2500);
-    public static final double ARM_JOINT_POSITION_TOLERANCE = 1;
+    public static final double P_ARM_JOINT = 6;
+    public static final double I_ARM_JOINT = 0;
+    public static final double D_ARM_JOINT = 0;
+    public static final double I_ZONE_ARM_JOINT = 15;
+    public static final TrapezoidProfile.Constraints ARM_JOINT_MOTION_PROFILE_CONSTRAINTS = new TrapezoidProfile.Constraints(3000, 2000);
+    public static final double ARM_JOINT_POSITION_TOLERANCE = 2;
     public static final double ARM_JOINT_VELOCITY_TOLERANCE = 5;
-    public static final double ARM_JOINT_KF = 0.02   ;
+    public static final double ARM_JOINT_KF = 0.04;
     public static final double ARM_JOINT_GEAR_RATIO = 64;
     public static final double ARM_JOINT_ZERO_OFFSET = 0.1690000;
     public static final double ARM_JOINT_MINIMUM_ANGLE = 0;
@@ -79,18 +79,12 @@ public class RobotMap {
     public static final double CORAL_MEDIUM_POLE_HEIGHT = 1.21;
     public static final double CORAL_HIGH_POLE_HEIGHT = 1.83;
     public static final double PROCESSOR_PLACE_HEIGHT = 1.35;
-    public static final double ROBOT_MAXIMUM_DISTANCE = 2;
+    public static final double ROBOT_MAXIMUM_DISTANCE = 3;
     public static final double ARM_JOINT_ANGLE_PODIUM = 14;
     public static final double ARM_JOINT_ANGLE_FIRST = 232;
     public static final double ARM_JOINT_ANGLE_SECOND = 195;
-    public static final double ARM_JOINT_ANGLE_THIRD = 0;
     public static final double ARM_JOINT_ANGLE_SOURCE = 54;
     public static final double ARM_TELESCOPIC_BASE_LENGTH = 0;
 
-    public static final int LEDS_PORT = 0;
-    public static final int LEDS_LENGTH = 0;
-    public static final int LEDS_LEFT_START_POINT = 0;
-    public static final int LEDS_LEFT_END_POINT = 0;
-    public static final int LEDS_RIGHT_START_POINT = 0;
-    public static final int LEDS_RIGHT_END_POINT = 0;
+    public static final int LEDS_PORT = 5;
 }

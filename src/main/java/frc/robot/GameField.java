@@ -66,6 +66,7 @@ public class GameField {
         }
     }
 
+
     public static class SelectedSourceStand {
         public final SourceStand stand;
         public final SourceStandSide side;
@@ -95,9 +96,9 @@ public class GameField {
             .mapToInt((stand)-> stand.aprilTagIdRed)
             .toArray();
 
-    private static final double OFFSET_ON_STAND_REEF = 0.25; //0.328676 / 2; TODO
-    private static final double OFFSET_ON_STAND_SOURCE = 0.328676 / 2; // TODO
-    private static final double OFFSET_ROBOT = 0.53; // (robot length + bumpers) / 2
+    private static final double OFFSET_ON_STAND_REEF = 0.29; //0.328676 / 2; TODO
+    private static final double OFFSET_ON_STAND_SOURCE = 0.05; // TODO
+    private static final double OFFSET_ROBOT = 0.69; // (robot length + bumpers) / 2
     private static final double OFFSET_SOURCE_CENTER = 0.2;
 
     private final AprilTagFieldLayout layout;

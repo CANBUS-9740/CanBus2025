@@ -8,6 +8,7 @@ import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.ReefHeight;
@@ -39,7 +40,7 @@ public class ArmJointSystem extends SubsystemBase {
                 .p(RobotMap.P_ARM_JOINT)
                 .i(RobotMap.I_ARM_JOINT)
                 .d(RobotMap.D_ARM_JOINT)
-                .iZone(0)
+                .iZone(RobotMap.I_ZONE_ARM_JOINT)
                 .feedbackSensor(ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder);
         config.limitSwitch
                 .forwardLimitSwitchEnabled(false)
@@ -78,7 +79,7 @@ public class ArmJointSystem extends SubsystemBase {
     }
 
     public void moveToPosition(double positionDegrees) {
-        double ff = Math.cos(Math.toRadians(getRawPositionDegrees())) * RobotMap.ARM_JOINT_KF;
+        double ff = Math.sin(Math.toRadians(getRawPositionDegrees())) * RobotMap.ARM_JOINT_KF;
         SmartDashboard.putNumber("ArmJointff", ff);
 
         pidController.setReference(positionDegrees / 360.0, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, SparkClosedLoopController.ArbFFUnits.kPercentOut);
@@ -112,7 +113,7 @@ public class ArmJointSystem extends SubsystemBase {
             case PODIUM:
                 targetAngle = angle + RobotMap.ARM_JOINT_FIRST_COMPUTATIONAL_ANGLE;
                 break;
-            case FIRST_STAGE, SECOND_STAGE, THIRD_STAGE:
+            case FIRST_STAGE, SECOND_STAGE:
                 targetAngle = -angle + RobotMap.ARM_JOINT_SECOND_COMPUTATIONAL_ANGLE;
                 break;
             default:
