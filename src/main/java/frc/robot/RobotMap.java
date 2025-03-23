@@ -80,6 +80,8 @@ public class RobotMap {
     public static final double CORAL_HIGH_POLE_HEIGHT = 1.83;
     public static final double PROCESSOR_PLACE_HEIGHT = 1.35;
     public static final double ROBOT_MAXIMUM_DISTANCE = 3;
+    public static final double ARM_JOINT_ANGLE_ALGEA_TOP = 14;
+    public static final double ARM_JOINT_ANGLE_ALGEA_BOTTOM = 14;
     public static final double ARM_JOINT_ANGLE_PODIUM = 14;
     public static final double ARM_JOINT_ANGLE_FIRST = 232;
     public static final double ARM_JOINT_ANGLE_SECOND = 195;
