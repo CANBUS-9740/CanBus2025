@@ -34,6 +34,8 @@ public class Robot extends TimedRobot {
 
     private GameField gameField;
 
+    private final double LED_SLEEP = 0.075;
+
     private boolean isInAutoMovemeant;
 
     private Swerve swerve;
@@ -65,25 +67,47 @@ public class Robot extends TimedRobot {
         armJointSystem = new ArmJointSystem();
         limeLight = new LimeLight(RobotMap.APRIL_TAG_LIMELIGHT_NAME);
         leds = new LedsSystem();
+        SmartDashboard.putBoolean("Is In Auto: ", isInAutoMovemeant);
 
         armJointControlCommand = new ArmJointControlCommand(armJointSystem);
 
         usbCamera = CameraServer.startAutomaticCapture();
         cvSink = CameraServer.getVideo();
-        outputStream = CameraServer.putVideo("OutputStream", 640, 480);
+        outputStream = CameraServer.putVideo("OutputSt " +
+                "ream", 640, 480);
         orgMat = new Mat();
         dstMat = new Mat();
 
         armJointSystem.setDefaultCommand(armJointControlCommand);
         leds.setDefaultCommand(Commands.defer(() -> {
-            if (isInAutoMovemeant) {
-                return new InstantCommand(() -> leds.showColor(RobotMap.BEAT_AUTO));
-            } else if (clawGripperSystem.hasItem()) {
-                return new InstantCommand(() -> leds.showColor(RobotMap.BEAT_CORAL));
-            } else if (isInAutoMovemeant && isInAutoMovemeant) {
-                return new InstantCommand(() -> leds.showColor(RobotMap.BEAT_CORAL_AND_AUTO));
+             if (isInAutoMovemeant && clawGripperSystem.hasItem()) {
+                return new SequentialCommandGroup(
+                        new InstantCommand(() -> leds.setColor(RobotMap.BEAT_CORAL_AND_AUTO)),
+                        Commands.waitSeconds(LED_SLEEP),
+                        new InstantCommand(()-> leds.setColor(RobotMap.BEAT_CORAL_BLACK)),
+                        Commands.waitSeconds(LED_SLEEP)
+                );
             }
-            return new InstantCommand(() -> leds.showColor(0));
+            else if (isInAutoMovemeant) {
+                return new SequentialCommandGroup(
+                        new InstantCommand(() -> leds.setColor(RobotMap.BEAT_AUTO_YELLOW)),
+                        Commands.waitSeconds(LED_SLEEP),
+                        new InstantCommand(() -> leds.setColor(RobotMap.BEAT_CORAL_BLACK)),
+                        Commands.waitSeconds(LED_SLEEP)
+
+                        );
+            } else if (clawGripperSystem.hasItem()) {
+                return new SequentialCommandGroup(
+                        new InstantCommand(() -> leds.setColor(RobotMap.BEAT_CORAL_GREEN)),
+                        Commands.waitSeconds(LED_SLEEP),
+                        new InstantCommand(() -> leds.setColor(RobotMap.BEAT_CORAL_BLACK)),
+                        Commands.waitSeconds(LED_SLEEP)
+
+
+                );
+            }  else {
+                return new InstantCommand(() -> leds.setColor(RobotMap.BEAT_CORAL_BLACK));
+            }
         }, Set.of(leds)));
 
         driverXbox = new CommandXboxController(0);
@@ -119,7 +143,8 @@ public class Robot extends TimedRobot {
         controllerXbox.leftBumper().onTrue(
                 new SequentialCommandGroup(
                         moveArmToAngle(RobotMap.ARM_JOINT_ANGLE_ALGEA_TOP),
-                        Commands.waitUntil(() -> controllerXbox.rightBumper().getAsBoolean()).withTimeout(3),
+                        Commands.waitUntil(() -> controllerXbox.rightBumper().getAsBoolean()),
+                        new ClawGripperOuttake(clawGripperSystem).withTimeout(3),
                         moveArmToAngle(RobotMap.ARM_JOINT_DEFAULT_ANGLE)
                 )
         );
@@ -127,7 +152,8 @@ public class Robot extends TimedRobot {
         controllerXbox.leftTrigger().onTrue(
                 new SequentialCommandGroup(
                         moveArmToAngle(RobotMap.ARM_JOINT_ANGLE_ALGEA_BOTTOM),
-                        Commands.waitUntil(() -> controllerXbox.rightBumper().getAsBoolean()).withTimeout(3),
+                        Commands.waitUntil(() -> controllerXbox.rightBumper().getAsBoolean()),
+                        new ClawGripperOuttake(clawGripperSystem).withTimeout(3),
                         moveArmToAngle(RobotMap.ARM_JOINT_DEFAULT_ANGLE)
                 )
         ) ;
@@ -293,6 +319,7 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledPeriodic() {
 
+
     }
 
     @Override
@@ -302,7 +329,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-
+        //new InstantCommand(() -> leds.setColor(0.77)).schedule();
     }
 
     @Override
@@ -389,7 +416,7 @@ public class Robot extends TimedRobot {
                 goToReef(stand, side, height),
                 new ParallelDeadlineGroup(
                         new SequentialCommandGroup(
-                                Commands.waitUntil(() -> controllerXbox.x().getAsBoolean()),
+                                Commands.waitUntil(() -> controllerXbox.rightBumper().getAsBoolean()),
                                 new ClawGripperOuttake(clawGripperSystem)
                         ),
                         createSwerveDrive()

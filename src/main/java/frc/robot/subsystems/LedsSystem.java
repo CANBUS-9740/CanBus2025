@@ -10,35 +10,18 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 
 public class LedsSystem extends SubsystemBase {
-    private PWM leds;
+    private Spark leds;
 
     public LedsSystem() {
-        leds = new PWM(
-                RobotMap.LEDS_PORT
-        );
-        setColor(0);
+        leds = new Spark(RobotMap.LEDS_PORT);
     }
 
-    public SequentialCommandGroup showBlinkLights(int first, int second, double time){
-        return new SequentialCommandGroup(
-                showColor(first),
-                Commands.waitSeconds(time),
-                showColor(second)
-        );
-    }
-
-    public Command showColor(int color) {
-        return startEnd(()-> setColor(color), ()->{});
-    }
-
-    private void setColor(int color) {
-        leds.setPulseTimeMicroseconds(color);
+    public void setColor(double color) {
+        leds.set(color);
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Led voltage: ", leds.getPulseTimeMicroseconds());
-        SmartDashboard.putNumber("Led pwm: ", leds.getSpeed());
 
     }
 }

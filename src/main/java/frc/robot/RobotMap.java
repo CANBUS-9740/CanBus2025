@@ -89,9 +89,11 @@ public class RobotMap {
     public static final double ARM_TELESCOPIC_BASE_LENGTH = 0;
 
     public static final int CONFETTI = 1065;
-    public static final int BEAT_CORAL = 1565;
-    public static final int BEAT_AUTO = 1665;
-    public static final int BEAT_CORAL_AND_AUTO = 1765;
+    public static final double BEAT_CORAL_GREEN = 0.75; //1565;
+    public static final double BEAT_CORAL_BLACK = 0.99; //1565;
+
+    public static final double BEAT_AUTO_YELLOW = 0.65; //1665;
+    public static final double BEAT_CORAL_AND_AUTO = 0.85; //1765;
 
 
 
