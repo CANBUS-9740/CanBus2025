@@ -6,9 +6,11 @@ import frc.robot.subsystems.HangSystem;
 
 public class HangingToRobot extends Command {
     private final HangSystem hangSystem;
+    private double taregtAngle;
 
-    public HangingToRobot(HangSystem hangSystem){
+    public HangingToRobot(HangSystem hangSystem, double targetAngle){
         this.hangSystem = hangSystem;
+        this.taregtAngle = targetAngle;
 
         addRequirements(hangSystem);
     }
@@ -24,7 +26,7 @@ public class HangingToRobot extends Command {
 
     @Override
     public boolean isFinished() {
-        return hangSystem.reachedPosition(RobotMap.HANGING_ROBOT_ANGLE);
+        return hangSystem.reachedPosition(taregtAngle);
     }
 
     @Override

@@ -102,6 +102,7 @@ public class RobotMap {
     public static final double SOFT_LIMITS_FORWARD_HANG = 0;
     public static final double SOFT_LIMITS_REVERSE_HANG = 0;
     public static final double HANGING_CAGE_ANGLE = 0;
+    public static final double HANGING_PRE_ROBOT_ANGLE = 0;
     public static final double HANGING_ROBOT_ANGLE = 0;
     public static final double HANGING_ROBOT_ENCODER_OFFSET = 0.0711554;
 

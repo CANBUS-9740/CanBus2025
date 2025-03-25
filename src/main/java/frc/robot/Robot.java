@@ -137,8 +137,12 @@ public class Robot extends TimedRobot {
         controllerXbox.pov(0).onTrue(goToReefAndPlaceDefer(GameField.ReefStandSide.LEFT, ReefHeight.SECOND_STAGE));
 
         controllerXbox.back().onTrue(Commands.runOnce(() -> {
-            armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE);
-        }, swerve, clawGripperSystem));
+            new ParallelCommandGroup(
+                    Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE)),
+                    new HangingToRobot(hangSystem, RobotMap.HANGING_ROBOT_ANGLE)
+            );
+
+        }, swerve, clawGripperSystem, hangSystem));
 
         controllerXbox.leftBumper().onTrue(
                 new SequentialCommandGroup(
@@ -163,10 +167,10 @@ public class Robot extends TimedRobot {
         driverXbox.y().onTrue(moveArmToAngle(RobotMap.ARM_JOINT_ANGLE_SECOND));
 
 
-        driverXbox.pov(0).onTrue(
+        driverXbox.pov(270).onTrue(
                 new ClawGripperOuttakeSlow(clawGripperSystem)
         );
-        driverXbox.pov(180).onTrue(
+        driverXbox.pov(90).onTrue(
                 new SequentialCommandGroup(
                         moveArmToAngle(RobotMap.ARM_JOINT_ANGLE_SOURCE),
                         new ClawGripperIntake(clawGripperSystem),
@@ -176,24 +180,35 @@ public class Robot extends TimedRobot {
 
         //hanging buttons!!!!!!!!!!!!
 
-        controllerXbox.pov(90).onTrue(
-                intoCage()
+        driverXbox.pov(180).onTrue(
+            Commands.defer(() -> {
+                    if (hangSystem.getAbsoluteEncoder() >= RobotMap.HANGING_PRE_ROBOT_ANGLE) {
+                        return new HangingToRobot(hangSystem, RobotMap.HANGING_ROBOT_ANGLE);
+                    }
+
+                    return new SequentialCommandGroup(
+                            new HangingToRobot(hangSystem, RobotMap.HANGING_PRE_ROBOT_ANGLE),
+                            new HangingToRobotFast(hangSystem)
+                    );
+            }, Set.of(hangSystem)
+            )
         );
 
-        controllerXbox.pov(270).onTrue(
-                new HangingToRobot(hangSystem)
+        driverXbox.pov(0).onTrue(
+                new HangingToCage(hangSystem)
         );
 
 
         //driverXbox.x().onTrue(collectFromSource());
         driverXbox.rightBumper().onTrue(
-                new ParallelDeadlineGroup(
                         Commands.runOnce(() -> {
-                            armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE);
-                        }, swerve, clawGripperSystem)
+                            new ParallelCommandGroup(
+                                    Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE)),
+                                    new HangingToRobot(hangSystem, RobotMap.HANGING_ROBOT_ANGLE)
+                            );
+                        }, swerve, clawGripperSystem, hangSystem)
 
 //                    ,leds.showBlinkLights(0, 0.4, 0.5)
-                )
         );
 
         // we might need to change it to gripper outtake with no automation that's for giving
@@ -388,13 +403,6 @@ public class Robot extends TimedRobot {
     @Override
     public void testExit() {
 
-    }
-
-    private Command intoCage (){
-        return new SequentialCommandGroup(
-                moveArmToAngle(RobotMap.ARM_JOINT_MINIMUM_ANGLE),
-                new HangingToCage(hangSystem)
-        );
     }
 
     private Optional<GameField.SelectedReefStand> getBestStand() {
