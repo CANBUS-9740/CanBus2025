@@ -15,11 +15,11 @@ public class HangingToCage extends Command {
 
     @Override
     public void initialize() {
-        hangSystem.moveToPosition(RobotMap.HANGING_CAGE_ANGLE);
     }
 
     @Override
     public void execute() {
+        hangSystem.toCage();
     }
 
     @Override

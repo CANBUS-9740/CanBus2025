@@ -26,12 +26,6 @@ public class HangSystem extends SubsystemBase {
         pidController = motor.getClosedLoopController();
 
         SparkMaxConfig sparkMaxConfig = new SparkMaxConfig();
-        sparkMaxConfig.closedLoop
-                .p(RobotMap.HANGING_P)
-                .i(RobotMap.HANGING_I)
-                .d(RobotMap.HANGING_D)
-                .iZone(0)
-                .feedbackSensor(ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder);
         sparkMaxConfig.softLimit
                 .forwardSoftLimitEnabled(true)
                 .forwardSoftLimit(RobotMap.SOFT_LIMITS_FORWARD_HANG);
@@ -39,11 +33,8 @@ public class HangSystem extends SubsystemBase {
                 .reverseSoftLimitEnabled(true)
                 .forwardSoftLimit(RobotMap.SOFT_LIMITS_REVERSE_HANG);
         sparkMaxConfig.absoluteEncoder
-                .zeroOffset(0)
-                .inverted(false);
-        sparkMaxConfig.encoder
-                .positionConversionFactor(1 / RobotMap.HANGING_GEAR_RATIO)
-                .velocityConversionFactor(1 / RobotMap.HANGING_GEAR_RATIO);
+                .zeroOffset(RobotMap.HANGING_ROBOT_ENCODER_OFFSET)
+                .inverted(true);
         sparkMaxConfig.idleMode(SparkBaseConfig.IdleMode.kBrake);
 
         motor.configure(sparkMaxConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
@@ -66,19 +57,10 @@ public class HangSystem extends SubsystemBase {
         return absoluteEncoder.getPosition() * 360;
     }
 
-    public void moveToPosition(double positionDegrees) {
-        double ff = Math.cos(Math.toRadians(getAbsoluteEncoder())) * RobotMap.HANGING_KF;
-        SmartDashboard.putNumber("Hanging_ff", ff);
-
-        pidController.setReference(positionDegrees / 360, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, SparkClosedLoopController.ArbFFUnits.kPercentOut);
-    }
-
     public boolean reachedPosition(double targetPosition) {
         return MathUtil.isNear(targetPosition, getAbsoluteEncoder(), RobotMap.HANGING_POSITION_TOLERANCE) &&
                 Math.abs(getAbsoluteEncoder()) <= RobotMap.HANGING_VELOCITY_TOLERANCE;
     }
-
-
 
     @Override
     public void periodic() {
