@@ -45,8 +45,12 @@ public class HangSystem extends SubsystemBase {
         motor.set(0.3);
     }
 
+    public void toRobotFast() {
+        motor.set(-0.6);
+    }
+
     public void toRobot(){
-        motor.set(-0.8);
+        motor.set(-0.2);
     }
 
     public void stop(){
