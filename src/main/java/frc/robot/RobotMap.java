@@ -95,7 +95,15 @@ public class RobotMap {
     public static final double BEAT_AUTO_YELLOW = 0.65; //1665;
     public static final double BEAT_CORAL_AND_AUTO = 0.85; //1765;
 
-
+    //hanging
+    public static final int HANGING_MOTOR_ID = 0;
+    public static final double HANGING_POSITION_TOLERANCE = 1;
+    public static final double HANGING_VELOCITY_TOLERANCE = 5;
+    public static final double SOFT_LIMITS_FORWARD_HANG = 0;
+    public static final double SOFT_LIMITS_REVERSE_HANG = 0;
+    public static final double HANGING_CAGE_ANGLE = 0;
+    public static final double HANGING_ROBOT_ANGLE = 0;
+    public static final double HANGING_ROBOT_ENCODER_OFFSET = 0.0711554;
 
     public static final int LEDS_PORT = 8;
 }

@@ -18,10 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.ArmJointControlCommand;
-import frc.robot.commands.ClawGripperIntake;
-import frc.robot.commands.ClawGripperOuttake;
-import frc.robot.commands.ClawGripperOuttakeSlow;
+import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -45,6 +42,7 @@ public class Robot extends TimedRobot {
 
     private ClawGripperSystem clawGripperSystem;
     private ArmJointSystem armJointSystem;
+    private HangSystem hangSystem;
 
     private ArmJointControlCommand armJointControlCommand;
 
@@ -65,6 +63,8 @@ public class Robot extends TimedRobot {
         swerve = new Swerve();
         clawGripperSystem = new ClawGripperSystem();
         armJointSystem = new ArmJointSystem();
+        hangSystem = new HangSystem();
+
         limeLight = new LimeLight(RobotMap.APRIL_TAG_LIMELIGHT_NAME);
         leds = new LedsSystem();
         SmartDashboard.putBoolean("Is In Auto: ", isInAutoMovemeant);
@@ -173,6 +173,17 @@ public class Robot extends TimedRobot {
                         moveArmToAngle(RobotMap.ARM_JOINT_DEFAULT_ANGLE)
                 )
         );
+
+        //hanging buttons!!!!!!!!!!!!
+
+        controllerXbox.pov(90).onTrue(
+                intoCage()
+        );
+
+        controllerXbox.pov(270).onTrue(
+                new HangingToRobot(hangSystem)
+        );
+
 
         //driverXbox.x().onTrue(collectFromSource());
         driverXbox.rightBumper().onTrue(
@@ -319,7 +330,6 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledPeriodic() {
 
-
     }
 
     @Override
@@ -329,7 +339,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        //new InstantCommand(() -> leds.setColor(0.77)).schedule();
+
     }
 
     @Override
@@ -378,6 +388,13 @@ public class Robot extends TimedRobot {
     @Override
     public void testExit() {
 
+    }
+
+    private Command intoCage (){
+        return new SequentialCommandGroup(
+                moveArmToAngle(RobotMap.ARM_JOINT_MINIMUM_ANGLE),
+                new HangingToCage(hangSystem)
+        );
     }
 
     private Optional<GameField.SelectedReefStand> getBestStand() {
@@ -484,7 +501,6 @@ public class Robot extends TimedRobot {
     }
 
     private Command moveArmToAngle(double armAngle) {
-        System.out.println("1");
         return new SequentialCommandGroup(
                 Commands.runOnce(() -> armJointControlCommand.setTargetPosition(armAngle)),
                 Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition())
