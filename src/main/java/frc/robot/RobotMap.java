@@ -12,7 +12,7 @@ public class RobotMap {
 
     public static final double STAND_SELECTION_HEADING_MARGIN = 5;
     public static final double STAND_SELECTION_GENERAL_ORIENTATION_MARGIN = 45;
-    public static final PathConstraints PATHFIND_CONSTRAINTS = new PathConstraints(1, 1, Math.PI, Math.PI);
+    public static final PathConstraints PATHFIND_CONSTRAINTS = new PathConstraints(2.8, 1.2, Math.PI, Math.PI);
 
     public static final double SWERVE_WIDTH = 0.71;
     public static final double SWERVE_LENGTH = 0.71;
@@ -96,15 +96,14 @@ public class RobotMap {
     public static final double BEAT_CORAL_AND_AUTO = 0.85; //1765;
 
     //hanging
-    public static final int HANGING_MOTOR_ID = 0;
-    public static final double HANGING_POSITION_TOLERANCE = 1;
-    public static final double HANGING_VELOCITY_TOLERANCE = 5;
-    public static final double SOFT_LIMITS_FORWARD_HANG = 0;
-    public static final double SOFT_LIMITS_REVERSE_HANG = 0;
-    public static final double HANGING_CAGE_ANGLE = 0;
-    public static final double HANGING_PRE_ROBOT_ANGLE = 0;
-    public static final double HANGING_ROBOT_ANGLE = 0;
-    public static final double HANGING_ROBOT_ENCODER_OFFSET = 0.0711554;
+    public static final int HANGING_MOTOR_ID = 39;
+    public static final double HANGING_POSITION_TOLERANCE = 2;
+    public static final double SOFT_LIMITS_FORWARD_HANG = 230;
+    public static final double SOFT_LIMITS_REVERSE_HANG = 13.670;
+    public static final double HANGING_CAGE_ANGLE = 42.803;
+    public static final double HANGING_PRE_ROBOT_ANGLE = 120;
+    public static final double HANGING_ROBOT_ANGLE = 220;
+    public static final double HANGING_ROBOT_ENCODER_OFFSET = 0.0671946;
 
     public static final int LEDS_PORT = 8;
 }

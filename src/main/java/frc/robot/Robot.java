@@ -10,6 +10,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -43,6 +44,8 @@ public class Robot extends TimedRobot {
     private ClawGripperSystem clawGripperSystem;
     private ArmJointSystem armJointSystem;
     private HangSystem hangSystem;
+
+    private double AllianceSwapper = 1.0;
 
     private ArmJointControlCommand armJointControlCommand;
 
@@ -110,6 +113,10 @@ public class Robot extends TimedRobot {
             }
         }, Set.of(leds)));
 
+        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
+            AllianceSwapper = -1;
+        }
+        else AllianceSwapper = 1;
         driverXbox = new CommandXboxController(0);
         driverXbox.leftBumper().onTrue(new InstantCommand(() -> swerve.resetPose(new Pose2d(0, 0, new Rotation2d()))));
         controllerXbox = new CommandXboxController(1);
@@ -186,29 +193,46 @@ public class Robot extends TimedRobot {
                         return new HangingToRobot(hangSystem, RobotMap.HANGING_ROBOT_ANGLE);
                     }
 
-                    return new SequentialCommandGroup(
-                            new HangingToRobot(hangSystem, RobotMap.HANGING_PRE_ROBOT_ANGLE),
-                            new HangingToRobotFast(hangSystem)
-                    );
+                    return new ParallelCommandGroup(
+                            moveArmToAngle(90),
+                            new SequentialCommandGroup(
+                                    new HangingToRobot(hangSystem, RobotMap.HANGING_PRE_ROBOT_ANGLE),
+                                    Commands.waitUntil(()-> driverXbox.back().getAsBoolean()),
+                                    new HangingToRobotFast(hangSystem)
+                    ));
             }, Set.of(hangSystem)
             )
         );
-
         driverXbox.pov(0).onTrue(
-                new HangingToCage(hangSystem)
+                Commands.defer(()-> {
+                    if (hangSystem.getAbsoluteEncoder() <= RobotMap.HANGING_CAGE_ANGLE) {
+                        return Commands.none();
+                    }
+
+                    return new HangingToCage(hangSystem);
+                }, Set.of(hangSystem))
         );
 
 
         //driverXbox.x().onTrue(collectFromSource());
-        driverXbox.rightBumper().onTrue(
-                        Commands.runOnce(() -> {
-                            new ParallelCommandGroup(
-                                    Commands.runOnce(()-> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE)),
-                                    new HangingToRobot(hangSystem, RobotMap.HANGING_ROBOT_ANGLE)
-                            );
-                        }, swerve, clawGripperSystem, hangSystem)
+        driverXbox.leftBumper().onTrue(
+                Commands.runOnce(()-> {
+                }, hangSystem)
+        );
 
-//                    ,leds.showBlinkLights(0, 0.4, 0.5)
+        driverXbox.rightBumper().onTrue(
+                new ParallelCommandGroup(
+                        Commands.runOnce(() -> {
+                                    armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_DEFAULT_ANGLE);
+                        }, swerve, clawGripperSystem),
+                        Commands.defer(()-> {
+                            if (hangSystem.getAbsoluteEncoder() >= RobotMap.HANGING_ROBOT_ANGLE) {
+                                return Commands.none();
+                            }
+
+                            return new HangingToRobot(hangSystem, RobotMap.HANGING_ROBOT_ANGLE);
+                        }, Set.of(hangSystem))
+                )
         );
 
         // we might need to change it to gripper outtake with no automation that's for giving
@@ -217,8 +241,7 @@ public class Robot extends TimedRobot {
         FollowPathCommand.warmupCommand().schedule();
         autoChooser = new SendableChooser<>();
 
-        autoChooser.setDefaultOption("default", Commands.none());
-        autoChooser.addOption("drive", new SequentialCommandGroup(
+        autoChooser.setDefaultOption("default", new SequentialCommandGroup(
                 swerve.drive(
                         () -> -0.11,
                         () -> 0,
@@ -226,6 +249,8 @@ public class Robot extends TimedRobot {
                         false
                 ).withTimeout(1)
         ));
+        autoChooser.addOption("No Auto: ", Commands.none());
+
         autoChooser.addOption("drive and output", new SequentialCommandGroup(
                 new ParallelCommandGroup(
                         swerve.drive(
@@ -252,7 +277,7 @@ public class Robot extends TimedRobot {
                 ),
                 new ClawGripperIntake(clawGripperSystem)
         ));
-        autoChooser.addOption("AUTOO",
+        autoChooser.addOption("AUTOO(dont pick)",
                 new SequentialCommandGroup(
                         goToReefAndPlaceAuto(GameField.ReefStand.STAND_3, GameField.ReefStandSide.RIGHT, ReefHeight.SECOND_STAGE),
                         goToSourceAndCollectAuto(GameField.SourceStand.LEFT, GameField.SourceStandSide.CENTER),
@@ -263,12 +288,48 @@ public class Robot extends TimedRobot {
                         goToReefAndPlaceAuto(GameField.ReefStand.STAND_2, GameField.ReefStandSide.LEFT, ReefHeight.FIRST_STAGE)
                 )
         );
-        autoChooser.addOption("Go To Reef 3_L3, Source Left, Reef 2_L2",
+        autoChooser.addOption("Left Red double L2",
                 new SequentialCommandGroup(
-                        goToReefAndPlaceAuto(GameField.ReefStand.STAND_3, GameField.ReefStandSide.RIGHT, ReefHeight.SECOND_STAGE),
+                        goToReefAndPlaceAuto(GameField.ReefStand.STAND_5, GameField.ReefStandSide.RIGHT, ReefHeight.FIRST_STAGE),
+                        goToSourceAndCollectAuto(GameField.SourceStand.RIGHT, GameField.SourceStandSide.CENTER),
+                        goToReefAndPlaceAuto(GameField.ReefStand.STAND_5, GameField.ReefStandSide.LEFT, ReefHeight.FIRST_STAGE),
+                        goToSourceAndCollectAuto(GameField.SourceStand.RIGHT, GameField.SourceStandSide.CENTER)
+                )
+        );
+        autoChooser.addOption("Right Red double L2",
+                new SequentialCommandGroup(
+                        goToReefAndPlaceAuto(GameField.ReefStand.STAND_3, GameField.ReefStandSide.RIGHT, ReefHeight.FIRST_STAGE),
                         goToSourceAndCollectAuto(GameField.SourceStand.LEFT, GameField.SourceStandSide.CENTER),
-                        goToReefAndPlaceAuto(GameField.ReefStand.STAND_2, GameField.ReefStandSide.RIGHT, ReefHeight.FIRST_STAGE)
-                ));
+                        goToReefAndPlaceAuto(GameField.ReefStand.STAND_3, GameField.ReefStandSide.LEFT, ReefHeight.FIRST_STAGE),
+                        goToSourceAndCollectAuto(GameField.SourceStand.LEFT, GameField.SourceStandSide.CENTER)
+                )
+        );
+        autoChooser.addOption("Left Blue double L2",
+                new SequentialCommandGroup(
+                        goToReefAndPlaceAuto(GameField.ReefStand.STAND_2, GameField.ReefStandSide.RIGHT, ReefHeight.FIRST_STAGE),
+                        goToSourceAndCollectAuto(GameField.SourceStand.LEFT, GameField.SourceStandSide.CENTER),
+                        goToReefAndPlaceAuto(GameField.ReefStand.STAND_2, GameField.ReefStandSide.LEFT, ReefHeight.FIRST_STAGE),
+                        goToSourceAndCollectAuto(GameField.SourceStand.LEFT, GameField.SourceStandSide.CENTER)
+                )
+        );
+        autoChooser.addOption("Right Blue double L2",
+                new SequentialCommandGroup(
+                        goToReefAndPlaceAuto(GameField.ReefStand.STAND_6, GameField.ReefStandSide.RIGHT, ReefHeight.FIRST_STAGE),
+                        goToSourceAndCollectAuto(GameField.SourceStand.RIGHT, GameField.SourceStandSide.CENTER),
+                        goToReefAndPlaceAuto(GameField.ReefStand.STAND_6, GameField.ReefStandSide.LEFT, ReefHeight.FIRST_STAGE),
+                        goToSourceAndCollectAuto(GameField.SourceStand.RIGHT, GameField.SourceStandSide.CENTER)
+                )
+        );
+        autoChooser.addOption("Center Blue  L1",
+                new SequentialCommandGroup(
+                        goToReefAndPlaceAuto(GameField.ReefStand.STAND_1, GameField.ReefStandSide.LEFT, ReefHeight.PODIUM)
+                )
+        );
+        autoChooser.addOption("Center Red  L1",
+                new SequentialCommandGroup(
+                        goToReefAndPlaceAuto(GameField.ReefStand.STAND_4, GameField.ReefStandSide.RIGHT, ReefHeight.PODIUM)
+                )
+        );
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
@@ -354,7 +415,10 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-
+        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
+            AllianceSwapper = -1;
+        }
+        else AllianceSwapper = 1;
     }
 
     @Override
@@ -469,7 +533,7 @@ public class Robot extends TimedRobot {
         return new SequentialCommandGroup(
                 new ParallelCommandGroup(
                         goToReef(stand, side, height),
-                        Commands.runOnce(() -> armJointControlCommand.setTargetPosition(RobotMap.ARM_JOINT_ANGLE_SECOND))
+                        Commands.runOnce(() -> armJointControlCommand.setTargetPosition(getArmAngleForReef(height)))
                 ),
                 Commands.waitUntil(() -> armJointControlCommand.isAtTargetPosition()),
                 goToReef(stand, side, height),
@@ -558,9 +622,9 @@ public class Robot extends TimedRobot {
 
     private Command createSwerveDrive() {
         return swerve.drive(
-                () -> -MathUtil.applyDeadband(driverXbox.getRightY(), 0.05),
-                () -> -MathUtil.applyDeadband(driverXbox.getRightX(), 0.05),
-                () -> -MathUtil.applyDeadband(driverXbox.getLeftX(), 0.15),
+                () -> AllianceSwapper * -MathUtil.applyDeadband(driverXbox.getRightY(), 0.05),
+                () -> AllianceSwapper * -MathUtil.applyDeadband(driverXbox.getRightX(), 0.05),
+                () -> -MathUtil.applyDeadband(driverXbox.getLeftX(), 0.1),
                 true
         );
     }

@@ -32,5 +32,6 @@ public class HangingToRobot extends Command {
     @Override
     public void end(boolean interrupted) {
         hangSystem.stop();
+        System.out.println("HangReachedPosition");
     }
 }

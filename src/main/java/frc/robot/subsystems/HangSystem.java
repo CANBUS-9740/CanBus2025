@@ -27,17 +27,22 @@ public class HangSystem extends SubsystemBase {
 
         SparkMaxConfig sparkMaxConfig = new SparkMaxConfig();
         sparkMaxConfig.softLimit
-                .forwardSoftLimitEnabled(true)
-                .forwardSoftLimit(RobotMap.SOFT_LIMITS_FORWARD_HANG);
-        sparkMaxConfig.softLimit
-                .reverseSoftLimitEnabled(true)
-                .forwardSoftLimit(RobotMap.SOFT_LIMITS_REVERSE_HANG);
+                .forwardSoftLimitEnabled(false)
+                .forwardSoftLimit(RobotMap.SOFT_LIMITS_FORWARD_HANG)
+                .reverseSoftLimitEnabled(false)
+                .reverseSoftLimit(RobotMap.SOFT_LIMITS_REVERSE_HANG);
+        sparkMaxConfig.limitSwitch
+                .forwardLimitSwitchEnabled(false)
+                .reverseLimitSwitchEnabled(false);
         sparkMaxConfig.absoluteEncoder
                 .zeroOffset(RobotMap.HANGING_ROBOT_ENCODER_OFFSET)
-                .inverted(true);
+                .inverted(true)
+                .positionConversionFactor(1)
+                .velocityConversionFactor(1);
         sparkMaxConfig.idleMode(SparkBaseConfig.IdleMode.kBrake);
+        sparkMaxConfig.smartCurrentLimit(105);
 
-        motor.configure(sparkMaxConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
+        motor.configure(sparkMaxConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
     }
 
@@ -46,7 +51,7 @@ public class HangSystem extends SubsystemBase {
     }
 
     public void toRobotFast() {
-        motor.set(0.4);
+        motor.set(0.6);
     }
 
     public void toRobot(){
@@ -62,8 +67,7 @@ public class HangSystem extends SubsystemBase {
     }
 
     public boolean reachedPosition(double targetPosition) {
-        return MathUtil.isNear(targetPosition, getAbsoluteEncoder(), RobotMap.HANGING_POSITION_TOLERANCE) &&
-                Math.abs(getAbsoluteEncoder()) <= RobotMap.HANGING_VELOCITY_TOLERANCE;
+        return MathUtil.isNear(targetPosition, getAbsoluteEncoder(), RobotMap.HANGING_POSITION_TOLERANCE);
     }
 
     @Override
