@@ -100,10 +100,10 @@ public class RobotMap {
     public static final double HANGING_POSITION_TOLERANCE = 2;
     public static final double SOFT_LIMITS_FORWARD_HANG = 230;
     public static final double SOFT_LIMITS_REVERSE_HANG = 13.670;
-    public static final double HANGING_CAGE_ANGLE = 42.803;
-    public static final double HANGING_PRE_ROBOT_ANGLE = 120;
-    public static final double HANGING_ROBOT_ANGLE = 220;
-    public static final double HANGING_ROBOT_ENCODER_OFFSET = 0.0671946;
+    public static final double HANGING_CAGE_ANGLE = 71.334;
+    public static final double HANGING_PRE_ROBOT_ANGLE = 155.961;
+    public static final double HANGING_ROBOT_ANGLE = 222.706;
+    public static final double HANGING_ROBOT_ENCODER_OFFSET = 0.8293297;
 
     public static final int LEDS_PORT = 8;
 }

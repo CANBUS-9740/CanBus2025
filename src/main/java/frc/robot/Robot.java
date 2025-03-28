@@ -338,16 +338,6 @@ public class Robot extends TimedRobot {
         SmartDashboard.putBoolean("IsInAutoMove: ", isInAutoMovemeant);
         CommandScheduler.getInstance().run();
 
-        if (cvSink.grabFrame(orgMat) > 0) {
-            double armAngle = armJointSystem.getRawPositionDegrees();
-            ;
-            if (armAngle > 180) {
-                Core.flip(orgMat, dstMat, -1);
-            } else {
-                Core.copyTo(orgMat, dstMat, orgMat);
-            }
-            outputStream.putFrame(dstMat);
-        }
 
         Optional<GameField.SelectedReefStand> standOptional = getBestStand();
         if (standOptional.isPresent()) {
